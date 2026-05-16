@@ -77,8 +77,9 @@ model Product {
   name          String
   slug          String        @unique
   sku           String        @unique
-  description   String?
-  priceMinor    Int
+  shortDescription String?
+  description      String?
+  priceMinor       Int
   oldPriceMinor Int?
   stock         Int           @default(0)
   status        ProductStatus @default(DRAFT)

@@ -104,17 +104,21 @@ export class ProductsService {
       : p.stock < 5 ? 'low_stock'
       : 'in_stock';
 
-    const specs = p.specs && typeof p.specs === 'object'
-      ? Object.entries(p.specs as Record<string, string>).map(([key, value]) => ({
-          key, label: key, value: String(value),
-        }))
-      : [];
+    const rawSpecs = p.specs;
+    const specs = Array.isArray(rawSpecs)
+      ? rawSpecs as { key: string; label: string; value: string }[]
+      : rawSpecs && typeof rawSpecs === 'object'
+        ? Object.entries(rawSpecs as Record<string, string>).map(([key, value]) => ({
+            key, label: key, value: String(value),
+          }))
+        : [];
 
     return {
       id: p.id,
       sku: p.sku,
       slug: p.slug,
       title: p.name,
+      shortDescription: p.shortDescription ?? undefined,
       description: p.description,
       categoryId: p.categoryId,
       brandId: p.brandId,

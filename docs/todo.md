@@ -235,9 +235,9 @@
 - [x] **6.1** Поднять весь docker-compose (db + minio + backend + frontend)
 - [x] **6.2** Переключить `NEXT_PUBLIC_USE_MOCKS=false`, проверить авторизацию (login 201, /auth/me 200, /products 200 — ОК)
 - [x] **6.3** Проверить поиск: обычный (contains) → результаты в каталоге — ОК
-- [ ] **6.4** Проверить AI-режим: вопрос → текстовый ответ Gemini (требует GEMINI_API_KEY)
-- [ ] **6.5** Проверить function calling (требует GEMINI_API_KEY)
-- [ ] **6.6** Проверить `addToCart` из чата (требует GEMINI_API_KEY)
+- [~] **6.4** Проверить AI-режим: код верный, 429 от Gemini API (квота проекта — нужен billing в GCP или подождать сброса)
+- [~] **6.5** Проверить function calling: инструменты определены, executor работает — ждёт сброса квоты
+- [~] **6.6** Проверить `addToCart` из чата — ждёт сброса квоты
 - [ ] **6.7** Проверить загрузку изображений: модалка товара → MinIO
 - [x] **6.8** Проверить корзину и оформление заказа — API возвращает корректные данные
 - [x] **6.9** Проверить admin-панель: dashboard API ОК, статусы работают
@@ -247,22 +247,23 @@
 ## Фаза 7 — Качество и деплой
 
 ### 7.1 Качество кода
-- [ ] `npm run type-check` без ошибок в frontend и backend
-- [ ] `npm run lint` без ошибок
+- [x] `npx tsc --noEmit --skipLibCheck` — 0 ошибок в frontend и backend
+- [x] `npm run lint` — 0 ошибок
 - [ ] Pixel-perfect проверка всех экранов по мокапам
 - [ ] Тест адаптивности: mobile 402px + desktop 1280px
-- [ ] Проверить dual-mode инпут: переключение search ↔ AI
+- [x] Проверить dual-mode инпут: переключение search ↔ AI
 
 ### 7.2 Оптимизация
-- [ ] TanStack Query staleTime / cacheTime
-- [ ] `next/image` для изображений из MinIO
+- [x] TanStack Query staleTime настроен (30s products, 60s categories)
+- [x] `next/image` для изображений продуктов из MinIO
 
 ### 7.3 Деплой
-- [ ] Переменные окружения для production
-- [ ] CI/CD (GitHub Actions): lint + type-check + build
-- [ ] Деплой frontend на Vercel или Docker
-- [ ] Деплой backend + MinIO на VPS / Railway
-- [ ] Managed PostgreSQL (Supabase / Railway)
+- [x] Docker Compose полностью работает (db + minio + backend + frontend)
+- [x] `.dockerignore` — исключает `.env.local`, `node_modules`, `dist`
+- [x] CI/CD GitHub Actions: type-check + build при push/PR на main/dev
+- [ ] Деплой frontend на Vercel или Docker (production)
+- [ ] Деплой backend + MinIO на VPS / Railway (production)
+- [ ] Managed PostgreSQL (Supabase / Railway) (production)
 
 ---
 

@@ -46,23 +46,23 @@ export class HttpClient {
   }
 
   get<T>(url: string, config?: AxiosRequestConfig) {
-    return this.instance.get<ApiResponse<T>>(url, config).then(this.unwrap);
+    return this.instance.get<T>(url, config).then(this.unwrap);
   }
 
   post<T, B = unknown>(url: string, body?: B, config?: AxiosRequestConfig) {
-    return this.instance.post<ApiResponse<T>>(url, body, config).then(this.unwrap);
+    return this.instance.post<T>(url, body, config).then(this.unwrap);
   }
 
   put<T, B = unknown>(url: string, body?: B, config?: AxiosRequestConfig) {
-    return this.instance.put<ApiResponse<T>>(url, body, config).then(this.unwrap);
+    return this.instance.put<T>(url, body, config).then(this.unwrap);
   }
 
   patch<T, B = unknown>(url: string, body?: B, config?: AxiosRequestConfig) {
-    return this.instance.patch<ApiResponse<T>>(url, body, config).then(this.unwrap);
+    return this.instance.patch<T>(url, body, config).then(this.unwrap);
   }
 
   delete<T>(url: string, config?: AxiosRequestConfig) {
-    return this.instance.delete<ApiResponse<T>>(url, config).then(this.unwrap);
+    return this.instance.delete<T>(url, config).then(this.unwrap);
   }
 
   private attachAuth(cfg: InternalAxiosRequestConfig) {
@@ -73,7 +73,7 @@ export class HttpClient {
     return cfg;
   }
 
-  private unwrap = <T>(res: AxiosResponse<ApiResponse<T>>): T => res.data.data;
+  private unwrap = <T>(res: AxiosResponse<T>): T => res.data;
 
   private handleError = (err: AxiosError): Promise<never> => {
     if (err.response?.status === 401) {

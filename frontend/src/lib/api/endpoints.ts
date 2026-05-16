@@ -6,7 +6,7 @@ export const endpoints = {
   products: {
     list: "/products",
     byId: (id: string) => `/products/${id}`,
-    bySlug: (slug: string) => `/products/by-slug/${slug}`,
+    bySlug: (slug: string) => `/products/slug/${slug}`,
   },
   categories: {
     list: "/categories",
@@ -16,7 +16,7 @@ export const endpoints = {
     current: "/cart",
     items: "/cart/items",
     item: (itemId: string) => `/cart/items/${itemId}`,
-    clear: "/cart/clear",
+    clear: "/cart",
   },
   orders: {
     list: "/orders",
@@ -24,12 +24,13 @@ export const endpoints = {
     create: "/orders",
   },
   ai: {
-    prompt: "/ai/prompt",
+    chat: "/ai/chat",
     conversation: (id: string) => `/ai/conversations/${id}`,
   },
   auth: {
     login: "/auth/login",
     logout: "/auth/logout",
+    register: "/auth/register",
     me: "/auth/me",
     refresh: "/auth/refresh",
   },

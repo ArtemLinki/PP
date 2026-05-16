@@ -5,9 +5,14 @@ import { endpoints } from "@/lib/api/endpoints";
 
 export class AiApiService implements IAiService {
   constructor(private readonly http: HttpClient = httpClient) {}
+
   prompt(payload: AiPromptDto) {
-    return this.http.post<AiPromptResponseDto, AiPromptDto>(endpoints.ai.prompt, payload);
+    return this.http.post<AiPromptResponseDto>(endpoints.ai.chat, {
+      message: payload.prompt,
+      conversationId: payload.conversationId,
+    });
   }
+
   getConversation(id: ID) {
     return this.http.get<AiMessageDto[]>(endpoints.ai.conversation(id));
   }

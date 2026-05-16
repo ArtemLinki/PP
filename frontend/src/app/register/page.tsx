@@ -35,12 +35,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const payload: RegisterDto = { email, password, name, phone: phone || undefined, role };
-      // `register` is not yet in the service interface — treated as a UI stub.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const authWithRegister = services.auth as any;
-      if (typeof authWithRegister.register === 'function') {
-        await authWithRegister.register(payload);
-      }
+      await services.auth.register(payload);
       notifications.show({ title: 'Готово', message: 'Аккаунт создан. Войдите в систему.', color: 'teal' });
       router.push('/login');
     } catch (err: unknown) {

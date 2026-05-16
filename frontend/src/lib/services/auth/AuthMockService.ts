@@ -1,5 +1,5 @@
 import type { IAuthService } from "../types";
-import type { AuthCredentialsDto, AuthSessionDto, UserDto } from "@/lib/dto";
+import type { AuthCredentialsDto, AuthSessionDto, UserDto, RegisterDto } from "@/lib/dto";
 import { delay, nextId } from "../_utils";
 
 export class AuthMockService implements IAuthService {
@@ -15,6 +15,25 @@ export class AuthMockService implements IAuthService {
       email: creds.email,
       name: creds.email.split("@")[0],
       role: creds.email.startsWith("admin") ? "ADMIN" : "B2C",
+      createdAt: new Date().toISOString(),
+    };
+    this.session = {
+      user,
+      token: {
+        accessToken: "mock-access-" + Math.random().toString(36).slice(2),
+        expiresAt: new Date(Date.now() + 3600_000).toISOString(),
+      },
+    };
+    return this.session;
+  }
+
+  async register(payload: RegisterDto): Promise<AuthSessionDto> {
+    await delay();
+    const user: UserDto = {
+      id: nextId("user"),
+      email: payload.email,
+      name: payload.name,
+      role: payload.role ?? "B2C",
       createdAt: new Date().toISOString(),
     };
     this.session = {

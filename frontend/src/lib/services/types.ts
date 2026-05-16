@@ -18,6 +18,7 @@ import type {
   CartDto,
   AddToCartDto,
   UpdateCartItemDto,
+  RegisterDto,
   OrderDto,
   CreateOrderDto,
   AiPromptDto,
@@ -63,6 +64,7 @@ export interface IAiService {
 
 export interface IAuthService {
   login(creds: AuthCredentialsDto): Promise<AuthSessionDto>;
+  register(payload: RegisterDto): Promise<AuthSessionDto>;
   logout(): Promise<void>;
   me(): Promise<UserDto | null>;
 }

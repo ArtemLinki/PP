@@ -79,32 +79,21 @@
 - [x] `UsersModule` — GET /users/me, PATCH /users/me
 
 ### 2.4 Файловое хранилище (MinIO)
-- [ ] Установить `@aws-sdk/client-s3`
-- [ ] `FilesModule`: подключение к MinIO через S3-client (`endpoint`, `accessKeyId`, `secretAccessKey`)
-- [ ] При старте приложения: создать бакеты `products` и `avatars` если не существуют
-- [ ] `POST /files/upload` — принимает `multipart/form-data`, загружает в MinIO, возвращает публичный URL
-- [ ] `DELETE /files` — удалить файл по URL
-- [ ] Настроить бакет `products` как публичный (для прямого доступа из frontend)
+- [x] Установить `@aws-sdk/client-s3`
+- [x] `FilesModule`: подключение к MinIO через S3-client (`endpoint`, `accessKeyId`, `secretAccessKey`)
+- [x] При старте приложения: создать бакеты `products` и `avatars` если не существуют
+- [x] `POST /files/upload` — принимает `multipart/form-data`, загружает в MinIO, возвращает публичный URL
+- [x] `DELETE /files` — удалить файл по URL
+- [x] Настроить бакет `products` как публичный (для прямого доступа из frontend)
 
 ### 2.5 AI-модуль (Gemini + Function Calling)
 - [ ] Получить бесплатный API ключ на aistudio.google.com, добавить в `.env`
-- [ ] Установить `@google/generative-ai`
-- [ ] `ai.tools.ts` — определить tools для Gemini:
-  ```typescript
-  searchProducts(query: string, categoryId?: string, brandId?: string, maxPrice?: number)
-  getProductDetails(productId: string)
-  addToCart(productId: string, quantity: number)  // только для авторизованных
-  ```
-- [ ] `ai.executor.ts` — выполнение tool calls: получает `{name, args}`, вызывает реальный сервис, возвращает результат
-- [ ] `ai.service.ts`:
-  - Загружает историю из `AiConversation` / `AiMessage`
-  - Формирует системный промпт (консультант TechElectro, знает каталог)
-  - Передаёт в Gemini: history + message + tools
-  - Обрабатывает ответ: текст или tool call
-  - Если tool call → `ai.executor.ts` → результат → обратно в Gemini → финальный ответ
-  - Сохраняет сообщение + возвращает `AiChatResponseDto`
-- [ ] `POST /ai/chat` — основной эндпоинт чата
-- [ ] `GET /ai/conversations/:id` — история диалога
+- [x] Установить `@google/generative-ai`
+- [x] `ai.tools.ts` — определить tools для Gemini
+- [x] `ai.executor.ts` — выполнение tool calls
+- [x] `ai.service.ts` — загрузка истории, системный промпт, function calling loop
+- [x] `POST /ai/chat` — основной эндпоинт чата
+- [x] `GET /ai/conversations/:id` — история диалога
 
 ### 2.5.5 Swagger / OpenAPI
 - [x] Установить `@nestjs/swagger`
@@ -243,8 +232,8 @@
 
 ## Фаза 6 — Интеграция Frontend ↔ Backend
 
-- [ ] **6.1** Поднять весь docker-compose (db + minio + backend + frontend)
-- [ ] **6.2** Переключить `NEXT_PUBLIC_USE_MOCKS=false`, проверить авторизацию
+- [x] **6.1** Поднять весь docker-compose (db + minio + backend + frontend)
+- [~] **6.2** Переключить `NEXT_PUBLIC_USE_MOCKS=false`, проверить авторизацию
 - [ ] **6.3** Проверить поиск: обычный нечёткий (с опечатками) → результаты в каталоге
 - [ ] **6.4** Проверить AI-режим: вопрос → текстовый ответ Gemini
 - [ ] **6.5** Проверить function calling: «подбери мне процессор» → `searchProducts` → карточки «Подобрано для вас»

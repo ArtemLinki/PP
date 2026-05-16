@@ -20,6 +20,6 @@ export class CartApiService implements ICartService {
     return this.http.delete<CartDto>(endpoints.cart.item(itemId));
   }
   clear() {
-    return this.http.post<CartDto>(endpoints.cart.clear);
+    return this.http.delete<CartDto>(endpoints.cart.clear);
   }
 }

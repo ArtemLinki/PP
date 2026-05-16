@@ -1,9 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GoogleGenerativeAI, Content } from '@google/generative-ai';
+import Groq from 'groq-sdk';
+import type { ChatCompletionMessageParam } from 'groq-sdk/resources/chat/completions';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AiExecutor } from './ai.executor';
 import { aiTools } from './ai.tools';
+
+const MODEL = 'qwen/qwen3-32b';
+
+function stripThinking(text: string): string {
+  return text.replace(/<think>[\s\S]*?<\/think>\s*/g, '').trim();
+}
 
 const SYSTEM_PROMPT = `Ты — ИИ-инженер интернет-магазина TechElectro, специализирующегося на электронных компонентах: микроконтроллерах, сенсорах, модулях питания и робототехнике.
 
@@ -21,23 +28,22 @@ const SYSTEM_PROMPT = `Ты — ИИ-инженер интернет-магаз�
 @Injectable()
 export class AiService {
   private readonly logger = new Logger(AiService.name);
-  private readonly genAI: GoogleGenerativeAI | null = null;
+  private readonly groq: Groq | null = null;
 
   constructor(
     private config: ConfigService,
     private prisma: PrismaService,
     private executor: AiExecutor,
   ) {
-    const apiKey = this.config.get<string>('GEMINI_API_KEY');
+    const apiKey = this.config.get<string>('AI_API_KEY');
     if (apiKey) {
-      this.genAI = new GoogleGenerativeAI(apiKey);
+      this.groq = new Groq({ apiKey });
     } else {
-      this.logger.warn('GEMINI_API_KEY not set — AI responses will be mocked');
+      this.logger.warn('AI_API_KEY not set — AI responses will be mocked');
     }
   }
 
   async chat(message: string, conversationId?: string, userId?: string) {
-    // Find or create conversation
     let conversation = conversationId
       ? await this.prisma.aiConversation.findUnique({
           where: { id: conversationId },
@@ -52,18 +58,16 @@ export class AiService {
       });
     }
 
-    // Save user message
     await this.prisma.aiMessage.create({
       data: { conversationId: conversation.id, role: 'user', content: message },
     });
 
-    // If no API key — return stub
-    if (!this.genAI) {
+    if (!this.groq) {
       const stub = await this.prisma.aiMessage.create({
         data: {
           conversationId: conversation.id,
           role: 'assistant',
-          content: 'GEMINI_API_KEY не настроен. Добавьте ключ в .env для работы ИИ-ассистента.',
+          content: 'AI_API_KEY не настроен. Добавьте ключ Groq в .env для работы ИИ-ассистента.',
         },
       });
       return {
@@ -73,67 +77,67 @@ export class AiService {
       };
     }
 
-    // Build Gemini history from saved messages (excluding the just-saved user message)
-    const history: Content[] = conversation.messages.map((m) => ({
-      role: m.role === 'user' ? 'user' : 'model',
-      parts: [{ text: m.content }],
-    }));
-
-    const model = this.genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash',
-      systemInstruction: SYSTEM_PROMPT,
-      tools: aiTools,
-    });
-
-    const chat = model.startChat({ history });
+    // Build message history in OpenAI format
+    const history: ChatCompletionMessageParam[] = [
+      { role: 'system', content: SYSTEM_PROMPT },
+      ...conversation.messages.map((m): ChatCompletionMessageParam => ({
+        role: m.role === 'user' ? 'user' : 'assistant',
+        content: m.content,
+      })),
+      { role: 'user', content: message },
+    ];
 
     let replyText = '';
     let toolResults: { recommendedProducts?: any[]; addedToCart?: any } | undefined;
 
     try {
-      const result = await chat.sendMessage(message);
-      const response = result.response;
+      // Multi-turn tool calling loop
+      const MAX_ROUNDS = 5;
+      for (let round = 0; round < MAX_ROUNDS; round++) {
+        const response = await this.groq.chat.completions.create({
+          model: MODEL,
+          messages: history,
+          tools: aiTools,
+          tool_choice: 'auto',
+        });
 
-      // Check for function calls
-      const fnCalls = response.functionCalls();
-      if (fnCalls && fnCalls.length > 0) {
-        const toolResponses: Content[] = [];
+        const choice = response.choices[0];
+        history.push(choice.message as ChatCompletionMessageParam);
 
-        for (const fn of fnCalls) {
+        if (choice.finish_reason !== 'tool_calls' || !choice.message.tool_calls?.length) {
+          replyText = stripThinking(choice.message.content ?? '');
+          break;
+        }
+
+        for (const tc of choice.message.tool_calls) {
+          const args = JSON.parse(tc.function.arguments) as Record<string, any>;
           const { result: toolResult, toolType } = await this.executor.execute(
-            { name: fn.name, args: fn.args as Record<string, any> },
+            { name: tc.function.name, args },
             userId,
           );
 
-          // Accumulate tool results for frontend
           if (toolType === 'searchProducts') {
             toolResults = { ...toolResults, recommendedProducts: toolResult };
           } else if (toolType === 'addToCart') {
             toolResults = { ...toolResults, addedToCart: toolResult };
           }
 
-          toolResponses.push({
-            role: 'user',
-            parts: [{ functionResponse: { name: fn.name, response: { result: JSON.stringify(toolResult) } } }],
+          history.push({
+            role: 'tool',
+            tool_call_id: tc.id,
+            content: JSON.stringify(toolResult),
           });
         }
-
-        // Send tool results back to Gemini for final text
-        const finalResult = await chat.sendMessage(toolResponses[0].parts);
-        replyText = finalResult.response.text();
-      } else {
-        replyText = response.text();
       }
     } catch (e: any) {
-      this.logger.error('Gemini error:', e);
-      if (e?.message?.includes('429') || e?.message?.includes('quota')) {
+      this.logger.error('Groq error:', e);
+      if (e?.status === 429 || e?.message?.includes('429') || e?.message?.includes('quota')) {
         replyText = 'Превышен лимит запросов к ИИ. Подождите минуту и попробуйте снова.';
       } else {
         replyText = 'Произошла ошибка при обращении к ИИ. Попробуйте позже.';
       }
     }
 
-    // Save assistant reply
     const savedReply = await this.prisma.aiMessage.create({
       data: { conversationId: conversation.id, role: 'assistant', content: replyText },
     });

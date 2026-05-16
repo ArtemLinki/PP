@@ -48,7 +48,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-techelectro}:${POSTGRES_PASSWORD:-techelectro}@db:5432/${POSTGRES_DB:-techelectro}
       JWT_SECRET: ${JWT_SECRET:-changeme_in_production}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      AI_API_KEY: ${AI_API_KEY}
       MINIO_ENDPOINT: minio
       MINIO_PORT: 9000
       MINIO_USE_SSL: "false"

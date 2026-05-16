@@ -9,6 +9,7 @@ import { AiRecommendationsBlock } from './AiRecommendationsBlock';
 export function AiChatWindow() {
   const messages = useAiStore((s) => s.messages);
   const sending = useAiStore((s) => s.sending);
+  const error = useAiStore((s) => s.error);
   const send = useAiStore((s) => s.send);
   const [input, setInput] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -82,9 +83,28 @@ export function AiChatWindow() {
         ))}
 
         {sending && (
-          <Box style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Loader size="xs" color="teal" />
+          <Box style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
+            <Loader size="xs" color="teal" type="dots" />
             <Text size="xs" ff="JetBrains Mono" c="teal.6">ИИ думает…</Text>
+          </Box>
+        )}
+
+        {error && !sending && (
+          <Box
+            p="sm"
+            style={{
+              alignSelf: 'flex-start',
+              maxWidth: '80%',
+              background: 'rgba(255,60,60,0.08)',
+              border: '1px solid rgba(255,60,60,0.3)',
+            }}
+          >
+            <Text size="xs" c="red.4" ff="JetBrains Mono" style={{ letterSpacing: '0.06em' }}>
+              ОШИБКА
+            </Text>
+            <Text size="sm" c="var(--te-text)" mt={4}>
+              {error}
+            </Text>
           </Box>
         )}
 

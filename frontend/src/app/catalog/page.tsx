@@ -18,21 +18,24 @@ function CatalogContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const [search, setSearch] = useState(searchParams.get('search') ?? '');
+  // Читаем search реактивно из URL (DualModeSearchBar пишет ?search=...)
+  const urlSearch = searchParams.get('search') ?? '';
   const [categoryId, setCategoryId] = useState(searchParams.get('categoryId') ?? '');
   const [brandIds, setBrandIds] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500000]);
   const [page] = useState(1);
 
   const { data: products, isLoading } = useQuery({
-    queryKey: ['products', { search, categoryId, brandIds, priceRange, page }],
+    queryKey: ['products', { urlSearch, categoryId, brandIds, priceRange, page }],
     queryFn: () =>
       services.products.list({
-        search: search || undefined,
+        search: urlSearch || undefined,
         categoryId: categoryId || undefined,
+        priceMin: priceRange[0] > 0 ? priceRange[0] : undefined,
+        priceMax: priceRange[1] < 500000 ? priceRange[1] : undefined,
         page,
         pageSize: 24,
-      }),
+      } as any),
     staleTime: 30_000,
   });
 
@@ -43,7 +46,6 @@ function CatalogContent() {
   });
 
   const resetFilters = () => {
-    setSearch('');
     setCategoryId('');
     setBrandIds([]);
     setPriceRange([0, 500000]);
@@ -51,7 +53,7 @@ function CatalogContent() {
   };
 
   const activeCount = [
-    search,
+    urlSearch,
     categoryId,
     brandIds.length > 0 ? 'brands' : '',
     priceRange[0] > 0 || priceRange[1] < 500000 ? 'price' : '',

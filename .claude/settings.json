@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p /home/tikho/ecommerce/common/dto)",
+      "Bash(mkdir -p /home/tikho/ecommerce/backend/src/prisma)",
+      "Bash(mkdir -p /home/tikho/ecommerce/backend/prisma)",
+      "Bash(mkdir -p /home/tikho/ecommerce/backend/src)",
+      "Bash(npm --version)",
+      "Bash(npm install *)",
+      "Bash(docker compose *)",
+      "Bash(nc -zv localhost 5432)"
+    ]
+  }
+}

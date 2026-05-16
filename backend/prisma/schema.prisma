@@ -1,0 +1,169 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  B2C
+  B2B
+  ADMIN
+}
+
+enum ProductStatus {
+  PUBLISHED
+  DRAFT
+  ARCHIVED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  phone        String?
+  role         UserRole  @default(B2C)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  cart          Cart?
+  orders        Order[]
+  conversations AiConversation[]
+
+  @@map("users")
+}
+
+model Category {
+  id        String     @id @default(cuid())
+  name      String
+  slug      String     @unique
+  parentId  String?
+  parent    Category?  @relation("CategoryChildren", fields: [parentId], references: [id])
+  children  Category[] @relation("CategoryChildren")
+  isVisible Boolean    @default(true)
+  order     Int        @default(0)
+  products  Product[]
+
+  @@map("categories")
+}
+
+model Brand {
+  id       String    @id @default(cuid())
+  name     String
+  slug     String    @unique
+  country  String?
+  website  String?
+  logoUrl  String?
+  products Product[]
+
+  @@map("brands")
+}
+
+model Product {
+  id            String        @id @default(cuid())
+  name          String
+  slug          String        @unique
+  sku           String        @unique
+  description   String?
+  priceMinor    Int
+  oldPriceMinor Int?
+  stock         Int           @default(0)
+  status        ProductStatus @default(DRAFT)
+  categoryId    String?
+  category      Category?     @relation(fields: [categoryId], references: [id])
+  brandId       String?
+  brand         Brand?        @relation(fields: [brandId], references: [id])
+  images        String[]
+  specs         Json          @default("{}")
+  tags          String[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+
+  @@map("products")
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+
+  @@unique([cartId, productId])
+  @@map("cart_items")
+}
+
+model Order {
+  id         String      @id @default(cuid())
+  userId     String
+  user       User        @relation(fields: [userId], references: [id])
+  status     OrderStatus @default(PENDING)
+  totalMinor Int
+  items      OrderItem[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id         String  @id @default(cuid())
+  orderId    String
+  order      Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product @relation(fields: [productId], references: [id])
+  quantity   Int
+  priceMinor Int
+
+  @@map("order_items")
+}
+
+model AiConversation {
+  id        String      @id @default(cuid())
+  userId    String?
+  user      User?       @relation(fields: [userId], references: [id])
+  messages  AiMessage[]
+  createdAt DateTime    @default(now())
+
+  @@map("ai_conversations")
+}
+
+model AiMessage {
+  id             String         @id @default(cuid())
+  conversationId String
+  conversation   AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String
+  content        String
+  createdAt      DateTime       @default(now())
+
+  @@map("ai_messages")
+}

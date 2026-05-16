@@ -6,39 +6,35 @@
 
 ## Фаза 0 — Подготовка рабочей среды
 
-- [ ] **0.1** Создать структуру монорепо: папки `frontend/`, `backend/`, `common/`
+- [x] **0.1** Создать структуру монорепо: папки `frontend/`, `backend/`, `common/`
 - [ ] **0.2** Скопировать `design_handoff_techelectro/scaffold/` в `frontend/`
 - [ ] **0.3** `npm install` в папке `frontend/`
 - [ ] **0.4** Создать `.env.local` из `.env.local.example`, убедиться что `NEXT_PUBLIC_USE_MOCKS=true`
 - [ ] **0.5** `npm run dev` — убедиться что starter поднимается на `localhost:3000`
 - [ ] **0.6** Открыть `design_handoff_techelectro/mockups/index.html` — просмотреть экраны
-- [ ] **0.7** Инициализировать NestJS-проект в папке `backend/` (`nest new backend`)
-- [ ] **0.8** Создать `docker-compose.yml` в корне:
-  - сервис `db` (postgres:16)
-  - сервис `minio` (minio/minio, порты 9000/9001, консоль на 9001)
-  - сервис `backend` (NestJS)
-  - сервис `frontend` (Next.js)
-- [ ] **0.9** Настроить `tsconfig.json` в `frontend/` и `backend/` с path alias на `../../common`
+- [x] **0.7** Инициализировать NestJS-проект в папке `backend/` — создан базовый NestJS app (AppModule, PrismaModule, health endpoint)
+- [x] **0.8** Создать `docker-compose.yml` в корне — уже существовал (db, minio, backend, frontend)
+- [x] **0.9** Настроить `tsconfig.json` в `frontend/` и `backend/` с path alias `@common/*` на `../../common`
 
 ---
 
 ## Фаза 1 — Common: общие DTO
 
-- [ ] **1.1** `common/dto/common.dto.ts` — `ApiResponse<T>`, `Paginated<T>`, `ID`, `ISODateString`
-- [ ] **1.2** `common/dto/user.dto.ts` — `UserDto`, `AuthCredentialsDto`, `AuthSessionDto`, `UserRole`
-- [ ] **1.3** `common/dto/product.dto.ts` — `ProductDto`, `ProductListQuery`, `ProductStatus`
-- [ ] **1.4** `common/dto/category.dto.ts` — `CategoryDto`
-- [ ] **1.5** `common/dto/brand.dto.ts` — `BrandDto`
-- [ ] **1.6** `common/dto/cart.dto.ts` — `CartDto`, `CartItemDto`, `AddToCartDto`, `UpdateCartItemDto`
-- [ ] **1.7** `common/dto/order.dto.ts` — `OrderDto`, `OrderItemDto`, `CreateOrderDto`, `OrderStatus`
-- [ ] **1.8** `common/dto/ai.dto.ts`:
+- [x] **1.1** `common/dto/common.dto.ts` — `ApiResponse<T>`, `Paginated<T>`, `ID`, `ISODateString`
+- [x] **1.2** `common/dto/user.dto.ts` — `UserDto`, `AuthCredentialsDto`, `AuthSessionDto`, `UserRole`
+- [x] **1.3** `common/dto/product.dto.ts` — `ProductDto`, `ProductListQuery`, `ProductStatus`
+- [x] **1.4** `common/dto/category.dto.ts` — `CategoryDto`
+- [x] **1.5** `common/dto/brand.dto.ts` — `BrandDto`
+- [x] **1.6** `common/dto/cart.dto.ts` — `CartDto`, `CartItemDto`, `AddToCartDto`, `UpdateCartItemDto`
+- [x] **1.7** `common/dto/order.dto.ts` — `OrderDto`, `OrderItemDto`, `CreateOrderDto`, `OrderStatus`
+- [x] **1.8** `common/dto/ai.dto.ts`:
   ```typescript
   AiChatRequestDto    // { message, conversationId? }
   AiChatResponseDto   // { conversationId, reply, toolResults? }
   AiMessageDto        // { id, role, content, createdAt }
   AiToolResultDto     // { recommendedProducts?: ProductDto[], addedToCart?: CartDto }
   ```
-- [ ] **1.9** `common/dto/index.ts` — реэкспорт всех DTO
+- [x] **1.9** `common/dto/index.ts` — реэкспорт всех DTO
 - [ ] **1.10** Обновить импорты в `frontend/src/lib/dto/` → заменить на импорты из `common/dto/`
 
 ---
@@ -46,22 +42,22 @@
 ## Фаза 2 — Backend: база данных и ядро
 
 ### 2.1 Prisma Schema + миграции
-- [ ] Подключить Prisma к проекту (`npx prisma init`)
+- [x] Подключить Prisma к проекту — `prisma/schema.prisma` создан
 - [ ] Включить расширение `pg_trgm` в миграции (нечёткий поиск)
-- [ ] Сущность `User` (id, email, passwordHash, name, phone, role: B2C|B2B|ADMIN, createdAt)
-- [ ] Сущность `Category` (id, name, slug, parentId, isVisible, order)
-- [ ] Сущность `Brand` (id, name, slug, country, website, logoUrl)
-- [ ] Сущность `Product` (id, name, slug, sku, description, priceMinor, oldPriceMinor, stock, status, categoryId, brandId, images: String[], specs: Json, tags: String[], searchVector: Unsupported, createdAt)
+- [x] Сущность `User` (id, email, passwordHash, name, phone, role: B2C|B2B|ADMIN, createdAt)
+- [x] Сущность `Category` (id, name, slug, parentId, isVisible, order)
+- [x] Сущность `Brand` (id, name, slug, country, website, logoUrl)
+- [x] Сущность `Product` (id, name, slug, sku, description, priceMinor, oldPriceMinor, stock, status, categoryId, brandId, images: String[], specs: Json, tags: String[], createdAt)
 - [ ] Индекс `GIN` на `searchVector` для полнотекстового поиска
-- [ ] Сущность `Cart` + `CartItem`
-- [ ] Сущность `Order` + `OrderItem`
-- [ ] Сущность `AiConversation` (id, userId, createdAt)
-- [ ] Сущность `AiMessage` (id, conversationId, role, content, createdAt)
+- [x] Сущность `Cart` + `CartItem`
+- [x] Сущность `Order` + `OrderItem`
+- [x] Сущность `AiConversation` (id, userId, createdAt)
+- [x] Сущность `AiMessage` (id, conversationId, role, content, createdAt)
 - [ ] Первая миграция `npx prisma migrate dev --name init`
 - [ ] Добавить `prisma/seed.ts` — начальные категории, бренды, тестовые товары
-- [ ] Скрипт `npm run db:migrate` — запуск миграций
+- [x] Скрипт `npm run db:migrate` — запуск миграций
 - [ ] Скрипт `npm run db:seed` — заполнение тестовыми данными
-- [ ] Скрипт `npm run db:reset` — сброс + seed (только dev)
+- [x] Скрипт `npm run db:reset` — сброс + seed (только dev)
 
 ### 2.2 Аутентификация
 - [ ] `POST /auth/register` — B2C/B2B, bcrypt хеширование

@@ -2,6 +2,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Prisma schema engine requires OpenSSL on Alpine
+RUN apk add --no-cache openssl
+
 # Копируем общие DTO
 COPY common ./common
 
@@ -23,7 +26,7 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-RUN apk add --no-cache dumb-init
+RUN apk add --no-cache dumb-init openssl
 
 # Копируем общие DTO
 COPY --from=builder /app/common ./common

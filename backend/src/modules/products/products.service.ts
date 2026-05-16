@@ -25,6 +25,26 @@ export class ProductsService {
       inStockOnly, page = 1, pageSize = 24, sortBy = 'createdAt', sortDir = 'desc',
     } = query;
 
+    // When search is provided, use pg_trgm to get matching product IDs
+    let searchIds: string[] | undefined;
+    if (search) {
+      const matchedIds = await this.prisma.$queryRaw<{ id: string }[]>`
+        SELECT id FROM "products"
+        WHERE status = 'PUBLISHED'
+          AND (
+            word_similarity(${search}, name) > 0.2
+            OR name ILIKE ${`%${search}%`}
+            OR description ILIKE ${`%${search}%`}
+          )
+        ORDER BY word_similarity(${search}, name) DESC
+        LIMIT 200
+      `;
+      searchIds = matchedIds.map(r => r.id);
+      if (searchIds.length === 0) {
+        return { items: [], page, pageSize, total: 0, hasMore: false };
+      }
+    }
+
     const where: Prisma.ProductWhereInput = {
       status: ProductStatus.PUBLISHED,
       ...(categoryId && { categoryId }),
@@ -32,13 +52,7 @@ export class ProductsService {
       ...(priceMin !== undefined && { priceMinor: { gte: priceMin } }),
       ...(priceMax !== undefined && { priceMinor: { lte: priceMax } }),
       ...(inStockOnly && { stock: { gt: 0 } }),
-      ...(search && {
-        OR: [
-          { name: { contains: search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } },
-          { tags: { hasSome: [search] } },
-        ],
-      }),
+      ...(searchIds && { id: { in: searchIds } }),
     };
 
     const orderBy: Prisma.ProductOrderByWithRelationInput =

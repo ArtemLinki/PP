@@ -23,6 +23,12 @@ export class AuthController {
     return this.auth.login(dto);
   }
 
+  @Post('logout')
+  @ApiOperation({ summary: 'Выход (статусный — JWT не инвалидируется)' })
+  logout() {
+    return { message: 'Logged out' };
+  }
+
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT')
   @Get('me')

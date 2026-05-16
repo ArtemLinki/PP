@@ -43,7 +43,7 @@
 
 ### 2.1 Prisma Schema + миграции
 - [x] Подключить Prisma к проекту — `prisma/schema.prisma` создан
-- [ ] Включить расширение `pg_trgm` в миграции (нечёткий поиск)
+- [x] Включить расширение `pg_trgm` в миграции (нечёткий поиск)
 - [x] Сущность `User` (id, email, passwordHash, name, phone, role: B2C|B2B|ADMIN, createdAt)
 - [x] Сущность `Category` (id, name, slug, parentId, isVisible, order)
 - [x] Сущность `Brand` (id, name, slug, country, website, logoUrl)
@@ -63,7 +63,7 @@
 - [x] `POST /auth/register` — B2C/B2B, bcrypt хеширование
 - [x] `POST /auth/login` — возврат JWT
 - [x] `GET /auth/me`
-- [ ] `POST /auth/logout`
+- [x] `POST /auth/logout`
 - [x] `JwtGuard` + `@CurrentUser()` декоратор
 
 ### 2.3 CRUD-модули
@@ -271,8 +271,8 @@
 
 - [ ] OAuth (Google, GitHub) через Passport.js
 - [ ] reCAPTCHA при регистрации
-- [ ] Страница профиля (`app/account/page.tsx`)
-- [ ] Страница истории заказов (`app/orders/page.tsx`)
+- [x] Страница профиля (`app/account/page.tsx`)
+- [x] Страница истории заказов (`app/orders/page.tsx`)
 - [ ] Email-нотификации об изменении статуса заказа
 - [ ] Экспорт CSV заказов и товаров
 - [ ] Wishlist (избранное)

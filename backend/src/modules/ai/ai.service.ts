@@ -99,7 +99,9 @@ export class AiService {
           messages: history,
           tools: aiTools,
           tool_choice: 'auto',
-        });
+          // @ts-ignore — groq-sdk may not have this typed yet
+          reasoning_effort: 'none',
+        } as any);
 
         const choice = response.choices[0];
         history.push(choice.message as ChatCompletionMessageParam);

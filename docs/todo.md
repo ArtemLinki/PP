@@ -11,76 +11,110 @@
 - [ ] **0.3** `npm install` в папке `frontend/`
 - [ ] **0.4** Создать `.env.local` из `.env.local.example`, убедиться что `NEXT_PUBLIC_USE_MOCKS=true`
 - [ ] **0.5** `npm run dev` — убедиться что starter поднимается на `localhost:3000`
-- [ ] **0.6** Открыть `design_handoff_techelectro/mockups/index.html` — просмотреть все 15 экранов
+- [ ] **0.6** Открыть `design_handoff_techelectro/mockups/index.html` — просмотреть экраны
 - [ ] **0.7** Инициализировать NestJS-проект в папке `backend/` (`nest new backend`)
-- [ ] **0.8** Настроить Prisma + подключение к PostgreSQL (локально через Docker Compose)
-- [ ] **0.9** Создать `docker-compose.yml` в корне с сервисами `db` (postgres) + `backend` + `frontend`
-- [ ] **0.10** Настроить `tsconfig.json` в `frontend/` и `backend/` с path alias на `../../common`
+- [ ] **0.8** Создать `docker-compose.yml` в корне:
+  - сервис `db` (postgres:16)
+  - сервис `minio` (minio/minio, порты 9000/9001, консоль на 9001)
+  - сервис `backend` (NestJS)
+  - сервис `frontend` (Next.js)
+- [ ] **0.9** Настроить `tsconfig.json` в `frontend/` и `backend/` с path alias на `../../common`
 
 ---
 
 ## Фаза 1 — Common: общие DTO
 
-- [ ] **1.1** Создать `common/dto/common.dto.ts` — `ApiResponse<T>`, `Paginated<T>`, `PriceDto`, `ID`, `ISODateString`
-- [ ] **1.2** Создать `common/dto/user.dto.ts` — `UserDto`, `AuthCredentialsDto`, `AuthSessionDto`, `UserRole`
-- [ ] **1.3** Создать `common/dto/product.dto.ts` — `ProductDto`, `ProductListQuery`, `ProductStatus`
-- [ ] **1.4** Создать `common/dto/category.dto.ts` — `CategoryDto`
-- [ ] **1.5** Создать `common/dto/brand.dto.ts` — `BrandDto`
-- [ ] **1.6** Создать `common/dto/cart.dto.ts` — `CartDto`, `CartItemDto`, `AddToCartDto`, `UpdateCartItemDto`
-- [ ] **1.7** Создать `common/dto/order.dto.ts` — `OrderDto`, `OrderItemDto`, `CreateOrderDto`, `OrderStatus`
-- [ ] **1.8** Создать `common/dto/ai.dto.ts` — `AiMessageDto`, `AiPromptDto`, `AiPromptResponseDto` (только текст, без рекомендаций)
-- [ ] **1.9** Создать `common/dto/index.ts` — реэкспорт всех DTO
+- [ ] **1.1** `common/dto/common.dto.ts` — `ApiResponse<T>`, `Paginated<T>`, `ID`, `ISODateString`
+- [ ] **1.2** `common/dto/user.dto.ts` — `UserDto`, `AuthCredentialsDto`, `AuthSessionDto`, `UserRole`
+- [ ] **1.3** `common/dto/product.dto.ts` — `ProductDto`, `ProductListQuery`, `ProductStatus`
+- [ ] **1.4** `common/dto/category.dto.ts` — `CategoryDto`
+- [ ] **1.5** `common/dto/brand.dto.ts` — `BrandDto`
+- [ ] **1.6** `common/dto/cart.dto.ts` — `CartDto`, `CartItemDto`, `AddToCartDto`, `UpdateCartItemDto`
+- [ ] **1.7** `common/dto/order.dto.ts` — `OrderDto`, `OrderItemDto`, `CreateOrderDto`, `OrderStatus`
+- [ ] **1.8** `common/dto/ai.dto.ts`:
+  ```typescript
+  AiChatRequestDto    // { message, conversationId? }
+  AiChatResponseDto   // { conversationId, reply, toolResults? }
+  AiMessageDto        // { id, role, content, createdAt }
+  AiToolResultDto     // { recommendedProducts?: ProductDto[], addedToCart?: CartDto }
+  ```
+- [ ] **1.9** `common/dto/index.ts` — реэкспорт всех DTO
 - [ ] **1.10** Обновить импорты в `frontend/src/lib/dto/` → заменить на импорты из `common/dto/`
 
 ---
 
 ## Фаза 2 — Backend: база данных и ядро
 
-### 2.1 Prisma Schema
+### 2.1 Prisma Schema + миграции
+- [ ] Подключить Prisma к проекту (`npx prisma init`)
+- [ ] Включить расширение `pg_trgm` в миграции (нечёткий поиск)
 - [ ] Сущность `User` (id, email, passwordHash, name, phone, role: B2C|B2B|ADMIN, createdAt)
 - [ ] Сущность `Category` (id, name, slug, parentId, isVisible, order)
 - [ ] Сущность `Brand` (id, name, slug, country, website, logoUrl)
-- [ ] Сущность `Product` (id, name, slug, sku, description, priceMinor, oldPriceMinor, stock, status, categoryId, brandId, images[], specs JSON, tags[], createdAt)
-- [ ] Сущность `Cart` (id, userId, items[])
-- [ ] Сущность `CartItem` (id, cartId, productId, quantity)
-- [ ] Сущность `Order` (id, userId, status, items[], totalMinor, deliveryType, promoCode, createdAt)
-- [ ] Сущность `OrderItem` (id, orderId, productId, quantity, priceMinor)
+- [ ] Сущность `Product` (id, name, slug, sku, description, priceMinor, oldPriceMinor, stock, status, categoryId, brandId, images: String[], specs: Json, tags: String[], searchVector: Unsupported, createdAt)
+- [ ] Индекс `GIN` на `searchVector` для полнотекстового поиска
+- [ ] Сущность `Cart` + `CartItem`
+- [ ] Сущность `Order` + `OrderItem`
 - [ ] Сущность `AiConversation` (id, userId, createdAt)
-- [ ] Сущность `AiMessage` (id, conversationId, role: user|assistant, content, createdAt)
-- [ ] Сущность `Project` (id, userId, name, projectSku, status, items[], createdAt, updatedAt)
-- [ ] Миграция `npx prisma migrate dev`
+- [ ] Сущность `AiMessage` (id, conversationId, role, content, createdAt)
+- [ ] Первая миграция `npx prisma migrate dev --name init`
+- [ ] Добавить `prisma/seed.ts` — начальные категории, бренды, тестовые товары
+- [ ] Скрипт `npm run db:migrate` — запуск миграций
+- [ ] Скрипт `npm run db:seed` — заполнение тестовыми данными
+- [ ] Скрипт `npm run db:reset` — сброс + seed (только dev)
 
-### 2.2 Аутентификация (NestJS Auth модуль)
-- [ ] `POST /auth/register` — регистрация B2C/B2B, хеширование пароля (bcrypt)
-- [ ] `POST /auth/login` — возврат JWT access token
-- [ ] `GET /auth/me` — текущий пользователь
+### 2.2 Аутентификация
+- [ ] `POST /auth/register` — B2C/B2B, bcrypt хеширование
+- [ ] `POST /auth/login` — возврат JWT
+- [ ] `GET /auth/me`
 - [ ] `POST /auth/logout`
-- [ ] JwtGuard + декоратор `@CurrentUser()`
-- [ ] OAuth-заглушки Google + GitHub (можно реализовать позже)
+- [ ] `JwtGuard` + `@CurrentUser()` декоратор
 
 ### 2.3 CRUD-модули
-- [ ] `CategoriesModule` — GET /categories, GET /categories/:id
-- [ ] `BrandsModule` — GET /brands, GET /brands/:id, POST/PATCH/DELETE (admin)
-- [ ] `ProductsModule` — GET /products (с фильтрами, пагинацией), GET /products/:id, POST/PATCH/DELETE (admin)
+- [ ] `CategoriesModule` — GET /categories (дерево), GET /categories/:id
+- [ ] `BrandsModule` — GET /brands, POST/PATCH/DELETE (admin)
+- [ ] `ProductsModule`:
+  - GET /products (с фильтрами: `categoryId`, `brandId`, `priceMin`, `priceMax`, `q`)
+  - Нечёткий поиск по `q` через `pg_trgm` (`similarity()` или `%` оператор)
+  - GET /products/:id
+  - POST/PATCH/DELETE (admin)
 - [ ] `CartModule` — GET /cart, POST /cart/items, PATCH /cart/items/:id, DELETE /cart/items/:id, DELETE /cart
 - [ ] `OrdersModule` — GET /orders, GET /orders/:id, POST /orders
 - [ ] `UsersModule` — GET /users/me, PATCH /users/me
-- [ ] `ProjectsModule` — GET /projects, GET /projects/:id, POST /projects, PATCH /projects/:id, DELETE /projects/:id
 
-### 2.4 AI-модуль (Gemini)
-- [ ] Получить бесплатный API ключ на [aistudio.google.com](https://aistudio.google.com)
+### 2.4 Файловое хранилище (MinIO)
+- [ ] Установить `@aws-sdk/client-s3`
+- [ ] `FilesModule`: подключение к MinIO через S3-client (`endpoint`, `accessKeyId`, `secretAccessKey`)
+- [ ] При старте приложения: создать бакеты `products` и `avatars` если не существуют
+- [ ] `POST /files/upload` — принимает `multipart/form-data`, загружает в MinIO, возвращает публичный URL
+- [ ] `DELETE /files` — удалить файл по URL
+- [ ] Настроить бакет `products` как публичный (для прямого доступа из frontend)
+
+### 2.5 AI-модуль (Gemini + Function Calling)
+- [ ] Получить бесплатный API ключ на aistudio.google.com, добавить в `.env`
 - [ ] Установить `@google/generative-ai`
-- [ ] `AiService.chat()` — отправка сообщения в Gemini API с системным промптом
-- [ ] Системный промпт: роль «ИИ-консультант магазина TechElectro», отвечает на вопросы о комплектующих
-- [ ] `POST /ai/prompt` — принимает `{message, conversationId?}`, возвращает текстовый ответ
+- [ ] `ai.tools.ts` — определить tools для Gemini:
+  ```typescript
+  searchProducts(query: string, categoryId?: string, brandId?: string, maxPrice?: number)
+  getProductDetails(productId: string)
+  addToCart(productId: string, quantity: number)  // только для авторизованных
+  ```
+- [ ] `ai.executor.ts` — выполнение tool calls: получает `{name, args}`, вызывает реальный сервис, возвращает результат
+- [ ] `ai.service.ts`:
+  - Загружает историю из `AiConversation` / `AiMessage`
+  - Формирует системный промпт (консультант TechElectro, знает каталог)
+  - Передаёт в Gemini: history + message + tools
+  - Обрабатывает ответ: текст или tool call
+  - Если tool call → `ai.executor.ts` → результат → обратно в Gemini → финальный ответ
+  - Сохраняет сообщение + возвращает `AiChatResponseDto`
+- [ ] `POST /ai/chat` — основной эндпоинт чата
 - [ ] `GET /ai/conversations/:id` — история диалога
-- [ ] Хранение диалогов в `AiConversation` + `AiMessage`
 
-### 2.5 Admin-эндпоинты
-- [ ] Защита через `RolesGuard` (только `ADMIN`)
-- [ ] `GET /admin/dashboard` — статистика (KPI, топ товаров, последние заказы)
-- [ ] `PATCH /products/:id/status` — публикация/архив
-- [ ] `PATCH /orders/:id/status` — смена статуса заказа
+### 2.6 Admin-эндпоинты
+- [ ] `RolesGuard` — только `ADMIN`
+- [ ] `GET /admin/dashboard` — KPI + топ товаров + последние заказы
+- [ ] `PATCH /products/:id/status`
+- [ ] `PATCH /orders/:id/status`
 
 ---
 
@@ -89,211 +123,172 @@
 ### 3.1 Тема и токены
 - [ ] Проверить/настроить `src/theme/mantine-theme.ts` (цвета, шрифты, радиус 0)
 - [ ] Подключить Google Fonts через `next/font/google` (Inter, Space Grotesk, JetBrains Mono)
-- [ ] Убедиться что CSS-переменные из `_shared.css` соответствуют Mantine-теме
 
 ### 3.2 AppShell / Layout
-- [ ] `components/layout/Header.tsx` — логотип + nav (Каталог, Проекты, ИИ-подбор, Сборки) + user/cart иконки + badge счётчика корзины
-- [ ] `components/layout/MobileBottomNav.tsx` — 5 пунктов (Главная, Каталог, ИИ, Корзина, Профиль), высота 64 + safe-area
-- [ ] `components/layout/AppShell.tsx` — объединяет Header + MobileBottomNav, адаптивно скрывает/показывает
-- [ ] `components/ai/AiAssistantPill.tsx` — fixed pill правый нижний угол, скрыт на mobile при видимом bottom-nav
-- [ ] Cart-badge: подключить к `useCartStore.selectCartItemsCount`
+- [ ] `components/layout/Header.tsx` — логотип + nav + user/cart иконки + badge
+- [ ] `components/layout/MobileBottomNav.tsx` — 5 пунктов (Главная, Каталог, ИИ, Корзина, Профиль)
+- [ ] `components/layout/AppShell.tsx` — адаптивный shell
+- [ ] `components/ai/AiAssistantPill.tsx` — fixed pill, скрыт на mobile при bottom-nav
 
 ### 3.3 Общие компоненты
-- [ ] `components/product/ProductCard.tsx` — brand label, discount badge, image placeholder, title, specs (mono), цена, кнопка «+ В сборку»
-- [ ] `components/ui/Eyebrow.tsx` — 10px JetBrains Mono uppercase teal label
-- [ ] `components/ui/TealBadge.tsx` — статус-бейдж в teal-рамке
-- [ ] `components/ai/AiChatWindow.tsx` — контейнер для чата: список сообщений + поле ввода
+- [ ] `components/product/ProductCard.tsx` — brand, фото, название, specs, цена, «+ В корзину»
+- [ ] `components/ui/Eyebrow.tsx` — 10px JetBrains Mono uppercase teal
+- [ ] `components/ui/TealBadge.tsx`
+- [ ] `components/search/DualModeSearchBar.tsx` — инпут + кнопка AI; управляется пропом `mode: 'search' | 'ai'`, при переключении кнопки меняет поведение отправки
+- [ ] `components/ai/AiRecommendationsBlock.tsx` — блок «Подобрано для вас»: горизонтальный список карточек-плашек (фото, название, цена, ссылка на товар)
+- [ ] `components/ai/AiChatWindow.tsx` — список сообщений + поле ввода; рендерит `AiRecommendationsBlock` под сообщением если есть `toolResults.recommendedProducts`
 
 ---
 
-## Фаза 4 — Frontend: Публичные страницы
+## Фаза 4 — Frontend: Страницы
 
-### 4.1 Главная страница (`app/page.tsx`)
+### 4.1 Главная (`app/page.tsx`)
 **Референс:** `mockups/home-desktop.html` + `mockups/home-mobile.html`
-- [ ] Hero с eyebrow «AI ENGINEER · ONLINE» (teal точка)
-- [ ] H1 56px Space Grotesk: «Техника, которая собирает сама себя.\nСпросите ИИ.» (вторая строка teal)
-- [ ] Sub-paragraph 15px muted
-- [ ] `AiPromptCard` — teal border 1.5px, glow, поле ввода + CTA → redirect в `/ai` с вопросом в query params
-- [ ] Chips-ряд с примерами запросов
+- [ ] Hero с eyebrow «AI ENGINEER · ONLINE»
+- [ ] H1 56px, sub-paragraph
+- [ ] `DualModeSearchBar` в hero:
+  - По умолчанию mode=`search` → `router.push('/catalog?q=...')`
+  - При активации AI-кнопки mode=`ai` → `router.push('/ai?q=...')`
+- [ ] Chips-ряд с примерами (работают в текущем режиме инпута)
 - [ ] Секция фич: 3 колонки с разделителями
-- [ ] Mobile: адаптированный hero с уменьшенными padding
+- [ ] Mobile-версия
 
 ### 4.2 Каталог (`app/catalog/page.tsx`)
 **Референс:** `mockups/catalog.html`
 - [ ] Двухколоночный layout: sidebar 280px + main
-- [ ] Sidebar: иерархические категории (активная в teal), фильтры цены (range slider), чипы интерфейсов, чипы брендов, кнопка «Сбросить всё» в orange
-- [ ] Main: search bar, хлебные крошки + счётчик, sort-pill, view-toggle (grid/list)
+- [ ] **Sidebar — только базовые фильтры:**
+  - Выбор категории (иерархия, активная в teal)
+  - Диапазон цены (range slider)
+  - Чипы брендов (мультивыбор)
+  - Кнопка «Сбросить всё» в orange
+- [ ] Main: search bar (`DualModeSearchBar`), счётчик результатов, sort-pill, view-toggle
 - [ ] Product grid `SimpleGrid cols={{ base: 1, xs: 2, sm: 3, md: 4 }}`
 - [ ] Пагинация
-- [ ] Интеграция: `useQuery(services.products.list(query))`
+- [ ] Интеграция: `useQuery(services.products.list({q, categoryId, brandId, priceMin, priceMax}))`
 - [ ] Активные фильтры как teal-chips с ✕
 
 ### 4.3 AI-чат (`app/ai/page.tsx`)
 **Референс:** `mockups/search.html`
-- [ ] Top-bar с полем ввода + кнопка отправки
-- [ ] Список сообщений: сообщения пользователя (справа) и ассистента (слева), визуально разделены
-- [ ] Если в query params есть начальный вопрос (с главной страницы) — отправить автоматически
-- [ ] Поле ввода нового сообщения внизу + кнопка отправки
-- [ ] Индикатор загрузки пока ИИ отвечает
-- [ ] Интеграция: `useAiStore.send()` → `POST /ai/prompt`
-- [ ] История диалога подгружается по conversationId если пользователь авторизован
+- [ ] При открытии: если в query params есть `?q=...` — отправить как первое сообщение автоматически
+- [ ] `AiChatWindow` на всю высоту страницы
+- [ ] Сообщения пользователя (справа, teal border) и ассистента (слева)
+- [ ] Под сообщением ассистента — `AiRecommendationsBlock` если `toolResults.recommendedProducts` не пустой
+- [ ] Уведомление (toast) если `toolResults.addedToCart` — «Товар добавлен в корзину»
+- [ ] Индикатор загрузки (пульсирующая точка или skeleton)
+- [ ] Поле ввода внизу + кнопка отправки
+- [ ] Интеграция: `useAiStore.send()` → `POST /ai/chat`
 
-### 4.4 Сборки сообщества (`app/community/page.tsx`)
-**Референс:** `mockups/community.html`
-- [ ] Создать `IBuildsService` + `BuildsMockService` + `BuildsApiService`
-- [ ] Добавить `BuildDto` в `common/dto/build.dto.ts`
-- [ ] H1 + search bar (max-width 720)
-- [ ] Tab-ряд категорий с count
-- [ ] Grid 3×N Build-карточек
-- [ ] Build-карточка: фото 16:9, level-tag (PRO/MID/EASY), title, description, specs-chips, author (avatar + rating), цена, кнопки
-
-### 4.5 Корзина (`app/cart/page.tsx`)
+### 4.4 Корзина (`app/cart/page.tsx`)
 **Референс:** `mockups/cart.html`
-- [ ] H1 + project tag в teal-рамке «ПРОЕКТ · IOT-EDGE-NODE-V2»
 - [ ] Двухколоночный layout: list 1fr + sticky summary 380px
-- [ ] CartItem: фото, название + stock-badge, бренд/SKU, specs-chips, qty stepper, удаление/избранное, цена × кол-во
-- [ ] Summary sticky: строки итога, промокод (input + кнопка), «Оформить заказ →», иконки оплаты, secure note
+- [ ] CartItem: фото, название + stock-badge, бренд/SKU, qty stepper, удаление, цена × кол-во
+- [ ] Summary sticky: строки итога, промокод, «Оформить заказ →», иконки оплаты
 - [ ] Интеграция: `useCartStore` + `useQuery(services.cart.getCurrent())`
-- [ ] «Сохранить как BOM» → создание публичной сборки
 
-### 4.6 Проекты (`app/projects/page.tsx`)
-**Референс:** `mockups/projects.html`
-- [ ] H1 + статистика (проекты · компоненты · сумма)
-- [ ] Toolbar: «+ Создать новый проект» + «Импорт CSV» + view-toggle
-- [ ] Project-row: иконка, название + артикул, даты, теги (включая «нет в наличии» в orange), итог, кнопки
-- [ ] Левая граница 3px (teal = active, orange = danger)
-- [ ] Контекстное меню (⋮): переименовать, в сборку, дублировать, удалить (orange)
-
-### 4.7 Аутентификация
-
-#### Login (`app/login/page.tsx`)
+### 4.5 Login (`app/login/page.tsx`)
 **Референс:** `mockups/login.html`
-- [ ] Центрированная панель 480px
-- [ ] Форма: email + password (eye-icon, teal border)
-- [ ] Submit «Войти →» с glow
-- [ ] Divider «ИЛИ» в mono
-- [ ] Кнопки OAuth: Google + GitHub
-- [ ] Footer со ссылкой на регистрацию
-- [ ] Интеграция: `useAuthStore.login()`
+- [ ] Панель 480px: email + password, Submit, OAuth кнопки, ссылка на регистрацию
+- [ ] `useAuthStore.login()`
 
-#### Register (`app/register/page.tsx`)
+### 4.6 Register (`app/register/page.tsx`)
 **Референс:** `mockups/register.html`
-- [ ] Панель 540px
-- [ ] Поля: ФИО, email, пароль, подтверждение, телефон (опционально)
-- [ ] Выбор типа аккаунта: B2C / B2B (radio grid)
-- [ ] Чекбокс согласия + reCAPTCHA mock
-- [ ] Submit → `services.auth.register()`
+- [ ] Панель 540px: ФИО, email, пароль, подтверждение, телефон
+- [ ] Выбор типа B2C / B2B
+- [ ] Чекбокс согласия
+- [ ] `services.auth.register()`
 
 ---
 
 ## Фаза 5 — Frontend: Административная панель
 
 ### 5.1 Admin Shell (`app/admin/layout.tsx`)
-**Референс:** все `mockups/admin-*.html`
-- [ ] Admin topbar: лого + «Admin» badge + store-picker + глобальный поиск + аватар пользователя
-- [ ] Sidebar 240px: сгруппированный nav (Аналитика / Каталог / Продажи / Контент), активный пункт с 3px teal-left-border
-- [ ] RoleGuard: редирект если пользователь не ADMIN
+- [ ] Admin topbar: лого + «Admin» badge + поиск + аватар
+- [ ] Sidebar 240px с группами nav, активный пункт 3px teal-left-border
+- [ ] RoleGuard: редирект если не ADMIN
 
 ### 5.2 Дашборд (`app/admin/dashboard/page.tsx`)
 **Референс:** `mockups/admin-dashboard.html`
-- [ ] H1 + LIVE badge (teal pill с анимированной точкой) + period toggle (7д/30д/90д) + Экспорт
-- [ ] 4 KPI-карточки: Товаров / Заказы (мес) / Выручка / AI-запросы
-- [ ] SVG line-chart продаж (area-gradient teal + dashed grey для прошлой недели)
-- [ ] Горизонтальные bar-чарты популярных категорий
-- [ ] Alert в orange dashed: «3 SKU заканчиваются»
-- [ ] Таблица последних заказов
-- [ ] Список топ-товаров
+- [ ] 4 KPI: Товаров / Заказы / Выручка / AI-запросы
+- [ ] SVG line-chart продаж
+- [ ] Bar-чарты категорий
+- [ ] Alert о заканчивающихся SKU (orange dashed)
+- [ ] Последние заказы + топ товаров
 
 ### 5.3 Товары (`app/admin/products/page.tsx`)
 **Референс:** `mockups/admin-products.html`
-- [ ] H1 + кнопки «Импорт CSV» + «+ Добавить товар»
-- [ ] Toolbar: поиск + Категория ▾ + Бренд ▾ + Цена ▾
-- [ ] Filter chips: Все / Опубликованы / Черновики / Архив / Заканчиваются
-- [ ] Таблица с колонками: ☐ · Товар (image+name+brand) · SKU · Категория · Цена · Остаток · Статус · Действия
-- [ ] Пагинация
-- [ ] Кнопка «+ Добавить товар» → открывает `<ProductModal />`
+- [ ] Таблица: ☐ · Товар · SKU · Категория · Цена · Остаток · Статус · Действия
+- [ ] Toolbar: поиск + фильтры + chips статусов
+- [ ] Кнопка «+ Добавить товар» → `<ProductModal />`
 
 ### 5.4 Модалка товара (`components/admin/ProductModal.tsx`)
 **Референс:** `mockups/product-modal.html`
-- [ ] Backdrop rgba(8,10,16,0.75) + blur(4), modal 880px с teal border-glow
-- [ ] Left (1fr): название, категория + бренд, SKU + цена, слоты изображений (4×2 grid), спецификации (key/value таблица), описание
-- [ ] Right (280px aside): статус публикации (radio), остаток, старая цена, теги
-- [ ] Футер: «● Автосохранение · HH:MM» + Отмена / Черновик / Сохранить →
-- [ ] Автосохранение через debounce + `PATCH /products/:id`
+- [ ] Left: название, категория, бренд, SKU, цена, загрузка изображений (через `POST /files/upload`), спецификации (key/value), описание
+- [ ] Right aside: статус публикации, остаток, старая цена, теги
+- [ ] Футер: автосохранение + Отмена / Черновик / Сохранить
+- [ ] Автосохранение через debounce
 
 ### 5.5 Категории (`app/admin/categories/page.tsx`)
 **Референс:** `mockups/admin-categories.html`
-- [ ] Layout: tree-panel 1fr + summary-panel 320
-- [ ] Add row: input + «+ Добавить категорию»
-- [ ] Дерево: L1 (arrow, icon, name, count, toggle-visibility), L2 (indent 28px, «└» prefix)
-- [ ] Toggle visibility — switch 28×18, border-radius 9px
-- [ ] Summary: 4 стата + 2 кнопки
+- [ ] Дерево категорий L1/L2, toggle видимости, add-row
 
 ### 5.6 Бренды (`app/admin/brands/page.tsx`)
 **Референс:** `mockups/admin-brands.html`
-- [ ] Toolbar: поиск + сортировка
-- [ ] Grid 3×N карточек брендов
-- [ ] Brand-карточка: лого (64×64 аббревиатура в teal), название, URL/страна, SKU, выручка, stock-badge, действия
+- [ ] Grid карточек: лого, название, URL/страна, SKU, выручка
 
 ### 5.7 Заказы (`app/admin/orders/page.tsx`)
 **Референс:** `mockups/admin-orders.html`
-- [ ] H1 + Экспорт
-- [ ] 4 stat-карточки: Всего / Требуют внимания / Оплачено / Выручка 30д
-- [ ] Toolbar + filter chips
-- [ ] Таблица: # заказа · Покупатель (avatar+name+email) · Позиций · Сумма · Статус · Дата
+- [ ] 4 stat-карточки + таблица заказов
 
 ---
 
 ## Фаза 6 — Интеграция Frontend ↔ Backend
 
-- [ ] **6.1** Поднять backend локально, переключить `NEXT_PUBLIC_USE_MOCKS=false`
-- [ ] **6.2** Проверить авторизацию: регистрация → логин → JWT в HttpClient → защищённые запросы
-- [ ] **6.3** Проверить каталог: список товаров с фильтрами, пагинация, карточка товара
-- [ ] **6.4** Проверить корзину: добавление, изменение количества, удаление, оформление заказа
-- [ ] **6.5** Проверить AI-чат: вопрос → ответ Gemini → отображение текста, история сохраняется
-- [ ] **6.6** Проверить admin-панель: CRUD товаров, категорий, брендов, статусы заказов
-- [ ] **6.7** E2E-сценарий: регистрация → вопрос в чат → поиск в каталоге → в корзину → заказ
+- [ ] **6.1** Поднять весь docker-compose (db + minio + backend + frontend)
+- [ ] **6.2** Переключить `NEXT_PUBLIC_USE_MOCKS=false`, проверить авторизацию
+- [ ] **6.3** Проверить поиск: обычный нечёткий (с опечатками) → результаты в каталоге
+- [ ] **6.4** Проверить AI-режим: вопрос → текстовый ответ Gemini
+- [ ] **6.5** Проверить function calling: «подбери мне процессор» → `searchProducts` → карточки «Подобрано для вас»
+- [ ] **6.6** Проверить `addToCart` из чата → обновление корзины + уведомление
+- [ ] **6.7** Проверить загрузку изображений: модалка товара → MinIO → URL сохраняется в БД
+- [ ] **6.8** Проверить корзину и оформление заказа
+- [ ] **6.9** Проверить admin-панель: CRUD товаров, статусы заказов
 
 ---
 
 ## Фаза 7 — Качество и деплой
 
 ### 7.1 Качество кода
-- [ ] `npm run type-check` без ошибок (strict TS) в frontend и backend
+- [ ] `npm run type-check` без ошибок в frontend и backend
 - [ ] `npm run lint` без ошибок
-- [ ] Проверить все экраны на pixel-perfect соответствие дизайн-мокапам
+- [ ] Pixel-perfect проверка всех экранов по мокапам
 - [ ] Тест адаптивности: mobile 402px + desktop 1280px
-- [ ] Проверить hover-состояния карточек (border → teal)
-- [ ] Проверить sticky-элементы: header + summary корзины
+- [ ] Проверить dual-mode инпут: переключение search ↔ AI
 
 ### 7.2 Оптимизация
-- [ ] Настроить TanStack Query staleTime / cacheTime для минимизации запросов
-- [ ] Оптимизировать изображения через `next/image` (когда появятся реальные фото)
+- [ ] TanStack Query staleTime / cacheTime
+- [ ] `next/image` для изображений из MinIO
 
 ### 7.3 Деплой
-- [ ] Настроить `docker-compose.yml` (postgres + backend + frontend)
-- [ ] Настроить переменные окружения для production
-- [ ] Настроить CI/CD (GitHub Actions): lint + type-check + build
-- [ ] Деплой frontend на Vercel (или Docker)
-- [ ] Деплой backend на Railway / Render / VPS
-- [ ] Настроить managed PostgreSQL (Supabase или Railway)
+- [ ] Переменные окружения для production
+- [ ] CI/CD (GitHub Actions): lint + type-check + build
+- [ ] Деплой frontend на Vercel или Docker
+- [ ] Деплой backend + MinIO на VPS / Railway
+- [ ] Managed PostgreSQL (Supabase / Railway)
 
 ---
 
 ## Технический долг / Backlog
 
-- [ ] OAuth-интеграция (Google, GitHub) через Passport.js в NestJS
+- [ ] OAuth (Google, GitHub) через Passport.js
 - [ ] reCAPTCHA при регистрации
-- [ ] Страница профиля (`app/account/page.tsx`) — просмотр/редактирование данных
+- [ ] Страница профиля (`app/account/page.tsx`)
 - [ ] Страница истории заказов (`app/orders/page.tsx`)
 - [ ] Email-нотификации об изменении статуса заказа
-- [ ] Экспорт CSV (заказы, товары)
-- [ ] Импорт CSV для товаров
-- [ ] Функция «Сохранить корзину как BOM-сборку»
-- [ ] Дублирование проекта
-- [ ] Функция избранного (wishlist)
-- [ ] Аутентификация B2B: загрузка реквизитов, договор, НДС
-- [ ] i18n (next-intl) — если потребуется мультиязычность
+- [ ] Экспорт CSV заказов и товаров
+- [ ] Wishlist (избранное)
+- [ ] Аутентификация B2B: реквизиты, договор, НДС
+- [ ] Расширение AI tools: `compareProducts`, `checkStock`, `getRecommendedByBudget`
+- [ ] i18n (next-intl)
 
 ---
 
@@ -301,11 +296,11 @@
 
 | Спринт | Задачи | Результат |
 |---|---|---|
-| 1 | Фаза 0 + Фаза 1 | Среда поднята, общие DTO готовы |
-| 2 | Фаза 2.1–2.3 | Backend CRUD работает |
-| 3 | Фаза 2.4–2.5 + Фаза 3 | AI-чат + общий layout |
-| 4 | Фаза 4.1–4.3 | Главная + Каталог + AI-чат |
-| 5 | Фаза 4.4–4.7 | Все публичные страницы |
-| 6 | Фаза 5 | Полная admin-панель |
+| 1 | Фаза 0 + Фаза 1 | Среда поднята (включая MinIO), общие DTO готовы |
+| 2 | Фаза 2.1–2.3 | Backend CRUD + миграции + seed |
+| 3 | Фаза 2.4–2.5 | MinIO upload + AI function calling |
+| 4 | Фаза 3 | Frontend layout + DualModeSearchBar + AiRecommendationsBlock |
+| 5 | Фаза 4 | Все публичные страницы |
+| 6 | Фаза 5 | Admin-панель |
 | 7 | Фаза 6 | Интеграция frontend ↔ backend |
 | 8 | Фаза 7 | Качество + деплой |

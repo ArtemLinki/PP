@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import {
   Box, SimpleGrid, Text, Skeleton, Stack, RangeSlider,
-  Button, Group,
+  Button, Group, Loader,
 } from '@mantine/core';
 import { IconX } from '@tabler/icons-react';
 import { ProductCard } from '@/components/product/ProductCard';
@@ -13,7 +13,7 @@ import { DualModeSearchBar } from '@/components/search/DualModeSearchBar';
 import { Eyebrow } from '@/components/ui/Eyebrow';
 import { useServices } from '@/lib/services/ServicesProvider';
 
-export default function CatalogPage() {
+function CatalogContent() {
   const services = useServices();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -73,7 +73,6 @@ export default function CatalogPage() {
           style={{ width: 260, flexShrink: 0, position: 'sticky', top: 72 }}
         >
           <Stack gap="lg">
-            {/* Categories */}
             <Box>
               <Text size="10px" ff="JetBrains Mono" c="var(--te-muted)" style={{ letterSpacing: '0.12em', marginBottom: 10 }}>
                 КАТЕГОРИИ
@@ -112,7 +111,6 @@ export default function CatalogPage() {
               </Stack>
             </Box>
 
-            {/* Price range */}
             <Box>
               <Group justify="space-between" mb={10}>
                 <Text size="10px" ff="JetBrains Mono" c="var(--te-muted)" style={{ letterSpacing: '0.12em' }}>
@@ -134,7 +132,6 @@ export default function CatalogPage() {
               />
             </Box>
 
-            {/* Reset */}
             {activeCount > 0 && (
               <Button
                 variant="outline"
@@ -182,5 +179,13 @@ export default function CatalogPage() {
         </Box>
       </Box>
     </Box>
+  );
+}
+
+export default function CatalogPage() {
+  return (
+    <Suspense fallback={<Box p="xl"><Loader color="teal" /></Box>}>
+      <CatalogContent />
+    </Suspense>
   );
 }

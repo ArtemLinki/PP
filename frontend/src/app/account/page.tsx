@@ -18,7 +18,7 @@ export default function AccountPage() {
 
         {user ? (
           <Stack gap="sm">
-            <Text c="var(--te-text)">{user.fullName ?? user.email}</Text>
+            <Text c="var(--te-text)">{user.name ?? user.email}</Text>
             <Text c="dimmed" size="sm">
               Роль: {user.role}
             </Text>

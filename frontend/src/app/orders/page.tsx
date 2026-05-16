@@ -35,7 +35,7 @@ export default function OrdersPage() {
             >
               <Stack gap={2}>
                 <Text fw={600} c="var(--te-text)">
-                  №{o.number}
+                  №{o.id.slice(0, 8)}
                 </Text>
                 <Text size="xs" c="dimmed" ff="JetBrains Mono">
                   {new Date(o.createdAt).toLocaleString("ru-RU")}

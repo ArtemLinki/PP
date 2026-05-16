@@ -1,18 +1,17 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Box, Text } from '@mantine/core';
+import { Box, Text, Loader } from '@mantine/core';
 import { AiChatWindow } from '@/components/ai/AiChatWindow';
 import { useAiStore } from '@/lib/store';
 import { Eyebrow } from '@/components/ui/Eyebrow';
 
-export default function AiPage() {
+function AiPageContent() {
   const searchParams = useSearchParams();
   const send = useAiStore((s) => s.send);
   const messages = useAiStore((s) => s.messages);
 
-  // Auto-send ?q= param on first load
   useEffect(() => {
     const q = searchParams.get('q');
     if (q && messages.length === 0) {
@@ -37,5 +36,13 @@ export default function AiPage() {
         <AiChatWindow />
       </Box>
     </Box>
+  );
+}
+
+export default function AiPage() {
+  return (
+    <Suspense fallback={<Box p="xl"><Loader color="teal" /></Box>}>
+      <AiPageContent />
+    </Suspense>
   );
 }

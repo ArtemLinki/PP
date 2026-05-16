@@ -16,7 +16,7 @@ RUN npm ci
 COPY frontend/ .
 
 # Build-time env (публичные переменные должны быть известны при сборке)
-ARG NEXT_PUBLIC_API_BASE_URL
+ARG NEXT_PUBLIC_API_BASE_URL=http://localhost:3001/api
 ARG NEXT_PUBLIC_USE_MOCKS=false
 ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
 ENV NEXT_PUBLIC_USE_MOCKS=$NEXT_PUBLIC_USE_MOCKS

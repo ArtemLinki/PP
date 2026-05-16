@@ -46,4 +46,4 @@ EXPOSE 3001
 ENTRYPOINT ["dumb-init", "--"]
 
 # Запускаем миграции и затем сервер
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/main.js"]

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8" /><meta name="viewport" content="width=1280" />
+<title>Admin — Бренды</title><link rel="stylesheet" href="_shared.css" /><link rel="stylesheet" href="_admin.css" />
+<style>
+  .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 18px; }
+  .toolbar .search-wrap { flex: 1; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .brand-card { background: var(--surface); border: 1px solid var(--line); padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+  .brand-card .top { display: flex; gap: 16px; align-items: center; }
+  .brand-card .logo {
+    width: 64px; height: 64px;
+    background: var(--bg-deep); border: 1px solid var(--line);
+    display: grid; place-items: center;
+    font-family: "JetBrains Mono"; font-weight: 700; font-size: 14px; color: var(--accent); letter-spacing: 0.04em;
+  }
+  .brand-card h3 { font-family: "Space Grotesk"; font-size: 18px; font-weight: 700; margin: 0; }
+  .brand-card .url { font-family: "JetBrains Mono"; font-size: 11px; color: var(--dim); margin-top: 4px; }
+  .brand-card .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .brand-card .st { background: var(--bg-deep); padding: 12px; border: 1px solid var(--line-soft); }
+  .brand-card .st .lbl { font-family: "JetBrains Mono"; font-size: 10px; color: var(--dim); letter-spacing: 0.1em; }
+  .brand-card .st .v { font-family: "JetBrains Mono"; font-size: 18px; font-weight: 700; color: var(--text); margin-top: 4px; }
+  .brand-card .st.accent .v { color: var(--accent); }
+  .brand-card .row { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--line-soft); }
+  .brand-card .badge-stk { font-family: "JetBrains Mono"; font-size: 10px; padding: 3px 8px; background: rgba(0,212,181,0.08); color: var(--accent); border: 1px solid var(--accent-border); letter-spacing: 0.08em; }
+  .brand-card .badge-stk.warn { background: rgba(255,140,66,0.08); color: var(--orange); border-color: rgba(255,140,66,0.4); }
+  .brand-card .acts { display: flex; gap: 6px; }
+  .brand-card .acts button { width: 28px; height: 28px; background: var(--bg-deep); border: 1px solid var(--line); color: var(--muted); }
+  .pager { display: flex; justify-content: space-between; align-items: center; margin-top: 28px; color: var(--dim); font-size: 13px; }
+  .pages { display: flex; gap: 6px; }
+  .pages a { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid var(--line); font-family: "JetBrains Mono"; font-size: 12px; color: var(--muted); }
+  .pages a.active { background: var(--accent); color: #0a1018; border-color: var(--accent); }
+</style>
+</head><body>
+
+<header class="admin-tb">
+  <div class="lh"><a href="home-desktop.html" class="tb-logo"><svg class="wave" viewBox="0 0 22 14"><path d="M1 7 Q4 1, 7 7 T13 7 T19 7" stroke="#00d4b5" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><span>TechElectro</span></a><span class="admin-badge">Admin</span><div class="store-pick"><span class="lbl">Магазин:</span><b>Роботика</b><span class="t-dim">▾</span></div></div>
+  <div style="display:flex; gap: 16px; align-items: center;"><div class="search"><div class="search-wrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input class="input input-sm" placeholder="Поиск по админке…" /></div></div><div class="user"><div class="av">МР</div><span class="nm">М. Романов</span><span class="t-dim">▾</span></div></div>
+</header>
+
+<div class="admin-layout">
+  <aside class="admin-sb">
+    <div class="group-lbl">АНАЛИТИКА</div>
+    <a href="admin-dashboard.html" class="nav-item"><span class="b"></span>Дашборд</a>
+    <div class="group-lbl">КАТАЛОГ</div>
+    <a href="admin-products.html" class="nav-item"><span class="b"></span>Товары<span class="n">247</span></a>
+    <a href="admin-categories.html" class="nav-item"><span class="b"></span>Категории</a>
+    <a href="admin-brands.html" class="nav-item active"><span class="b"></span>Бренды</a>
+    <div class="group-lbl">ПРОДАЖИ</div>
+    <a href="admin-orders.html" class="nav-item"><span class="b"></span>Заказы<span class="n">12</span></a>
+    <a href="#" class="nav-item"><span class="b"></span>Пользователи</a>
+    <a href="#" class="nav-item"><span class="b star">★</span>Отзывы</a>
+    <div class="group-lbl">КОНТЕНТ</div>
+    <a href="#" class="nav-item"><span class="b"></span>Кастомизация</a>
+    <div class="me"><div class="av">МР</div><div><div class="nm">Михаил Р.</div><div class="role">Manager · Роботика</div></div></div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-head">
+      <div><h1>Бренды</h1><div class="sub">Управление производителями и брендами</div></div>
+      <button class="btn" style="background:var(--accent);color:#0a1018;border-color:var(--accent);font-weight:600">+ Добавить бренд</button>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input class="input" placeholder="Поиск по названию..." />
+      </div>
+      <button class="btn">Сортировка: По кол-ву SKU ▾</button>
+    </div>
+
+    <div class="grid">
+      <div class="brand-card">
+        <div class="top"><div class="logo">ESP</div><div><h3>Espressif Systems</h3><div class="url">espressif.com · CN</div></div></div>
+        <div class="stats"><div class="st accent"><div class="lbl">SKU</div><div class="v">52</div></div><div class="st"><div class="lbl">ВЫРУЧКА</div><div class="v">328k ₽</div></div></div>
+        <div class="row"><span class="badge-stk">94% В НАЛИЧИИ</span><div class="acts"><button>✎</button><button>↗</button><button>✕</button></div></div>
+      </div>
+      <div class="brand-card">
+        <div class="top"><div class="logo">RPI</div><div><h3>Raspberry Pi Foundation</h3><div class="url">raspberrypi.com · UK</div></div></div>
+        <div class="stats"><div class="st accent"><div class="lbl">SKU</div><div class="v">21</div></div><div class="st"><div class="lbl">ВЫРУЧКА</div><div class="v">189k ₽</div></div></div>
+        <div class="row"><span class="badge-stk warn">76% В НАЛИЧИИ</span><div class="acts"><button>✎</button><button>↗</button><button>✕</button></div></div>
+      </div>
+      <div class="brand-card">
+        <div class="top"><div class="logo">ARD</div><div><h3>Arduino</h3><div class="url">arduino.cc · IT</div></div></div>
+        <div class="stats"><div class="st accent"><div class="lbl">SKU</div><div class="v">38</div></div><div class="st"><div class="lbl">ВЫРУЧКА</div><div class="v">142k ₽</div></div></div>
+        <div class="row"><span class="badge-stk">100% В НАЛИЧИИ</span><div class="acts"><button>✎</button><button>↗</button><button>✕</button></div></div>
+      </div>
+      <div class="brand-card">
+        <div class="top"><div class="logo">ST</div><div><h3>STMicroelectronics</h3><div class="url">st.com · CH</div></div></div>
+        <div class="stats"><div class="st accent"><div class="lbl">SKU</div><div class="v">34</div></div><div class="st"><div class="lbl">ВЫРУЧКА</div><div class="v">86k ₽</div></div></div>
+        <div class="row"><span class="badge-stk">88% В НАЛИЧИИ</span><div class="acts"><button>✎</button><button>↗</button><button>✕</button></div></div>
+      </div>
+      <div class="brand-card">
+        <div class="top"><div class="logo">BOSCH</div><div><h3>Bosch Sensortec</h3><div class="url">bosch-sensortec.com · DE</div></div></div>
+        <div class="stats"><div class="st accent"><div class="lbl">SKU</div><div class="v">14</div></div><div class="st"><div class="lbl">ВЫРУЧКА</div><div class="v">48k ₽</div></div></div>
+        <div class="row"><span class="badge-stk">100% В НАЛИЧИИ</span><div class="acts"><button>✎</button><button>↗</button><button>✕</button></div></div>
+      </div>
+      <div class="brand-card">
+        <div class="top"><div class="logo">NVDA</div><div><h3>NVIDIA</h3><div class="url">nvidia.com · US</div></div></div>
+        <div class="stats"><div class="st accent"><div class="lbl">SKU</div><div class="v">9</div></div><div class="st"><div class="lbl">ВЫРУЧКА</div><div class="v">412k ₽</div></div></div>
+        <div class="row"><span class="badge-stk warn">44% В НАЛИЧИИ</span><div class="acts"><button>✎</button><button>↗</button><button>✕</button></div></div>
+      </div>
+    </div>
+
+    <div class="pager">
+      <span>Показано 1–6 из 47</span>
+      <div class="pages"><a>‹</a><a class="active">1</a><a>2</a><a>3</a><a>…</a><a>8</a><a>›</a></div>
+    </div>
+  </main>
+</div>
+
+</body></html>

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8" /><meta name="viewport" content="width=1280" />
+<title>Admin — Заказы</title><link rel="stylesheet" href="_shared.css" /><link rel="stylesheet" href="_admin.css" />
+<style>
+  .toolbar { display: flex; gap: 12px; margin-bottom: 14px; align-items: center; }
+  .toolbar .search-wrap { flex: 1; }
+  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .filter-row .chip { font-size: 12px; padding: 7px 12px; cursor: pointer; }
+  .filter-row .chip.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .filter-row .chip .n { color: var(--dim); margin-left: 6px; font-size: 11px; }
+  .filter-row .chip.active .n { color: var(--accent); }
+  table.tbl { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); }
+  table.tbl th { text-align: left; font-family: "JetBrains Mono"; font-size: 10px; color: var(--dim); letter-spacing: 0.12em; padding: 14px 16px; font-weight: 500; background: var(--bg-deep); border-bottom: 1px solid var(--line); }
+  table.tbl td { padding: 14px 16px; border-bottom: 1px solid var(--line-soft); font-size: 13px; vertical-align: middle; }
+  table.tbl tr:hover td { background: rgba(0,212,181,0.02); }
+  td.id { font-family: "JetBrains Mono"; color: var(--accent); font-weight: 600; }
+  td.buyer { display: flex; align-items: center; gap: 10px; }
+  td.buyer .av { width: 32px; height: 32px; background: var(--bg-deep); border: 1px solid var(--line); display: grid; place-items: center; font-family: "JetBrains Mono"; font-size: 11px; color: var(--muted); }
+  td.buyer .nm { font-weight: 600; }
+  td.buyer .em { font-family: "JetBrains Mono"; font-size: 11px; color: var(--dim); margin-top: 2px; }
+  td.items { font-family: "JetBrains Mono"; font-size: 11px; color: var(--text-2); }
+  td.sum { font-family: "JetBrains Mono"; font-weight: 700; color: var(--accent); }
+  td.date { font-family: "JetBrains Mono"; font-size: 11px; color: var(--dim); }
+  .stt { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; font-family: "JetBrains Mono"; font-size: 11px; border: 1px solid var(--accent); color: var(--accent); }
+  .stt::before { content: "● "; }
+  .stt.warn { color: var(--orange); border-color: var(--orange); }
+  .stt.neutral { color: var(--muted); border-color: var(--line); }
+  .stt.danger { color: var(--red); border-color: var(--red); }
+  .row-acts { display: flex; gap: 6px; justify-content: flex-end; }
+  .row-acts button { width: 28px; height: 28px; background: var(--bg-deep); border: 1px solid var(--line); color: var(--muted); }
+  .row-acts button:hover { color: var(--accent); border-color: var(--accent); }
+  .pager { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; color: var(--dim); font-size: 13px; }
+  .pages { display: flex; gap: 6px; }
+  .pages a { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid var(--line); font-family: "JetBrains Mono"; font-size: 12px; color: var(--muted); }
+  .pages a.active { background: var(--accent); color: #0a1018; border-color: var(--accent); }
+
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
+  .st-card { background: var(--surface); border: 1px solid var(--line); padding: 16px 18px; }
+  .st-card .lbl { font-family: "JetBrains Mono"; font-size: 10px; color: var(--dim); letter-spacing: 0.12em; }
+  .st-card .v { font-family: "JetBrains Mono"; font-size: 26px; font-weight: 700; margin-top: 6px; }
+  .st-card.accent .v { color: var(--accent); }
+  .st-card.warn .v { color: var(--orange); }
+</style>
+</head><body>
+
+<header class="admin-tb">
+  <div class="lh"><a href="home-desktop.html" class="tb-logo"><svg class="wave" viewBox="0 0 22 14"><path d="M1 7 Q4 1, 7 7 T13 7 T19 7" stroke="#00d4b5" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><span>TechElectro</span></a><span class="admin-badge">Admin</span><div class="store-pick"><span class="lbl">Магазин:</span><b>Роботика</b><span class="t-dim">▾</span></div></div>
+  <div style="display:flex; gap: 16px; align-items: center;"><div class="search"><div class="search-wrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input class="input input-sm" placeholder="Поиск по админке…" /></div></div><div class="user"><div class="av">МР</div><span class="nm">М. Романов</span><span class="t-dim">▾</span></div></div>
+</header>
+
+<div class="admin-layout">
+  <aside class="admin-sb">
+    <div class="group-lbl">АНАЛИТИКА</div>
+    <a href="admin-dashboard.html" class="nav-item"><span class="b"></span>Дашборд</a>
+    <div class="group-lbl">КАТАЛОГ</div>
+    <a href="admin-products.html" class="nav-item"><span class="b"></span>Товары<span class="n">247</span></a>
+    <a href="admin-categories.html" class="nav-item"><span class="b"></span>Категории</a>
+    <a href="admin-brands.html" class="nav-item"><span class="b"></span>Бренды</a>
+    <div class="group-lbl">ПРОДАЖИ</div>
+    <a href="admin-orders.html" class="nav-item active"><span class="b"></span>Заказы<span class="n">12</span></a>
+    <a href="#" class="nav-item"><span class="b"></span>Пользователи</a>
+    <a href="#" class="nav-item"><span class="b star">★</span>Отзывы</a>
+    <div class="group-lbl">КОНТЕНТ</div>
+    <a href="#" class="nav-item"><span class="b"></span>Кастомизация</a>
+    <div class="me"><div class="av">МР</div><div><div class="nm">Михаил Р.</div><div class="role">Manager · Роботика</div></div></div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-head">
+      <div><h1>Заказы</h1><div class="sub">Управление заказами вашего магазина</div></div>
+      <button class="btn">↓ Экспорт CSV</button>
+    </div>
+
+    <div class="stats-row">
+      <div class="st-card"><div class="lbl">ВСЕГО ЗАКАЗОВ</div><div class="v">247</div></div>
+      <div class="st-card warn"><div class="lbl">ТРЕБУЮТ ВНИМАНИЯ</div><div class="v">12</div></div>
+      <div class="st-card accent"><div class="lbl">ОПЛАЧЕНО</div><div class="v">186</div></div>
+      <div class="st-card accent"><div class="lbl">ВЫРУЧКА (30Д)</div><div class="v">1.28M ₽</div></div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input class="input" placeholder="Поиск по № заказа или покупателю..." />
+      </div>
+      <button class="btn">Период: 30д ▾</button>
+      <button class="btn">Статус ▾</button>
+    </div>
+
+    <div class="filter-row">
+      <span class="chip active">Все <span class="n">247</span></span>
+      <span class="chip">Новые <span class="n">12</span></span>
+      <span class="chip">Оплачены <span class="n">186</span></span>
+      <span class="chip">Отправлены <span class="n">38</span></span>
+      <span class="chip">Доставлены <span class="n">7</span></span>
+      <span class="chip">Отменены <span class="n">4</span></span>
+    </div>
+
+    <table class="tbl">
+      <thead><tr>
+        <th>№ ЗАКАЗА</th><th>ПОКУПАТЕЛЬ</th><th>ПОЗИЦИЙ</th><th style="text-align:right">СУММА</th><th>СТАТУС</th><th>ДАТА</th><th></th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="id">#TE-1001</td><td><div class="buyer"><span class="av">ИП</span><div><div class="nm">Иван Петров</div><div class="em">ivan@example.ru</div></div></div></td><td class="items">4 поз. · 8 шт.</td><td class="sum" style="text-align:right">12 450 ₽</td><td><span class="stt warn">Новый</span></td><td class="date">14.05 · 14:32</td><td><div class="row-acts"><button>↗</button><button>✎</button></div></td></tr>
+        <tr><td class="id">#TE-1000</td><td><div class="buyer"><span class="av">МС</span><div><div class="nm">Мария Соколова</div><div class="em">m.sokolova@gmail.com</div></div></div></td><td class="items">2 поз. · 3 шт.</td><td class="sum" style="text-align:right">8 200 ₽</td><td><span class="stt">Оплачен</span></td><td class="date">14.05 · 11:08</td><td><div class="row-acts"><button>↗</button><button>✎</button></div></td></tr>
+        <tr><td class="id">#TE-0999</td><td><div class="buyer"><span class="av">ДК</span><div><div class="nm">Дмитрий Костин</div><div class="em">d.kostin@yandex.ru</div></div></div></td><td class="items">7 поз. · 14 шт.</td><td class="sum" style="text-align:right">15 600 ₽</td><td><span class="stt">Отправлен</span></td><td class="date">13.05 · 09:21</td><td><div class="row-acts"><button>↗</button><button>✎</button></div></td></tr>
+        <tr><td class="id">#TE-0998</td><td><div class="buyer"><span class="av">АТ</span><div><div class="nm">Анна Тихонова</div><div class="em">anna.tikh@mail.ru</div></div></div></td><td class="items">1 поз. · 2 шт.</td><td class="sum" style="text-align:right">2 290 ₽</td><td><span class="stt neutral">Ожидает оплаты</span></td><td class="date">13.05 · 22:14</td><td><div class="row-acts"><button>↗</button><button>✎</button></div></td></tr>
+        <tr><td class="id">#TE-0997</td><td><div class="buyer"><span class="av">ЕВ</span><div><div class="nm">Егор Волков</div><div class="em">volkov@robotcorp.ru</div></div></div></td><td class="items">5 поз. · 22 шт.</td><td class="sum" style="text-align:right">42 100 ₽</td><td><span class="stt">Доставлен</span></td><td class="date">12.05 · 16:45</td><td><div class="row-acts"><button>↗</button><button>✎</button></div></td></tr>
+        <tr><td class="id">#TE-0996</td><td><div class="buyer"><span class="av">СП</span><div><div class="nm">Сергей Петров</div><div class="em">s.petrov@me.com</div></div></div></td><td class="items">3 поз. · 5 шт.</td><td class="sum" style="text-align:right">6 480 ₽</td><td><span class="stt danger">Отменён</span></td><td class="date">11.05 · 10:02</td><td><div class="row-acts"><button>↗</button><button>✎</button></div></td></tr>
+      </tbody>
+    </table>
+
+    <div class="pager">
+      <span>Показано 1–6 из 247</span>
+      <div class="pages"><a>‹</a><a class="active">1</a><a>2</a><a>3</a><a>…</a><a>42</a><a>›</a></div>
+    </div>
+  </main>
+</div>
+
+</body></html>

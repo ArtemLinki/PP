@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8" /><meta name="viewport" content="width=1280" />
+<title>Admin — Товары</title><link rel="stylesheet" href="_shared.css" /><link rel="stylesheet" href="_admin.css" />
+<style>
+  .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 18px; }
+  .toolbar .search-wrap { flex: 1; }
+  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .filter-row .chip { font-size: 12px; padding: 7px 12px; cursor: pointer; }
+  .filter-row .chip.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .filter-row .chip .n { color: var(--dim); margin-left: 6px; font-size: 11px; }
+  .filter-row .chip.active .n { color: var(--accent); }
+  table.tbl { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); }
+  table.tbl th { text-align: left; font-family: "JetBrains Mono"; font-size: 10px; color: var(--dim); letter-spacing: 0.12em; padding: 14px 16px; font-weight: 500; background: var(--bg-deep); border-bottom: 1px solid var(--line); }
+  table.tbl td { padding: 14px 16px; border-bottom: 1px solid var(--line-soft); font-size: 13px; vertical-align: middle; }
+  table.tbl tr:hover td { background: rgba(0,212,181,0.02); }
+  .pname { display: flex; gap: 14px; align-items: center; }
+  .pname .img { width: 44px; height: 44px; display: grid; place-items: center; font-family: "JetBrains Mono"; font-size: 10px; color: var(--accent); background: var(--bg-deep); border: 1px solid var(--line); }
+  .pname .n { font-weight: 600; }
+  .pname .s { font-family: "JetBrains Mono"; font-size: 11px; color: var(--dim); margin-top: 2px; }
+  .stk { font-family: "JetBrains Mono"; }
+  .stk.low { color: var(--orange); }
+  .price-cell { font-family: "JetBrains Mono"; font-weight: 600; color: var(--accent); }
+  .pub { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border: 1px solid var(--accent); color: var(--accent); font-family: "JetBrains Mono"; font-size: 11px; }
+  .pub.draft { color: var(--muted); border-color: var(--line); }
+  .pub.archived { color: var(--orange); border-color: var(--orange); }
+  .row-acts { display: flex; gap: 6px; }
+  .row-acts button { width: 28px; height: 28px; background: var(--bg-deep); border: 1px solid var(--line); color: var(--muted); display: grid; place-items: center; }
+  .row-acts button:hover { color: var(--accent); border-color: var(--accent); }
+  .row-acts .del:hover { color: var(--orange); border-color: var(--orange); }
+  .pager { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; color: var(--dim); font-size: 13px; }
+  .pager .pages { display: flex; gap: 6px; }
+  .pager .pages a { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid var(--line); font-family: "JetBrains Mono"; font-size: 12px; color: var(--muted); }
+  .pager .pages a.active { background: var(--accent); color: #0a1018; border-color: var(--accent); }
+  .new-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: #0a1018; padding: 11px 18px; font-weight: 600; box-shadow: 0 0 20px rgba(0,212,181,0.25); }
+</style>
+</head><body>
+
+<header class="admin-tb">
+  <div class="lh">
+    <a href="home-desktop.html" class="tb-logo"><svg class="wave" viewBox="0 0 22 14"><path d="M1 7 Q4 1, 7 7 T13 7 T19 7" stroke="#00d4b5" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><span>TechElectro</span></a>
+    <span class="admin-badge">Admin</span>
+    <div class="store-pick"><span class="lbl">Магазин:</span><b>Роботика</b><span class="t-dim">▾</span></div>
+  </div>
+  <div style="display:flex; gap: 16px; align-items: center;">
+    <div class="search"><div class="search-wrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input class="input input-sm" placeholder="Поиск по админке…" /></div></div>
+    <div class="user"><div class="av">МР</div><span class="nm">М. Романов</span><span class="t-dim">▾</span></div>
+  </div>
+</header>
+
+<div class="admin-layout">
+  <aside class="admin-sb">
+    <div class="group-lbl">АНАЛИТИКА</div>
+    <a href="admin-dashboard.html" class="nav-item"><span class="b"></span>Дашборд</a>
+    <div class="group-lbl">КАТАЛОГ</div>
+    <a href="admin-products.html" class="nav-item active"><span class="b"></span>Товары<span class="n">247</span></a>
+    <a href="admin-categories.html" class="nav-item"><span class="b"></span>Категории</a>
+    <a href="admin-brands.html" class="nav-item"><span class="b"></span>Бренды</a>
+    <div class="group-lbl">ПРОДАЖИ</div>
+    <a href="admin-orders.html" class="nav-item"><span class="b"></span>Заказы<span class="n">12</span></a>
+    <a href="#" class="nav-item"><span class="b"></span>Пользователи</a>
+    <a href="#" class="nav-item"><span class="b star">★</span>Отзывы</a>
+    <div class="group-lbl">КОНТЕНТ</div>
+    <a href="#" class="nav-item"><span class="b"></span>Кастомизация</a>
+    <div class="me"><div class="av">МР</div><div><div class="nm">Михаил Р.</div><div class="role">Manager · Роботика</div></div></div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-head">
+      <div><h1>Товары</h1><div class="sub">Управление ассортиментом магазина «Роботика»</div></div>
+      <div class="toolbar" style="margin:0">
+        <button class="btn">↑ Импорт CSV</button>
+        <a href="product-modal.html" class="new-btn">+ Добавить товар</a>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input class="input" placeholder="Поиск по названию или артикулу…" />
+      </div>
+      <button class="btn">Категория ▾</button>
+      <button class="btn">Бренд ▾</button>
+      <button class="btn">Цена ▾</button>
+    </div>
+
+    <div class="filter-row">
+      <span class="chip active">Все <span class="n">247</span></span>
+      <span class="chip">Опубликованы <span class="n">231</span></span>
+      <span class="chip">Черновики <span class="n">12</span></span>
+      <span class="chip">Архив <span class="n">4</span></span>
+      <span class="chip" style="color:var(--orange);border-color:rgba(255,140,66,0.4)">Заканчиваются <span class="n">3</span></span>
+    </div>
+
+    <table class="tbl">
+      <thead><tr>
+        <th style="width:42px"><input type="checkbox" /></th>
+        <th>ТОВАР</th>
+        <th>SKU</th>
+        <th>КАТЕГОРИЯ</th>
+        <th>ЦЕНА</th>
+        <th>ОСТАТОК</th>
+        <th>СТАТУС</th>
+        <th style="text-align:right">ДЕЙСТВИЯ</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><input type="checkbox" /></td>
+          <td><div class="pname"><div class="img">ESP32</div><div><div class="n">ESP32-S3 Dev Module</div><div class="s">Espressif</div></div></div></td>
+          <td class="mono">ESP32-S3-WROOM-1</td>
+          <td>Микроконтроллеры</td>
+          <td class="price-cell">1 890 ₽</td>
+          <td class="stk">142 шт</td>
+          <td><span class="pub">Опубликован</span></td>
+          <td><div class="row-acts" style="justify-content:flex-end"><button>✎</button><button>⎘</button><button class="del">✕</button></div></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" /></td>
+          <td><div class="pname"><div class="img">RPI5</div><div><div class="n">Raspberry Pi 5 — 8 GB</div><div class="s">Raspberry Pi</div></div></div></td>
+          <td class="mono">RPI5-8GB-RU</td>
+          <td>Одноплатные ПК</td>
+          <td class="price-cell">9 450 ₽</td>
+          <td class="stk low">7 шт</td>
+          <td><span class="pub">Опубликован</span></td>
+          <td><div class="row-acts" style="justify-content:flex-end"><button>✎</button><button>⎘</button><button class="del">✕</button></div></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" /></td>
+          <td><div class="pname"><div class="img">UNO R4</div><div><div class="n">Arduino Uno R4 WiFi</div><div class="s">Arduino</div></div></div></td>
+          <td class="mono">ARD-UNO-R4-WIFI</td>
+          <td>Микроконтроллеры</td>
+          <td class="price-cell">3 290 ₽</td>
+          <td class="stk">31 шт</td>
+          <td><span class="pub">Опубликован</span></td>
+          <td><div class="row-acts" style="justify-content:flex-end"><button>✎</button><button>⎘</button><button class="del">✕</button></div></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" /></td>
+          <td><div class="pname"><div class="img">DHT22</div><div><div class="n">DHT22 Sensor Module</div><div class="s">AOSong</div></div></div></td>
+          <td class="mono">DHT22-3V3</td>
+          <td>Датчики</td>
+          <td class="price-cell">390 ₽</td>
+          <td class="stk">215 шт</td>
+          <td><span class="pub">Опубликован</span></td>
+          <td><div class="row-acts" style="justify-content:flex-end"><button>✎</button><button>⎘</button><button class="del">✕</button></div></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" /></td>
+          <td><div class="pname"><div class="img">SG90</div><div><div class="n">SG90 сервопривод 9г</div><div class="s">TowerPro</div></div></div></td>
+          <td class="mono">SG90-180</td>
+          <td>Моторы</td>
+          <td class="price-cell">190 ₽</td>
+          <td class="stk low">2 шт</td>
+          <td><span class="pub draft">Черновик</span></td>
+          <td><div class="row-acts" style="justify-content:flex-end"><button>✎</button><button>⎘</button><button class="del">✕</button></div></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" /></td>
+          <td><div class="pname"><div class="img">LIPO</div><div><div class="n">Li-Po АКБ 3.7В 2000mAh</div><div class="s">Generic</div></div></div></td>
+          <td class="mono">LIPO-37-2000</td>
+          <td>Питание</td>
+          <td class="price-cell">890 ₽</td>
+          <td class="stk">87 шт</td>
+          <td><span class="pub archived">Архив</span></td>
+          <td><div class="row-acts" style="justify-content:flex-end"><button>✎</button><button>⎘</button><button class="del">✕</button></div></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="pager">
+      <span>Показано 1–6 из 247</span>
+      <div class="pages"><a>‹</a><a class="active">1</a><a>2</a><a>3</a><a>…</a><a>42</a><a>›</a></div>
+    </div>
+  </main>
+</div>
+
+</body></html>

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8" /><meta name="viewport" content="width=402" />
+<title>TechElectro — ИИ-поиск</title><link rel="stylesheet" href="_shared.css" />
+<style>
+  body { background: #0a0d14; padding: 24px; }
+  .device { width: 402px; margin: 0 auto; background: var(--bg); border: 1px solid var(--line); border-radius: 28px; overflow: hidden; }
+  .top { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--bg-deep); }
+  .top .logo { display: flex; align-items: center; gap: 8px; }
+  .top .search-mini { flex: 1; }
+  .top .ai-btn { width: 36px; height: 36px; border: 1px solid var(--accent); color: var(--accent); display: grid; place-items: center; font-size: 12px; font-weight: 600; }
+  .crumbs-m { padding: 10px 16px; color: var(--muted); font-size: 12px; }
+  .crumbs-m .sep { color: var(--dim); margin: 0 6px; }
+  .crumbs-m .count { color: var(--accent); font-family: "JetBrains Mono"; }
+  .active-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 16px 14px; }
+  .active-chips .chip { font-size: 11px; padding: 5px 10px; }
+  .tab-row { display: flex; gap: 6px; padding: 0 16px 14px; }
+  .tab-row .tb-btn { flex: 1; padding: 10px; text-align: center; background: var(--surface); border: 1px solid var(--line); font-size: 12px; color: var(--muted); display: flex; gap: 6px; justify-content: center; align-items: center; }
+  .tab-row .tb-btn.active { background: var(--accent); color: #0a1018; border-color: var(--accent); font-weight: 600; }
+  .tab-row .tb-btn .n { background: rgba(0,0,0,0.2); padding: 1px 6px; font-family: "JetBrains Mono"; font-size: 10px; }
+  .brand-section { padding: 14px 16px; border-top: 1px solid var(--line-soft); }
+  .brand-section .lbl { font-family: "JetBrains Mono"; font-size: 9px; color: var(--dim); letter-spacing: 0.12em; display: flex; align-items: center; gap: 6px; }
+  .brand-row { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; }
+  .brand-row .b { background: var(--surface); border: 1px solid var(--line); padding: 7px 12px; font-family: "JetBrains Mono"; font-size: 11px; color: var(--text-2); flex: none; }
+  .brand-row .b.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .brand-row .b .pct { color: var(--orange); margin-left: 4px; }
+  .results-h { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; }
+  .results-h .lh { font-size: 14px; }
+  .results-h .lh b { font-weight: 700; color: var(--text); font-family: "JetBrains Mono"; font-size: 18px; }
+  .reset { color: var(--orange); font-family: "JetBrains Mono"; font-size: 11px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px 14px; }
+  .prod { background: var(--surface); border: 1px solid var(--line); padding: 14px; }
+  .prod.featured { border-color: var(--accent); }
+  .prod .img { aspect-ratio: 1; margin-bottom: 12px; font-size: 11px; color: var(--accent); border: 1px dashed var(--line); }
+  .prod .brand { font-family: "JetBrains Mono"; font-size: 9px; letter-spacing: 0.12em; color: var(--accent); margin-bottom: 6px; }
+  .prod .title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .prod .specs { color: var(--dim); font-family: "JetBrains Mono"; font-size: 10px; margin-top: 6px; line-height: 1.5; }
+  .prod .price { font-family: "JetBrains Mono"; font-size: 16px; font-weight: 700; margin-top: 10px; }
+  .prod .add { color: var(--accent); font-size: 12px; margin-top: 8px; display: inline-block; }
+  .prod .disc-badge { background: var(--orange-soft); color: var(--orange); border: 1px solid var(--orange); padding: 2px 5px; font-family: "JetBrains Mono"; font-size: 9px; margin-left: 6px; }
+  .ai-section { margin: 0 16px 16px; padding: 14px; background: rgba(0,212,181,0.04); border: 1px dashed var(--accent-border); }
+  .ai-section .head { display: flex; align-items: center; gap: 8px; font-family: "JetBrains Mono"; font-size: 9px; color: var(--accent); letter-spacing: 0.12em; }
+  .ai-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .ai-grid .ai-prod { background: var(--surface-2); padding: 12px; border: 1px solid var(--line); }
+  .ai-grid .ai-prod .n { font-size: 12px; font-weight: 600; }
+  .ai-grid .ai-prod .h { font-family: "JetBrains Mono"; font-size: 10px; color: var(--muted); margin-top: 4px; }
+  .ai-grid .ai-prod .p { font-family: "JetBrains Mono"; font-size: 14px; font-weight: 700; color: var(--accent); margin-top: 10px; }
+  .pager-m { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 16px; border-top: 1px solid var(--line); background: var(--bg-deep); }
+  .pager-m .pages { display: flex; gap: 6px; }
+  .pager-m .pages span { width: 28px; height: 28px; display: grid; place-items: center; border: 1px solid var(--line); font-family: "JetBrains Mono"; font-size: 11px; color: var(--muted); }
+  .pager-m .pages span.active { background: var(--accent); color: #0a1018; border-color: var(--accent); }
+  .pager-m .ai-pill-m { background: var(--accent); color: #0a1018; padding: 7px 14px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .pager-m .ai-pill-m::before { content: "●"; }
+</style>
+</head><body>
+
+<div class="device">
+  <div class="top">
+    <div class="logo"><svg class="wave" viewBox="0 0 22 14"><path d="M1 7 Q4 1, 7 7 T13 7 T19 7" stroke="#00d4b5" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><span style="font-size:14px">TechElectro</span></div>
+    <div class="search-mini search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input class="input input-sm" placeholder="Поиск по названию, параметру" />
+    </div>
+    <div class="ai-btn">AI</div>
+  </div>
+
+  <div class="crumbs-m">Главная <span class="sep">/</span> Компоненты <span class="sep">/</span> Микроконтроллеры <span class="count">· 247</span></div>
+
+  <div class="active-chips">
+    <span class="chip accent">USB-C ✕</span>
+    <span class="chip accent">I²C ✕</span>
+    <span class="chip">Raspberry Pi</span>
+    <span class="chip">2 500–68 000 ₽</span>
+  </div>
+
+  <div class="tab-row">
+    <div class="tb-btn">☰ Категории</div>
+    <div class="tb-btn active">Фильтры <span class="n">4</span></div>
+    <div class="tb-btn">По релевантности ▾</div>
+  </div>
+
+  <div class="brand-section">
+    <div class="lbl">▸ БРЕНД В МИКРОКОНТРОЛЛЕРАХ</div>
+    <div class="brand-row">
+      <span class="b active">ESPRESSIF<span class="pct">-12%</span></span>
+      <span class="b">RASPBERRY PI</span>
+      <span class="b">ST</span>
+      <span class="b">ARDUINO</span>
+      <span class="b">PJRC</span>
+    </div>
+  </div>
+
+  <div class="results-h">
+    <div class="lh"><b>247</b> <span class="t-muted">результатов · 4 фильтра</span></div>
+    <a class="reset">↻ Сбросить всё</a>
+  </div>
+
+  <div class="grid">
+    <div class="prod">
+      <div class="ph-img img" style="aspect-ratio:1;display:grid;place-items:center;color:var(--accent)">[ ESP32-S3 ]</div>
+      <div class="brand">ESPRESSIF</div>
+      <div class="title">ESP32-S3 Dev Module</div>
+      <div class="specs">240 MHz · 512 KB SRAM<br>WiFi 2.4 · BLE 5</div>
+      <div class="price">890 ₽ <a class="add">+ В сборку</a></div>
+    </div>
+    <div class="prod featured">
+      <div class="ph-img img" style="aspect-ratio:1;display:grid;place-items:center;color:var(--accent)">[ RPi 5 ]</div>
+      <div class="brand">RASPBERRY PI <span class="disc-badge">-12%</span></div>
+      <div class="title">Raspberry Pi 5 · 8 GB</div>
+      <div class="specs">Cortex-A76 quad 2.4<br>8 GB LPDDR4X · PCIe 2.0</div>
+      <div class="price">9 990 ₽ <a class="add">+ В сборку</a></div>
+    </div>
+    <div class="prod">
+      <div class="ph-img img" style="aspect-ratio:1;display:grid;place-items:center;color:var(--muted)">[ STM32F407 ]</div>
+      <div class="brand">ST</div>
+      <div class="title">STM32F407 Discovery</div>
+      <div class="specs">168 MHz Cortex-M4<br>1 MB Flash · USB OTG · I²C</div>
+      <div class="price">3 450 ₽ <a class="add">+ В сборку</a></div>
+    </div>
+    <div class="prod">
+      <div class="ph-img img" style="aspect-ratio:1;display:grid;place-items:center;color:var(--muted)">[ Nano ESP32 ]</div>
+      <div class="brand">ARDUINO</div>
+      <div class="title">Arduino Nano ESP32</div>
+      <div class="specs">Xtensa LX7 · 240 MHz<br>WiFi 4 · BLE 5 · USB-C</div>
+      <div class="price">2 290 ₽ <a class="add">+ В сборку</a></div>
+    </div>
+    <div class="prod">
+      <div class="ph-img img" style="aspect-ratio:1;display:grid;place-items:center;color:var(--muted)">[ Teensy 4.1 ]</div>
+      <div class="brand">PJRC</div>
+      <div class="title">Teensy 4.1</div>
+      <div class="specs">600 MHz Cortex-M7<br>Ethernet · SD · 8 MB PSRAM</div>
+      <div class="price">5 980 ₽ <a class="add">+ В сборку</a></div>
+    </div>
+    <div class="prod">
+      <div class="ph-img img" style="aspect-ratio:1;display:grid;place-items:center;color:var(--muted)">[ Jetson Orin ]</div>
+      <div class="brand">NVIDIA</div>
+      <div class="title">Jetson Orin Nano · 8 GB</div>
+      <div class="specs">67 TOPS · Ampere GPU<br>8 GB LPDDR5 · CUDA</div>
+      <div class="price">58 500 ₽ <a class="add">+ В сборку</a></div>
+    </div>
+  </div>
+
+  <div class="ai-section">
+    <div class="head">✨ ПОДОБРАНО ДЛЯ ВАС</div>
+    <div class="ai-grid">
+      <div class="ai-prod">
+        <div class="n">ESP32-S3 + камера</div>
+        <div class="h">2 позиции · совместимы</div>
+        <div class="p">2 290 ₽ →</div>
+      </div>
+      <div class="ai-prod">
+        <div class="n">RPi 5 + NVMe HAT</div>
+        <div class="h">2 позиции · совместимы</div>
+        <div class="p">5 980 ₽ →</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pager-m">
+    <div class="pages">
+      <span>‹</span><span class="active">1</span><span>2</span><span>…</span><span>42</span><span>Далее ›</span>
+    </div>
+    <div class="ai-pill-m">ИИ-помощник</div>
+  </div>
+</div>
+
+</body></html>

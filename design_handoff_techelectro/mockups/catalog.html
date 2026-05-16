@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8" /><meta name="viewport" content="width=1280" />
+<title>TechElectro — Каталог</title><link rel="stylesheet" href="_shared.css" />
+<style>
+  .layout { display: grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 56px); }
+  .sidebar { background: var(--bg-2); border-right: 1px solid var(--line); padding: 24px 20px; }
+  .sb-section { margin-bottom: 28px; }
+  .sb-title { font-family: "JetBrains Mono"; font-size: 10px; color: var(--dim); letter-spacing: 0.12em; margin-bottom: 12px; }
+  .cat-list { display: flex; flex-direction: column; }
+  .cat-list .cat {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 0; color: var(--muted); font-size: 13px;
+    border-bottom: 1px dashed var(--line-soft);
+  }
+  .cat-list .cat::before { content: "▸"; margin-right: 8px; color: var(--dim); }
+  .cat-list .cat.active { color: var(--accent); }
+  .cat-list .cat.active::before { color: var(--accent); }
+  .cat-list .cat .n { font-family: "JetBrains Mono"; font-size: 11px; color: var(--dim); }
+  .cat-list .cat.active .n { color: var(--accent); }
+  .filter-range { margin: 14px 0; }
+  .filter-range .row { display: flex; justify-content: space-between; font-family: "JetBrains Mono"; font-size: 11px; color: var(--dim); }
+  .slider-track { position: relative; height: 4px; background: var(--surface); margin: 14px 0 12px; }
+  .slider-active { position: absolute; left: 5%; right: 30%; top: 0; bottom: 0; background: var(--accent); }
+  .slider-track .h { position: absolute; top: -4px; width: 12px; height: 12px; background: var(--accent); border-radius: 50%; }
+  .slider-track .h.l { left: 5%; }
+  .slider-track .h.r { right: 30%; }
+  .range-inputs { display: grid; grid-template-columns: 1fr 12px 1fr; align-items: center; gap: 4px; }
+  .range-inputs .input { background: var(--surface); border: 1px solid var(--line); padding: 7px 10px; font-family: "JetBrains Mono"; font-size: 12px; color: var(--text); text-align: center; }
+  .range-inputs .sep { color: var(--dim); text-align: center; }
+  .iface-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .iface-chips .chip { font-size: 11px; padding: 5px 9px; }
+  .chk { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; font-size: 13px; color: var(--text-2); }
+  .chk .lft { display: flex; align-items: center; gap: 10px; }
+  .chk .box { width: 14px; height: 14px; border: 1.5px solid var(--line); display: inline-block; }
+  .chk.on .box { background: var(--accent); border-color: var(--accent); }
+  .chk .n { font-family: "JetBrains Mono"; font-size: 11px; color: var(--dim); }
+  .reset-row { display: flex; justify-content: space-between; align-items: center; padding-top: 18px; border-top: 1px solid var(--line); margin-top: 14px; }
+  .reset { color: var(--orange); font-family: "JetBrains Mono"; font-size: 11px; letter-spacing: 0.1em; }
+
+  .main { padding: 24px 32px; position: relative; }
+  .search-bar { margin-bottom: 22px; }
+  .crumbs-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .crumbs { color: var(--muted); font-size: 13px; }
+  .crumbs .sep { color: var(--dim); margin: 0 8px; }
+  .crumbs .last { color: var(--accent); }
+  .crumbs .count { color: var(--dim); margin-left: 12px; font-family: "JetBrains Mono"; font-size: 12px; }
+  .sort-row { display: flex; align-items: center; gap: 14px; }
+  .sort-pill {
+    display: inline-flex; gap: 8px; align-items: center;
+    background: var(--surface); border: 1px solid var(--line); padding: 7px 12px; font-size: 12px;
+  }
+  .sort-pill .lbl { font-family: "JetBrains Mono"; color: var(--dim); }
+  .view-toggle { display: flex; gap: 0; border: 1px solid var(--line); }
+  .view-toggle button {
+    background: transparent; border: 0; color: var(--dim); padding: 7px 9px; cursor: pointer;
+    display: grid; place-items: center;
+  }
+  .view-toggle button.active { background: var(--surface); color: var(--accent); }
+
+  .prod-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .prod {
+    background: var(--surface); border: 1px solid var(--line); padding: 18px;
+    display: flex; flex-direction: column; gap: 12px; position: relative;
+  }
+  .prod.featured { border-color: var(--accent); }
+  .prod .brand { position: absolute; top: 12px; right: 12px; font-family: "JetBrains Mono"; font-size: 10px; letter-spacing: 0.12em; color: var(--accent); }
+  .prod .discount { position: absolute; top: 10px; left: 10px; background: var(--orange-soft); color: var(--orange); border: 1px solid var(--orange); padding: 3px 6px; font-family: "JetBrains Mono"; font-size: 10px; }
+  .prod .img { height: 92px; }
+  .prod .title { font-size: 14px; font-weight: 600; color: var(--text); margin-top: 4px; }
+  .prod .specs { color: var(--dim); font-family: "JetBrains Mono"; font-size: 11px; line-height: 1.6; }
+  .prod hr { border: 0; border-top: 1px dashed var(--line); margin: 8px 0; }
+  .prod .price-row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+  .prod .price { font-family: "JetBrains Mono"; font-size: 18px; font-weight: 700; color: var(--accent); }
+  .prod .oldprice { font-family: "JetBrains Mono"; font-size: 12px; color: var(--dim); text-decoration: line-through; }
+  .add-btn { background: var(--accent); color: #0a1018; border: 0; padding: 8px 14px; font-weight: 600; font-size: 12px; }
+
+  .pager { display: flex; justify-content: center; gap: 8px; margin-top: 36px; padding-bottom: 40px; }
+  .pager a { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid var(--line); font-size: 13px; color: var(--muted); font-family: "JetBrains Mono"; }
+  .pager a.active { background: var(--accent); color: #0a1018; border-color: var(--accent); }
+  .pager a.next { width: auto; padding: 0 14px; }
+</style>
+</head><body>
+
+<header class="tb">
+  <div class="tb-brand">
+    <a href="home-desktop.html" class="tb-logo">
+      <svg class="wave" viewBox="0 0 22 14"><path d="M1 7 Q4 1, 7 7 T13 7 T19 7" stroke="#00d4b5" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+      <span>TechElectro</span>
+    </a>
+    <nav class="tb-nav">
+      <a href="catalog.html" class="active">Каталог</a>
+      <a href="projects.html">Проекты</a>
+      <a href="search.html">ИИ-подбор</a>
+      <a href="community.html">Сборки сообщества</a>
+    </nav>
+  </div>
+  <div class="tb-actions">
+    <a href="login.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="3.2"/><path d="M5 21c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg></a>
+    <a href="cart.html" class="cart-badge">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h2l2.5 12h11L21 7H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/></svg>
+      <span class="count">3</span>
+    </a>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-section">
+      <div class="sb-title">КАТЕГОРИИ</div>
+      <div class="cat-list">
+        <a href="#" class="cat">Процессоры <span class="n">1 247</span></a>
+        <a href="#" class="cat active">Микроконтроллеры <span class="n">3 481</span></a>
+        <a href="#" class="cat">Датчики <span class="n">5 902</span></a>
+        <a href="#" class="cat">Блоки питания <span class="n">2 134</span></a>
+        <a href="#" class="cat">Дроны / FPV <span class="n">892</span></a>
+        <a href="#" class="cat">3D-печать <span class="n">1 567</span></a>
+        <a href="#" class="cat">Кабели / Переходники <span class="n">4 218</span></a>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-title">ФИЛЬТРЫ</div>
+
+      <div class="filter-range">
+        <div class="row"><span>Цена, ₽</span><span>0 — 100 000</span></div>
+        <div class="slider-track"><div class="slider-active"></div><div class="h l"></div><div class="h r"></div></div>
+        <div class="range-inputs"><input class="input" value="2 500" /><span class="sep">—</span><input class="input" value="68 000" /></div>
+      </div>
+
+      <div class="filter-range">
+        <div class="row"><span style="color:var(--text-2);font-family:Inter;font-size:13px">Интерфейс</span></div>
+        <div class="iface-chips">
+          <span class="chip accent">USB-C ✕</span>
+          <span class="chip accent">I²C ✕</span>
+          <span class="chip">GPIO</span>
+          <span class="chip">SPI</span>
+          <span class="chip">HDMI</span>
+          <span class="chip">PoE</span>
+        </div>
+      </div>
+
+      <div class="filter-range">
+        <div class="row"><span style="color:var(--text-2);font-family:Inter;font-size:13px">Мощность</span><span>0 — 120 W</span></div>
+        <div class="slider-track"><div class="slider-active" style="left:0;right:50%"></div><div class="h l" style="left:0"></div><div class="h r" style="right:50%"></div></div>
+      </div>
+
+      <div style="margin-top: 18px">
+        <div class="row" style="display:flex; justify-content:space-between; font-family: Inter; font-size: 13px; color: var(--text-2); margin-bottom: 8px"><span>Бренд</span></div>
+        <div class="chk on"><div class="lft"><span class="box"></span>Raspberry Pi</div><span class="n">142</span></div>
+        <div class="chk on"><div class="lft"><span class="box"></span>Arduino</div><span class="n">218</span></div>
+        <div class="chk"><div class="lft"><span class="box"></span>Mean Well</div><span class="n">76</span></div>
+        <div class="chk"><div class="lft"><span class="box"></span>NVIDIA</div><span class="n">31</span></div>
+        <div class="chk"><div class="lft"><span class="box"></span>STMicroelectronics</div><span class="n">189</span></div>
+      </div>
+
+      <div class="reset-row">
+        <a class="reset">↻ СБРОСИТЬ ВСЁ</a>
+        <span class="mono" style="font-size:11px;color:var(--dim)">4 активны</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="search-bar">
+      <div class="search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input class="input" placeholder="Поиск по названию, параметру или интерфейсу" />
+      </div>
+    </div>
+
+    <div class="crumbs-row">
+      <div class="crumbs">
+        Главная <span class="sep">/</span> Компоненты <span class="sep">/</span>
+        <span class="last">Микроконтроллеры</span>
+        <span class="count">· 247 результатов</span>
+      </div>
+      <div class="sort-row">
+        <div class="sort-pill"><span class="lbl">СОРТ</span> По релевантности <span class="t-dim">▾</span></div>
+        <div class="view-toggle">
+          <button class="active"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
+          <button><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="prod-grid">
+      <div class="prod">
+        <span class="brand">ESPRESSIF</span>
+        <div class="ph-img img">ESP32-S3</div>
+        <div class="title">ESP32-S3 Dev Module</div>
+        <div class="specs">240 MHz · 512 KB SRAM<br>WiFi 2.4 GHz · BLE 5</div>
+        <hr />
+        <div class="price-row"><span class="price">890 ₽</span><button class="add-btn">+ В сборку</button></div>
+      </div>
+      <div class="prod featured">
+        <span class="brand">RASPBERRY PI</span>
+        <span class="discount">-12%</span>
+        <div class="ph-img img">RPi 5</div>
+        <div class="title">Raspberry Pi 5 · 8 GB</div>
+        <div class="specs">Cortex-A76 quad 2.4 GHz<br>8 GB LPDDR4X · PCIe 2.0</div>
+        <hr />
+        <div class="price-row">
+          <div><span class="oldprice">11 250 ₽</span><br><span class="price">9 990 ₽</span></div>
+          <button class="add-btn">+ В сборку</button>
+        </div>
+      </div>
+      <div class="prod">
+        <span class="brand">ST</span>
+        <div class="ph-img img">STM32F4</div>
+        <div class="title">STM32F407 Discovery</div>
+        <div class="specs">168 MHz Cortex-M4<br>1 MB Flash · USB OTG · I²C</div>
+        <hr />
+        <div class="price-row"><span class="price">3 450 ₽</span><button class="add-btn">+ В сборку</button></div>
+      </div>
+      <div class="prod">
+        <span class="brand">ARDUINO</span>
+        <div class="ph-img img">NANO ESP32</div>
+        <div class="title">Arduino Nano ESP32</div>
+        <div class="specs">Xtensa LX7 · 240 MHz<br>WiFi 4 · BLE 5 · USB-C</div>
+        <hr />
+        <div class="price-row"><span class="price">2 290 ₽</span><button class="add-btn">+ В сборку</button></div>
+      </div>
+      <div class="prod">
+        <span class="brand">PJRC</span>
+        <div class="ph-img img">TEENSY 4.1</div>
+        <div class="title">Teensy 4.1</div>
+        <div class="specs">600 MHz Cortex-M7<br>Ethernet · SD · 8 MB PSRAM</div>
+        <hr />
+        <div class="price-row"><span class="price">5 980 ₽</span><button class="add-btn">+ В сборку</button></div>
+      </div>
+      <div class="prod">
+        <span class="brand">NVIDIA</span>
+        <div class="ph-img img">JETSON ORIN</div>
+        <div class="title">Jetson Orin Nano · 8 GB</div>
+        <div class="specs">67 TOPS · Ampere GPU<br>8 GB LPDDR5 · CUDA</div>
+        <hr />
+        <div class="price-row"><span class="price">58 500 ₽</span><button class="add-btn">+ В сборку</button></div>
+      </div>
+    </div>
+
+    <div class="pager">
+      <a class="active">1</a>
+      <a>2</a>
+      <a>3</a>
+      <a>…</a>
+      <a>42</a>
+      <a class="next">Далее ›</a>
+    </div>
+
+    <div class="ai-pill">
+      <div class="ai-mark">AI</div>
+      <div>
+        <div class="ai-t">ИИ-помощник</div>
+        <div class="ai-s">ONLINE</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body></html>

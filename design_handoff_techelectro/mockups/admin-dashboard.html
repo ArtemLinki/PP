@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8" /><meta name="viewport" content="width=1280" />
+<title>TechElectro Admin — Дашборд</title><link rel="stylesheet" href="_shared.css" /><link rel="stylesheet" href="_admin.css" />
+<style>
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
+  .kpi { background: var(--surface); border: 1px solid var(--line); padding: 18px 20px; position: relative; }
+  .kpi .top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .kpi .lbl { font-family: "JetBrains Mono"; font-size: 10px; color: var(--dim); letter-spacing: 0.14em; }
+  .kpi .ic { width: 32px; height: 32px; border: 1px solid var(--accent-border); color: var(--accent); display: grid; place-items: center; }
+  .kpi .v { font-family: "JetBrains Mono"; font-size: 36px; font-weight: 700; color: var(--text); margin-top: 14px; }
+  .kpi .d { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 12px; color: var(--accent); }
+  .kpi .d .arr { font-weight: 700; }
+  .kpi .d .grey { color: var(--muted); }
+  .kpi.warn .d { color: var(--orange); }
+
+  .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; }
+  .panel { background: var(--surface); border: 1px solid var(--line); padding: 22px; }
+  .panel .ph { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .panel h3 { font-family: "Space Grotesk"; font-size: 17px; font-weight: 700; margin: 0; color: var(--text); }
+  .panel .week { font-family: "JetBrains Mono"; font-size: 11px; color: var(--dim); }
+  .panel .legend { display: flex; gap: 14px; font-size: 12px; }
+  .panel .legend .dot { width: 14px; height: 2px; background: var(--accent); display: inline-block; margin-right: 6px; }
+  .panel .legend .dot.prev { background: var(--dim); }
+
+  .chart { height: 280px; position: relative; padding: 12px 0 20px 32px; }
+  .chart .axis-y { position: absolute; left: 0; top: 0; bottom: 16px; width: 28px; display: flex; flex-direction: column-reverse; justify-content: space-between; font-family: "JetBrains Mono"; font-size: 10px; color: var(--dim); }
+  .chart .lines { position: absolute; left: 32px; right: 0; top: 12px; bottom: 28px; }
+  .chart .gline { position: absolute; left: 0; right: 0; border-top: 1px solid var(--line-soft); }
+  .chart .svg-wrap { position: absolute; inset: 0; }
+  .chart .axis-x { position: absolute; left: 32px; right: 0; bottom: 0; height: 16px; display: flex; justify-content: space-between; font-family: "JetBrains Mono"; font-size: 10px; color: var(--dim); }
+
+  .cat-bars .row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin: 14px 0 4px; }
+  .cat-bars .row .v { font-family: "JetBrains Mono"; font-size: 13px; font-weight: 600; color: var(--accent); }
+  .bar { height: 4px; background: var(--bg-deep); }
+  .bar .fill { height: 100%; background: var(--accent); }
+
+  .alert { display: flex; gap: 12px; align-items: center; padding: 14px; background: rgba(255,140,66,0.08); border: 1px solid rgba(255,140,66,0.4); margin-top: 18px; }
+  .alert .ic { width: 28px; height: 28px; border: 1px solid var(--orange); color: var(--orange); display: grid; place-items: center; }
+  .alert .t { font-size: 13px; color: var(--text); }
+  .alert .t b { color: var(--orange); }
+
+  .top-table { margin-top: 18px; }
+  .row-t { display: grid; grid-template-columns: 36px 1fr 60px; gap: 14px; align-items: center; padding: 14px 0; border-top: 1px solid var(--line-soft); }
+  .row-t .ic { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--line); color: var(--muted); }
+  .row-t .nm { font-size: 13px; font-weight: 600; }
+  .row-t .h { font-family: "JetBrains Mono"; font-size: 11px; color: var(--dim); margin-top: 3px; }
+  .row-t .rank { font-family: "JetBrains Mono"; font-size: 12px; color: var(--dim); text-align: right; }
+
+  .orders-table { width: 100%; margin-top: 14px; border-collapse: collapse; }
+  .orders-table th { text-align: left; font-family: "JetBrains Mono"; font-size: 10px; color: var(--dim); letter-spacing: 0.12em; padding: 8px 4px; font-weight: 500; }
+  .orders-table td { padding: 14px 4px; border-top: 1px solid var(--line-soft); font-size: 13px; }
+  .orders-table td.id { font-family: "JetBrains Mono"; font-weight: 600; color: var(--text); }
+  .orders-table td.buyer { display: flex; align-items: center; gap: 10px; }
+  .orders-table td.buyer .av { width: 26px; height: 26px; background: var(--bg-deep); border: 1px solid var(--line); display: grid; place-items: center; font-family: "JetBrains Mono"; font-size: 10px; color: var(--muted); }
+  .orders-table td.sum { font-family: "JetBrains Mono"; font-weight: 600; color: var(--accent); }
+  .stt { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border: 1px solid var(--accent); color: var(--accent); font-family: "JetBrains Mono"; font-size: 11px; }
+  .stt::before { content: "● "; }
+  .stt.warn { color: var(--orange); border-color: var(--orange); }
+  .stt.warn::before { content: "↗ "; }
+  .stt.neutral { color: var(--muted); border-color: var(--line); }
+  .stt.neutral::before { content: "" }
+</style>
+</head><body>
+
+<header class="admin-tb">
+  <div class="lh">
+    <a href="home-desktop.html" class="tb-logo">
+      <svg class="wave" viewBox="0 0 22 14"><path d="M1 7 Q4 1, 7 7 T13 7 T19 7" stroke="#00d4b5" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+      <span>TechElectro</span>
+    </a>
+    <span class="admin-badge">Admin</span>
+    <div class="store-pick"><span class="lbl">Магазин:</span><b>Роботика</b><span class="t-dim">▾</span></div>
+  </div>
+  <div style="display:flex; gap: 16px; align-items: center;">
+    <div class="search">
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input class="input input-sm" placeholder="Поиск по админке…" />
+      </div>
+    </div>
+    <div class="user">
+      <div class="av">МР</div>
+      <span class="nm">М. Романов</span>
+      <span class="t-dim">▾</span>
+    </div>
+  </div>
+</header>
+
+<div class="admin-layout">
+  <aside class="admin-sb">
+    <div class="group-lbl">АНАЛИТИКА</div>
+    <a href="admin-dashboard.html" class="nav-item active"><span class="b"></span>Дашборд</a>
+
+    <div class="group-lbl">КАТАЛОГ</div>
+    <a href="admin-products.html" class="nav-item"><span class="b"></span>Товары<span class="n">247</span></a>
+    <a href="admin-categories.html" class="nav-item"><span class="b"></span>Категории</a>
+    <a href="admin-brands.html" class="nav-item"><span class="b"></span>Бренды</a>
+
+    <div class="group-lbl">ПРОДАЖИ</div>
+    <a href="admin-orders.html" class="nav-item"><span class="b"></span>Заказы<span class="n">12</span></a>
+    <a href="#" class="nav-item"><span class="b"></span>Пользователи</a>
+    <a href="#" class="nav-item"><span class="b star">★</span>Отзывы</a>
+
+    <div class="group-lbl">КОНТЕНТ</div>
+    <a href="#" class="nav-item"><span class="b"></span>Кастомизация</a>
+
+    <div class="me">
+      <div class="av">МР</div>
+      <div><div class="nm">Михаил Р.</div><div class="role">Manager · Роботика</div></div>
+      <span class="t-dim" style="margin-left:auto">⟲</span>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-head">
+      <div class="h1">
+        <div><h1>Дашборд <span class="badge-live">LIVE</span></h1>
+        <div class="sub">Общая статистика вашего магазина за последние 30 дней</div></div>
+      </div>
+      <div class="toolbar">
+        <div class="period-pick"><button>7д</button><button class="active">30д</button><button>90д</button></div>
+        <button class="btn">↓ Экспорт</button>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="top"><span class="lbl">ТОВАРОВ</span><div class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18"/></svg></div></div>
+        <div class="v">247</div>
+        <div class="d"><span class="arr">↑ +12</span><span class="grey">за неделю</span></div>
+      </div>
+      <div class="kpi">
+        <div class="top"><span class="lbl">ЗАКАЗОВ (МЕСЯЦ)</span><div class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h2l2.5 12h11L21 7H6"/></svg></div></div>
+        <div class="v">86</div>
+        <div class="d"><span class="arr">↑ +8%</span><span class="grey">vs прошлый</span></div>
+      </div>
+      <div class="kpi">
+        <div class="top"><span class="lbl">ВЫРУЧКА</span><div class="ic">₽</div></div>
+        <div class="v" style="font-size:30px">1 284 500 ₽</div>
+        <div class="d"><span class="arr">↑ +23%</span><span class="grey">vs прошлый</span></div>
+      </div>
+      <div class="kpi warn" style="border-color: var(--orange);">
+        <div class="top"><span class="lbl">ИИ-РЕКОМЕНДАЦИИ</span><div class="ic" style="border-color:var(--orange);color:var(--orange)">✦</div></div>
+        <div class="v" style="color:var(--orange)">1 432</div>
+        <div class="d"><span class="arr">конверсия 4.2%</span></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <div class="ph">
+          <div><h3>Продажи по дням</h3><div class="week">w/ 06.05 – 12.05.2025 · ₽</div></div>
+          <div class="legend"><span><span class="dot"></span>Эта неделя</span><span><span class="dot prev"></span>Прошлая</span></div>
+        </div>
+        <div class="chart">
+          <div class="axis-y"><span>50k</span><span>100k</span><span>150k</span><span>200k</span><span>250k</span></div>
+          <div class="lines">
+            <div class="gline" style="bottom: 0%"></div>
+            <div class="gline" style="bottom: 25%"></div>
+            <div class="gline" style="bottom: 50%"></div>
+            <div class="gline" style="bottom: 75%"></div>
+            <div class="gline" style="bottom: 100%"></div>
+            <svg class="svg-wrap" viewBox="0 0 700 240" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#00d4b5" stop-opacity="0.3" />
+                  <stop offset="100%" stop-color="#00d4b5" stop-opacity="0" />
+                </linearGradient>
+              </defs>
+              <path d="M 0 200 L 100 160 L 200 100 L 300 130 L 400 80 L 500 30 L 600 50 L 700 20 L 700 240 L 0 240 Z" fill="url(#fill)" />
+              <polyline points="0,200 100,160 200,100 300,130 400,80 500,30 600,50 700,20" fill="none" stroke="#00d4b5" stroke-width="2.5" />
+              <polyline points="0,210 100,200 200,180 300,200 400,160 500,140 600,150 700,120" fill="none" stroke="#6b7588" stroke-width="1.5" stroke-dasharray="4 4" />
+              <g fill="#00d4b5">
+                <circle cx="0" cy="200" r="4" /><circle cx="100" cy="160" r="4" /><circle cx="200" cy="100" r="4" />
+                <circle cx="300" cy="130" r="4" /><circle cx="400" cy="80" r="4" /><circle cx="500" cy="30" r="4" />
+                <circle cx="600" cy="50" r="4" /><circle cx="700" cy="20" r="4" />
+              </g>
+            </svg>
+          </div>
+          <div class="axis-x"><span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span></div>
+        </div>
+      </div>
+
+      <div class="panel cat-bars">
+        <div class="ph"><div><h3>Популярные категории</h3></div><span class="week">30д</span></div>
+        <div class="row"><span>Процессоры</span><span class="v">34%</span></div><div class="bar"><div class="fill" style="width:34%"></div></div>
+        <div class="row"><span>Контроллеры</span><span class="v">28%</span></div><div class="bar"><div class="fill" style="width:28%"></div></div>
+        <div class="row"><span>Сенсоры</span><span class="v">22%</span></div><div class="bar"><div class="fill" style="width:22%"></div></div>
+        <div class="row"><span>Питание</span><span class="v">16%</span></div><div class="bar"><div class="fill" style="width:16%"></div></div>
+
+        <div class="alert">
+          <div class="ic">!</div>
+          <div class="t"><b>3 SKU</b> заканчиваются — проверить</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top: 18px">
+      <div class="panel">
+        <div class="ph"><div><h3>Последние заказы</h3><div class="week">5 из 86 заказов · обновлено 2 мин назад</div></div><a class="t-accent" style="font-size:13px">Все заказы →</a></div>
+        <table class="orders-table">
+          <thead><tr><th>№ ЗАКАЗА</th><th>ПОКУПАТЕЛЬ</th><th style="text-align:right">СУММА</th><th>СТАТУС</th><th style="text-align:right">ДАТА</th></tr></thead>
+          <tbody>
+            <tr><td class="id">#1001</td><td class="buyer"><span class="av">ИП</span>Иван Петров</td><td class="sum" style="text-align:right">4 980 ₽</td><td><span class="stt">Оплачен</span></td><td class="mono" style="text-align:right; color:var(--dim)">12.05.2025</td></tr>
+            <tr><td class="id">#1002</td><td class="buyer"><span class="av">МС</span>Мария Соколова</td><td class="sum" style="text-align:right">8 200 ₽</td><td><span class="stt warn">Отправлен</span></td><td class="mono" style="text-align:right; color:var(--dim)">11.05.2025</td></tr>
+            <tr><td class="id">#1003</td><td class="buyer"><span class="av">ДК</span>Дмитрий К.</td><td class="sum" style="text-align:right">15 600 ₽</td><td><span class="stt">Оплачен</span></td><td class="mono" style="text-align:right; color:var(--dim)">11.05.2025</td></tr>
+            <tr><td class="id">#1004</td><td class="buyer"><span class="av">АТ</span>Анна Тихонова</td><td class="sum" style="text-align:right">2 290 ₽</td><td><span class="stt neutral">Ожидает</span></td><td class="mono" style="text-align:right; color:var(--dim)">10.05.2025</td></tr>
+            <tr><td class="id">#1005</td><td class="buyer"><span class="av">ЕВ</span>Егор Волков</td><td class="sum" style="text-align:right">42 100 ₽</td><td><span class="stt">Оплачен</span></td><td class="mono" style="text-align:right; color:var(--dim)">09.05.2025</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <div class="ph"><div><h3>Топ товаров</h3><div class="week">Обновлено · топ за 30 дней</div></div><a class="t-accent" style="font-size:13px">Все →</a></div>
+        <div class="top-table">
+          <div class="row-t"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16"/></svg></div><div><div class="nm">ESP32-S3 Dev Module</div><div class="h">1 890 ₽ · 45 шт</div></div><div class="rank">#1</div></div>
+          <div class="row-t"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l9 5v10l-9 5-9-5V7z"/></svg></div><div><div class="nm">Raspberry Pi 5 8GB</div><div class="h">9 450 ₽ · 38 шт</div></div><div class="rank">#2</div></div>
+          <div class="row-t"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3v18"/></svg></div><div><div class="nm">Arduino Uno R4 WiFi</div><div class="h">3 290 ₽ · 31 шт</div></div><div class="rank">#3</div></div>
+          <div class="row-t"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h6l3-9 3 18 3-9h3"/></svg></div><div><div class="nm">DHT22 Sensor Module</div><div class="h">390 ₽ · 215 шт</div></div><div class="rank">#4</div></div>
+          <div class="row-t"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M10 7h4"/></svg></div><div><div class="nm">Li-Po 3.7V 2000 mAh</div><div class="h">890 ₽ · 87 шт</div></div><div class="rank">#5</div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body></html>

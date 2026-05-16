@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8" /><meta name="viewport" content="width=1280" />
+<title>Admin — Добавление товара</title><link rel="stylesheet" href="_shared.css" /><link rel="stylesheet" href="_admin.css" />
+<style>
+  .backdrop { position: fixed; inset: 0; background: rgba(8,10,16,0.75); backdrop-filter: blur(4px); z-index: 5; }
+  .modal {
+    position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 10;
+    width: 880px; max-height: calc(100vh - 80px); overflow: auto;
+    background: var(--surface); border: 1px solid var(--accent-border); box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 60px rgba(0,212,181,0.1);
+  }
+  .modal-head { display: flex; justify-content: space-between; align-items: flex-start; padding: 24px 28px 18px; border-bottom: 1px solid var(--line); }
+  .modal-head h2 { font-family: "Space Grotesk"; font-size: 22px; font-weight: 700; margin: 0; color: var(--text); }
+  .modal-head .sub { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .modal-head .close { background: transparent; border: 1px solid var(--line); color: var(--muted); width: 32px; height: 32px; }
+  .modal-body { padding: 24px 28px; display: grid; grid-template-columns: 1fr 280px; gap: 28px; }
+  .modal-body label { font-family: "JetBrains Mono"; font-size: 10px; color: var(--dim); letter-spacing: 0.12em; display: block; margin-bottom: 8px; }
+  .field { margin-bottom: 18px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .sel { display: flex; justify-content: space-between; align-items: center; background: var(--bg-deep); border: 1px solid var(--line); padding: 11px 14px; color: var(--text); font-size: 14px; }
+  .sel .arrow { color: var(--dim); }
+  .input { background: var(--bg-deep); }
+  textarea.input { min-height: 80px; resize: vertical; font-family: "Inter"; line-height: 1.5; padding: 12px 14px; }
+  .pub-state { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .pub-state .opt { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--bg-deep); border: 1px solid var(--line); cursor: pointer; }
+  .pub-state .opt.active { border-color: var(--accent); background: rgba(0,212,181,0.06); color: var(--accent); }
+  .pub-state .opt .r { width: 14px; height: 14px; border: 1.5px solid var(--line); border-radius: 50%; }
+  .pub-state .opt.active .r { border-color: var(--accent); position: relative; }
+  .pub-state .opt.active .r::after { content: ""; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; position: absolute; left: 2px; top: 2px; }
+  .img-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .img-grid .slot { aspect-ratio: 1; border: 1px dashed var(--line); display: grid; place-items: center; color: var(--dim); font-size: 22px; cursor: pointer; }
+  .img-grid .slot:hover { border-color: var(--accent); color: var(--accent); }
+  .img-grid .slot.filled { background: var(--bg-deep); border-style: solid; color: var(--accent); font-family: "JetBrains Mono"; font-size: 10px; }
+  .specs-table { width: 100%; border: 1px solid var(--line); }
+  .specs-table tr { display: grid; grid-template-columns: 1fr 1fr 32px; border-bottom: 1px solid var(--line-soft); }
+  .specs-table tr:last-child { border-bottom: 0; }
+  .specs-table input { background: transparent; border: 0; color: var(--text); font-size: 13px; padding: 10px 14px; outline: none; font-family: inherit; }
+  .specs-table input:first-child { border-right: 1px solid var(--line-soft); color: var(--muted); font-family: "JetBrains Mono"; font-size: 12px; }
+  .specs-table .del { display: grid; place-items: center; color: var(--muted); border-left: 1px solid var(--line-soft); cursor: pointer; }
+  .specs-table .add { padding: 10px 14px; color: var(--accent); font-size: 12px; cursor: pointer; }
+  .modal-foot { display: flex; justify-content: space-between; align-items: center; padding: 18px 28px; border-top: 1px solid var(--line); background: var(--bg-deep); }
+  .modal-foot .lhs { font-family: "JetBrains Mono"; font-size: 11px; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+  .modal-foot .lhs::before { content: ""; width: 6px; height: 6px; background: var(--accent); display: inline-block; }
+  .modal-foot .rhs { display: flex; gap: 10px; }
+  .modal-foot .rhs .save { background: var(--accent); color: #0a1018; border: 0; padding: 11px 24px; font-weight: 600; }
+</style>
+</head><body>
+
+<header class="admin-tb">
+  <div class="lh"><a href="home-desktop.html" class="tb-logo"><svg class="wave" viewBox="0 0 22 14"><path d="M1 7 Q4 1, 7 7 T13 7 T19 7" stroke="#00d4b5" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><span>TechElectro</span></a><span class="admin-badge">Admin</span></div>
+  <div class="user"><div class="av">МР</div><span class="nm">М. Романов</span><span class="t-dim">▾</span></div>
+</header>
+
+<!-- Затемнённый фон-страница (виден сквозь модалку) -->
+<div style="padding: 32px 48px; opacity: 0.4">
+  <h1 class="h2" style="margin: 0">Товары</h1>
+  <div class="t-muted" style="margin-top: 8px">Управление ассортиментом</div>
+</div>
+
+<div class="backdrop"></div>
+
+<div class="modal">
+  <div class="modal-head">
+    <div>
+      <h2>Добавление товара</h2>
+      <div class="sub">Заполните карточку — она появится в каталоге после публикации</div>
+    </div>
+    <button class="close">✕</button>
+  </div>
+
+  <div class="modal-body">
+    <!-- Левая колонка -->
+    <div>
+      <div class="field">
+        <label>НАЗВАНИЕ ТОВАРА *</label>
+        <input class="input" placeholder="Например: ESP32-S3 Dev Module" />
+      </div>
+
+      <div class="two-col">
+        <div class="field">
+          <label>КАТЕГОРИЯ *</label>
+          <div class="sel">Микроконтроллеры <span class="arrow">▾</span></div>
+        </div>
+        <div class="field">
+          <label>БРЕНД</label>
+          <div class="sel">Espressif <span class="arrow">▾</span></div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="field">
+          <label>АРТИКУЛ (SKU) *</label>
+          <input class="input" placeholder="ESP32-S3-WROOM-1-N16R8" />
+        </div>
+        <div class="field">
+          <label>ЦЕНА, ₽ *</label>
+          <input class="input" placeholder="1 890" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>ИЗОБРАЖЕНИЯ <span class="t-muted" style="text-transform:none;font-family:Inter;font-size:12px;letter-spacing:0">— до 8 шт, перетащите файлы</span></label>
+        <div class="img-grid">
+          <div class="slot filled">ESP32-S3</div>
+          <div class="slot filled">PINOUT</div>
+          <div class="slot filled">BOX</div>
+          <div class="slot">+</div>
+          <div class="slot">+</div>
+          <div class="slot">+</div>
+          <div class="slot">+</div>
+          <div class="slot">+</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>ТЕХНИЧЕСКИЕ ХАРАКТЕРИСТИКИ</label>
+        <table class="specs-table">
+          <tr><input value="Интерфейс" /><input value="USB-C, I²C, SPI, UART" /><span class="del">✕</span></tr>
+          <tr><input value="Напряжение" /><input value="3.3 V (5 V вход)" /><span class="del">✕</span></tr>
+          <tr><input value="CPU" /><input value="Xtensa LX7 dual-core @ 240 MHz" /><span class="del">✕</span></tr>
+          <tr><input value="RAM" /><input value="512 KB SRAM + 8 MB PSRAM" /><span class="del">✕</span></tr>
+        </table>
+        <div class="add">+ Добавить характеристику</div>
+      </div>
+
+      <div class="field">
+        <label>ОПИСАНИЕ ТОВАРА</label>
+        <textarea class="input" placeholder="Подробное описание: чип, объём флеш-памяти, поддерживаемые протоколы, особенности платы и сценарии применения…"></textarea>
+      </div>
+    </div>
+
+    <!-- Правая колонка (sticky-ish) -->
+    <aside>
+      <div class="field">
+        <label>СТАТУС ПУБЛИКАЦИИ</label>
+        <div class="pub-state">
+          <div class="opt active"><span class="r"></span>Опубликован</div>
+          <div class="opt"><span class="r"></span>Черновик</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>ОСТАТОК НА СКЛАДЕ</label>
+        <input class="input" placeholder="0" value="142" />
+      </div>
+
+      <div class="field">
+        <label>СТАРАЯ ЦЕНА (для скидки)</label>
+        <input class="input" placeholder="—" />
+      </div>
+
+      <div class="field">
+        <label>ТЕГИ</label>
+        <div style="display:flex; flex-wrap: wrap; gap: 6px">
+          <span class="chip" style="font-size:11px;padding:5px 9px">wifi</span>
+          <span class="chip" style="font-size:11px;padding:5px 9px">ble</span>
+          <span class="chip" style="font-size:11px;padding:5px 9px">ai</span>
+          <span class="chip" style="font-size:11px;padding:5px 9px;color:var(--dim)">+ добавить</span>
+        </div>
+      </div>
+
+      <div style="margin-top: 24px; padding: 14px; background: var(--bg-deep); border: 1px dashed var(--accent-border)">
+        <div class="lbl" style="margin-bottom: 6px">✦ ИИ-ПОДСКАЗКА</div>
+        <div style="font-size: 12px; color: var(--muted); line-height: 1.5">
+          Похожие SKU в каталоге — <b style="color:var(--accent)">3</b>.
+          Средняя цена сегмента: <b style="color:var(--accent)">2 100 ₽</b>.
+          Рекомендую теги: <i>wifi · iot · диплом</i>.
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="modal-foot">
+    <span class="lhs">Автосохранение черновика · 14:32</span>
+    <div class="rhs">
+      <button class="btn">Отмена</button>
+      <button class="btn">Сохранить как черновик</button>
+      <button class="save">Сохранить товар →</button>
+    </div>
+  </div>
+</div>
+
+</body></html>

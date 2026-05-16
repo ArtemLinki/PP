@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8" /><meta name="viewport" content="width=1280" />
+<title>TechElectro — Сборки сообщества</title><link rel="stylesheet" href="_shared.css" />
+<style>
+  .page { max-width: 1280px; margin: 0 auto; padding: 36px 48px 80px; position: relative; }
+  .head { margin-bottom: 24px; }
+  .head h1 { font-family: "Space Grotesk"; font-size: 40px; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+  .head .sub { color: var(--muted); margin-top: 8px; max-width: 540px; }
+  .search-bar { margin-bottom: 22px; max-width: 720px; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+  .tabs .t { padding: 9px 16px; background: var(--surface); border: 1px solid var(--line); font-size: 13px; color: var(--text-2); display: flex; gap: 8px; align-items: center; }
+  .tabs .t.active { background: rgba(0,212,181,0.08); border-color: var(--accent); color: var(--accent); }
+  .tabs .t .n { font-family: "JetBrains Mono"; font-size: 11px; color: var(--dim); }
+  .tabs .t.active .n { color: var(--accent); }
+  .sort-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; color: var(--muted); }
+  .sort-row .lhs { font-family: "JetBrains Mono"; font-size: 11px; color: var(--dim); letter-spacing: 0.12em; }
+  .sort-row .rhs { display: flex; gap: 10px; align-items: center; font-size: 13px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .build { background: var(--surface); border: 1px solid var(--line); display: flex; flex-direction: column; }
+  .build .img { aspect-ratio: 16/9; }
+  .build .body { padding: 18px; flex: 1; display: flex; flex-direction: column; }
+  .build .row1 { display: flex; gap: 8px; margin-bottom: 8px; }
+  .build .row1 .cat { font-family: "JetBrains Mono"; font-size: 10px; color: var(--accent); letter-spacing: 0.12em; }
+  .build .row1 .lvl { font-family: "JetBrains Mono"; font-size: 10px; color: var(--orange); letter-spacing: 0.12em; margin-left: auto; }
+  .build .title { font-family: "Space Grotesk"; font-size: 17px; font-weight: 700; color: var(--text); line-height: 1.25; }
+  .build .desc { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.5; flex: 1; }
+  .build .specs { display: flex; gap: 4px; margin: 14px 0 12px; flex-wrap: wrap; }
+  .build .specs .s { font-family: "JetBrains Mono"; font-size: 10px; padding: 3px 7px; background: var(--bg-deep); border: 1px solid var(--line); color: var(--text-2); }
+  .build .stats { display: flex; gap: 12px; font-family: "JetBrains Mono"; font-size: 11px; color: var(--dim); margin-bottom: 14px; }
+  .build .stats .v { color: var(--text-2); }
+  .build .author { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .build .author .av { width: 24px; height: 24px; background: var(--accent); color: #0a1018; display: grid; place-items: center; font-family: "JetBrains Mono"; font-size: 10px; font-weight: 700; }
+  .build .author .nm { font-size: 12px; color: var(--text-2); }
+  .build .author .vc { font-family: "JetBrains Mono"; font-size: 11px; color: var(--accent); margin-left: auto; }
+  .build .footer { padding: 14px 18px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+  .build .price { font-family: "JetBrains Mono"; font-size: 18px; font-weight: 700; color: var(--accent); }
+  .build .footer .acts { display: flex; gap: 8px; }
+  .build .footer .acts a { font-size: 12px; padding: 7px 12px; }
+  .helper-prompt {
+    position: fixed; right: 24px; bottom: 80px; background: var(--surface); border: 1px solid var(--line); padding: 12px 16px;
+    color: var(--muted); font-size: 13px; max-width: 240px;
+  }
+</style>
+</head><body>
+
+<header class="tb">
+  <div class="tb-brand">
+    <a href="home-desktop.html" class="tb-logo"><svg class="wave" viewBox="0 0 22 14"><path d="M1 7 Q4 1, 7 7 T13 7 T19 7" stroke="#00d4b5" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><span>TechElectro</span></a>
+    <nav class="tb-nav"><a href="catalog.html">Каталог</a><a href="projects.html">Проекты</a><a href="search.html">ИИ-подбор</a><a href="community.html" class="active">Сборки сообщества</a></nav>
+  </div>
+  <div class="tb-actions">
+    <a href="login.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="3.2"/><path d="M5 21c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg></a>
+    <a href="cart.html" class="cart-badge"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h2l2.5 12h11L21 7H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/></svg><span class="count">3</span></a>
+  </div>
+</header>
+
+<div class="page">
+  <div class="head">
+    <h1>Сборки сообщества</h1>
+    <div class="sub">Готовые BOM от инженеров. Скопируйте одной кнопкой и закажите — или измените под себя.</div>
+  </div>
+
+  <div class="search-bar">
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input class="input" placeholder="Поиск по названию, компонентам или автору" />
+    </div>
+  </div>
+
+  <div class="tabs">
+    <span class="t active">Все <span class="n">1 248</span></span>
+    <span class="t">Робототехника <span class="n">342</span></span>
+    <span class="t">ПК и серверы <span class="n">186</span></span>
+    <span class="t">Дроны/FPV <span class="n">127</span></span>
+    <span class="t">Умный дом <span class="n">298</span></span>
+    <span class="t">IoT <span class="n">204</span></span>
+    <span class="t">3D-печать <span class="n">91</span></span>
+  </div>
+
+  <div class="sort-row">
+    <span class="lhs">ПОПУЛЯРНОЕ</span>
+    <div class="rhs">Сортировать: <b style="color:var(--text)">По просмотрам ▾</b></div>
+  </div>
+
+  <div class="grid">
+    <div class="build">
+      <div class="ph-img img">FPV дрон 5"</div>
+      <div class="body">
+        <div class="row1"><span class="cat">FPV-ДРОНЫ</span><span class="lvl">PRO</span></div>
+        <div class="title">5" Freestyle Quad на T-Motor</div>
+        <div class="desc">F7 контроллер, ELRS приёмник, 1700KV моторы — гоночная конфигурация под аналог и DJI O3.</div>
+        <div class="specs"><span class="s">F7</span><span class="s">1700KV</span><span class="s">ELRS</span><span class="s">DJI O3</span></div>
+        <div class="stats">12 поз. · <span class="v">2 847</span> просм. · <span class="v">214</span> копий</div>
+        <div class="author"><span class="av">DS</span><span class="nm">Dmitry Sokolov · Pilot</span><span class="vc">★ 4.9</span></div>
+      </div>
+      <div class="footer">
+        <span class="price">38 900 ₽</span>
+        <div class="acts"><a class="btn btn-sm">Подробнее</a><a class="btn btn-primary btn-sm">Скопировать</a></div>
+      </div>
+    </div>
+
+    <div class="build">
+      <div class="ph-img img">Умная теплица</div>
+      <div class="body">
+        <div class="row1"><span class="cat">УМНЫЙ ДОМ</span><span class="lvl">EASY</span></div>
+        <div class="title">Теплица ESP8266 + 6 сенсоров</div>
+        <div class="desc">Контроль температуры, влажности, освещения и полива. Веб-интерфейс на самой плате.</div>
+        <div class="specs"><span class="s">ESP8266</span><span class="s">DHT22</span><span class="s">BH1750</span><span class="s">Relay 4ch</span></div>
+        <div class="stats">9 поз. · <span class="v">5 132</span> просм. · <span class="v">487</span> копий</div>
+        <div class="author"><span class="av">AT</span><span class="nm">Anna Tikhonova · DIY</span><span class="vc">★ 4.7</span></div>
+      </div>
+      <div class="footer">
+        <span class="price">6 480 ₽</span>
+        <div class="acts"><a class="btn btn-sm">Подробнее</a><a class="btn btn-primary btn-sm">Скопировать</a></div>
+      </div>
+    </div>
+
+    <div class="build">
+      <div class="ph-img img">NAS на RPi5</div>
+      <div class="body">
+        <div class="row1"><span class="cat">ПК · СЕРВЕРЫ</span><span class="lvl">MID</span></div>
+        <div class="title">RPi 5 NAS с NVMe HAT 2× SSD</div>
+        <div class="desc">Домашнее облако на Raspberry Pi 5: 8 GB RAM, 2× NVMe в RAID-0, OpenMediaVault.</div>
+        <div class="specs"><span class="s">RPi 5</span><span class="s">NVMe HAT</span><span class="s">2×1TB</span><span class="s">OMV</span></div>
+        <div class="stats">8 поз. · <span class="v">3 612</span> просм. · <span class="v">298</span> копий</div>
+        <div class="author"><span class="av">MK</span><span class="nm">Mikhail Kostin · DevOps</span><span class="vc">★ 4.8</span></div>
+      </div>
+      <div class="footer">
+        <span class="price">27 590 ₽</span>
+        <div class="acts"><a class="btn btn-sm">Подробнее</a><a class="btn btn-primary btn-sm">Скопировать</a></div>
+      </div>
+    </div>
+
+    <div class="build">
+      <div class="ph-img img">Робот-манипулятор</div>
+      <div class="body">
+        <div class="row1"><span class="cat">РОБОТОТЕХНИКА</span><span class="lvl">PRO</span></div>
+        <div class="title">6-DOF манипулятор на STM32</div>
+        <div class="desc">6 сервоприводов с обратной связью, инверсная кинематика, USB-управление с ПК.</div>
+        <div class="specs"><span class="s">STM32F4</span><span class="s">6× MG996R</span><span class="s">USB</span></div>
+        <div class="stats">14 поз. · <span class="v">1 924</span> просм. · <span class="v">142</span> копий</div>
+        <div class="author"><span class="av">EV</span><span class="nm">Egor Volkov · Robotics</span><span class="vc">★ 4.9</span></div>
+      </div>
+      <div class="footer">
+        <span class="price">18 240 ₽</span>
+        <div class="acts"><a class="btn btn-sm">Подробнее</a><a class="btn btn-primary btn-sm">Скопировать</a></div>
+      </div>
+    </div>
+
+    <div class="build">
+      <div class="ph-img img">3D-принтер mod</div>
+      <div class="body">
+        <div class="row1"><span class="cat">3D-ПЕЧАТЬ</span><span class="lvl">MID</span></div>
+        <div class="title">Klipper-mod для Ender 3 V3</div>
+        <div class="desc">SKR Mini E3 V3, BLTouch, OctoPi на Pi Zero 2 W — буст до 250 mm/s.</div>
+        <div class="specs"><span class="s">SKR Mini</span><span class="s">BLTouch</span><span class="s">Pi Zero 2W</span></div>
+        <div class="stats">7 поз. · <span class="v">2 481</span> просм. · <span class="v">213</span> копий</div>
+        <div class="author"><span class="av">SP</span><span class="nm">Sergey Petrov · Maker</span><span class="vc">★ 4.6</span></div>
+      </div>
+      <div class="footer">
+        <span class="price">9 880 ₽</span>
+        <div class="acts"><a class="btn btn-sm">Подробнее</a><a class="btn btn-primary btn-sm">Скопировать</a></div>
+      </div>
+    </div>
+
+    <div class="build">
+      <div class="ph-img img">Edge AI cam</div>
+      <div class="body">
+        <div class="row1"><span class="cat">IOT · ИИ</span><span class="lvl">PRO</span></div>
+        <div class="title">Edge AI камера на Jetson Nano</div>
+        <div class="desc">Распознавание объектов локально, без облака. ONNX-модель, 4K вход, Ethernet stream.</div>
+        <div class="specs"><span class="s">Jetson Nano</span><span class="s">IMX477</span><span class="s">ONNX</span></div>
+        <div class="stats">6 поз. · <span class="v">1 312</span> просм. · <span class="v">89</span> копий</div>
+        <div class="author"><span class="av">IL</span><span class="nm">Ilya Lebedev · CV</span><span class="vc">★ 4.7</span></div>
+      </div>
+      <div class="footer">
+        <span class="price">42 100 ₽</span>
+        <div class="acts"><a class="btn btn-sm">Подробнее</a><a class="btn btn-primary btn-sm">Скопировать</a></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="helper-prompt">✦ Подберу сборку под вашу задачу</div>
+  <div class="ai-pill"><div class="ai-mark">AI</div><div><div class="ai-t">ИИ-помощник</div><div class="ai-s">ONLINE</div></div></div>
+</div>
+
+</body></html>

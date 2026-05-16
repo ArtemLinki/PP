@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8" /><meta name="viewport" content="width=1280" />
+<title>TechElectro — Корзина</title><link rel="stylesheet" href="_shared.css" />
+<style>
+  .page { display: grid; grid-template-columns: 1fr 380px; gap: 32px; padding: 36px 48px 80px; max-width: 1280px; margin: 0 auto; }
+  .head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; }
+  .head h1 { font-family: "Space Grotesk"; font-size: 40px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); margin: 0; }
+  .head .sub { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .proj-tag {
+    border: 1px solid var(--accent); padding: 8px 16px;
+    color: var(--accent); font-family: "JetBrains Mono"; font-size: 12px; letter-spacing: 0.08em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .proj-tag::before { content: ""; width: 6px; height: 6px; background: var(--accent); display: inline-block; }
+  .list-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .list-head .lh { display: flex; gap: 12px; align-items: baseline; }
+  .list-head h2 { font-family: "Space Grotesk"; font-size: 16px; font-weight: 600; color: var(--text); margin: 0; }
+  .list-head .n { font-family: "JetBrains Mono"; font-size: 14px; color: var(--accent); }
+  .list-head .acts { display: flex; gap: 16px; color: var(--muted); font-size: 13px; }
+  .list-head .acts a:hover { color: var(--accent); }
+
+  .item {
+    display: grid; grid-template-columns: 80px 1fr 200px; gap: 18px; align-items: center;
+    background: var(--surface); border: 1px solid var(--line);
+    padding: 16px 20px; margin-bottom: 12px;
+  }
+  .item .idx-img {
+    position: relative;
+    width: 80px; height: 80px;
+  }
+  .item .idx-img .idx { position: absolute; top: 4px; left: 6px; font-family: "JetBrains Mono"; font-size: 10px; color: var(--dim); }
+  .item .info .row1 { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .item .info .name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .item .info .meta { color: var(--dim); font-family: "JetBrains Mono"; font-size: 11px; margin-top: 4px; }
+  .item .info .specs { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .item .info .specs .spec {
+    background: var(--bg-deep); border: 1px solid var(--line);
+    padding: 4px 8px; font-family: "JetBrains Mono"; font-size: 10px; color: var(--text-2);
+  }
+  .item .info .row3 { display: flex; align-items: center; gap: 14px; margin-top: 12px; }
+  .qty { display: inline-flex; align-items: center; }
+  .qty button { width: 28px; height: 28px; background: var(--bg-deep); border: 1px solid var(--line); color: var(--text); }
+  .qty input { width: 40px; height: 28px; background: var(--bg-deep); border: 1px solid var(--line); border-left: 0; border-right: 0; color: var(--text); text-align: center; font-family: "JetBrains Mono"; }
+  .lnk { color: var(--muted); font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
+  .lnk:hover { color: var(--accent); }
+  .price-col { text-align: right; }
+  .price-col .units { font-family: "JetBrains Mono"; font-size: 12px; color: var(--dim); margin-bottom: 6px; }
+  .price-col .total { font-family: "JetBrains Mono"; font-size: 20px; font-weight: 700; color: var(--accent); }
+
+  .summary { background: var(--surface); border: 1px solid var(--line); padding: 24px; height: fit-content; position: sticky; top: 80px; }
+  .summary h3 { font-family: "Space Grotesk"; font-size: 20px; font-weight: 700; color: var(--text); margin: 0 0 4px; }
+  .summary .ord { font-family: "JetBrains Mono"; font-size: 11px; color: var(--dim); margin-bottom: 22px; }
+  .sumrow { display: flex; justify-content: space-between; padding: 9px 0; color: var(--muted); font-size: 13px; }
+  .sumrow .v { color: var(--text); font-family: "JetBrains Mono"; }
+  .sumrow.free .v { color: var(--accent); }
+  .sumrow.total { padding-top: 16px; border-top: 1px solid var(--line); margin-top: 8px; font-size: 16px; }
+  .sumrow.total .v { font-family: "JetBrains Mono"; font-size: 22px; font-weight: 700; color: var(--accent); }
+  .promo { display: grid; grid-template-columns: 1fr 100px; gap: 8px; margin: 18px 0 18px; }
+  .promo .input { padding: 10px 14px; }
+  .promo button { background: var(--surface-3); border: 1px solid var(--line); color: var(--text); font-size: 13px; }
+  .order-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; background: var(--accent); color: #0a1018; border: 0; padding: 14px; font-size: 15px; font-weight: 700; }
+  .pay-lbl { font-family: "JetBrains Mono"; font-size: 10px; color: var(--dim); letter-spacing: 0.12em; margin: 20px 0 8px; }
+  .pay-row { display: flex; gap: 8px; }
+  .pay-row .p { background: var(--bg-deep); border: 1px solid var(--line); padding: 6px 10px; font-family: "JetBrains Mono"; font-size: 11px; font-weight: 600; color: var(--text); }
+  .secure { margin-top: 18px; display: flex; gap: 10px; align-items: center; padding: 10px 12px; border: 1px dashed var(--accent-border); }
+  .secure .dot { width: 14px; height: 14px; background: var(--accent); flex: none; }
+  .secure span { color: var(--muted); font-size: 11px; line-height: 1.45; }
+</style>
+</head><body>
+
+<header class="tb">
+  <div class="tb-brand">
+    <a href="home-desktop.html" class="tb-logo"><svg class="wave" viewBox="0 0 22 14"><path d="M1 7 Q4 1, 7 7 T13 7 T19 7" stroke="#00d4b5" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><span>TechElectro</span></a>
+    <nav class="tb-nav">
+      <a href="catalog.html">Каталог</a>
+      <a href="projects.html">Проекты</a>
+      <a href="search.html">ИИ-подбор</a>
+      <a href="community.html">Сборки сообщества</a>
+    </nav>
+  </div>
+  <div class="tb-actions">
+    <a href="login.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="3.2"/><path d="M5 21c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg></a>
+    <a href="cart.html" class="cart-badge"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h2l2.5 12h11L21 7H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/></svg><span class="count">4</span></a>
+  </div>
+</header>
+
+<div class="page">
+  <div>
+    <div class="head">
+      <div>
+        <h1>Корзина</h1>
+        <div class="sub">Товары, добавленные в проект</div>
+      </div>
+      <div class="proj-tag">ПРОЕКТ · IOT-EDGE-NODE-V2</div>
+    </div>
+
+    <div class="list-head">
+      <div class="lh">
+        <h2>Товары в корзине</h2>
+        <span class="n">(4)</span>
+      </div>
+      <div class="acts">
+        <a href="#">Очистить корзину</a>
+        <span class="t-dim">·</span>
+        <a href="#">Сохранить как BOM</a>
+      </div>
+    </div>
+
+    <!-- items -->
+    <div class="item">
+      <div class="idx-img"><span class="idx">01</span><div class="chip-img" style="width:80px;height:80px">ESP32</div></div>
+      <div class="info">
+        <div class="row1">
+          <span class="name">ESP32-S3 Dev Module</span>
+          <span class="badge dot">IN STOCK · 142</span>
+        </div>
+        <div class="meta">Espressif · SKU ESP32-S3-WROOM-1-N16R8</div>
+        <div class="specs">
+          <span class="spec">240MHz</span><span class="spec">512KB RAM</span>
+          <span class="spec">2.4GHz WiFi</span><span class="spec">BLE 5</span>
+        </div>
+        <div class="row3">
+          <div class="qty"><button>−</button><input value="2" /><button>+</button></div>
+          <a class="lnk">☓ Удалить</a>
+          <a class="lnk">♡ В избранное</a>
+        </div>
+      </div>
+      <div class="price-col"><div class="units">2 490 ₽ × 2</div><div class="total">4 980 ₽</div></div>
+    </div>
+
+    <div class="item">
+      <div class="idx-img"><span class="idx">02</span><div class="chip-img" style="width:80px;height:80px">RPI 5</div></div>
+      <div class="info">
+        <div class="row1">
+          <span class="name">Raspberry Pi 5 (8 GB)</span>
+          <span class="badge warn">LOW STOCK · 7</span>
+        </div>
+        <div class="meta">Raspberry Pi Foundation · SKU RPI5-8GB-RU</div>
+        <div class="specs">
+          <span class="spec">ARM Cortex-A76</span><span class="spec">2.4GHz</span>
+          <span class="spec">8GB LPDDR4X</span><span class="spec">PCIe 2.0</span>
+        </div>
+        <div class="row3">
+          <div class="qty"><button>−</button><input value="1" /><button>+</button></div>
+          <a class="lnk">☓ Удалить</a>
+          <a class="lnk">♡ В избранное</a>
+        </div>
+      </div>
+      <div class="price-col"><div class="units">5 490 ₽ × 1</div><div class="total">5 490 ₽</div></div>
+    </div>
+
+    <div class="item">
+      <div class="idx-img"><span class="idx">03</span><div class="chip-img" style="width:80px;height:80px">STM32</div></div>
+      <div class="info">
+        <div class="row1">
+          <span class="name">STM32 Nucleo-F446RE</span>
+          <span class="badge dot">IN STOCK · 56</span>
+        </div>
+        <div class="meta">STMicroelectronics · SKU NUCLEO-F446RE</div>
+        <div class="specs">
+          <span class="spec">180MHz</span><span class="spec">512KB Flash</span>
+          <span class="spec">128KB SRAM</span><span class="spec">Arduino-compat</span>
+        </div>
+        <div class="row3">
+          <div class="qty"><button>−</button><input value="1" /><button>+</button></div>
+          <a class="lnk">☓ Удалить</a>
+          <a class="lnk">♡ В избранное</a>
+        </div>
+      </div>
+      <div class="price-col"><div class="units">1 290 ₽ × 1</div><div class="total">1 290 ₽</div></div>
+    </div>
+
+    <div class="item">
+      <div class="idx-img"><span class="idx">04</span><div class="chip-img" style="width:80px;height:80px">BME680</div></div>
+      <div class="info">
+        <div class="row1">
+          <span class="name">BME680 Sensor Module</span>
+          <span class="badge dot">IN STOCK · 230</span>
+        </div>
+        <div class="meta">Bosch Sensortec · SKU BME680-3V3-I2C</div>
+        <div class="specs">
+          <span class="spec">Temp</span><span class="spec">Humidity</span><span class="spec">Pressure</span>
+          <span class="spec">Gas</span><span class="spec">I²C/SPI</span><span class="spec">3.3V</span>
+        </div>
+        <div class="row3">
+          <div class="qty"><button>−</button><input value="1" /><button>+</button></div>
+          <a class="lnk">☓ Удалить</a>
+          <a class="lnk">♡ В избранное</a>
+        </div>
+      </div>
+      <div class="price-col"><div class="units">690 ₽ × 1</div><div class="total">690 ₽</div></div>
+    </div>
+
+    <a class="lnk" style="margin-top: 22px; display: inline-flex">← Продолжить покупки</a>
+  </div>
+
+  <aside class="summary">
+    <h3>Итого по заказу</h3>
+    <div class="ord">#ORD-2401</div>
+    <div class="sumrow"><span>Товары (4)</span><span class="v">12 450 ₽</span></div>
+    <div class="sumrow free"><span>Доставка СДЭК</span><span class="badge dot">БЕСПЛАТНО</span></div>
+    <div class="sumrow"><span>Скидка</span><span class="v">−0 ₽</span></div>
+    <div class="sumrow"><span>НДС включён</span><span class="v">2 075 ₽</span></div>
+    <div class="sumrow total"><span>Итого к оплате</span><span class="v">12 450 ₽</span></div>
+
+    <div class="promo">
+      <input class="input" placeholder="Промокод" />
+      <button>Применить</button>
+    </div>
+
+    <button class="order-btn">Оформить заказ →</button>
+
+    <div class="pay-lbl">ОПЛАТА</div>
+    <div class="pay-row">
+      <span class="p">МИР</span>
+      <span class="p">VISA</span>
+      <span class="p">MASTERCARD</span>
+      <span class="p">СБП</span>
+    </div>
+
+    <div class="secure"><span class="dot"></span><span>Безопасная оплата · возврат 14 дней · сертификаты ЕАЭС</span></div>
+  </aside>
+</div>
+
+</body></html>

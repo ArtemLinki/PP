@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8" /><meta name="viewport" content="width=1280" />
+<title>TechElectro — Все экраны макета</title><link rel="stylesheet" href="_shared.css" />
+<style>
+  body { padding-bottom: 80px; }
+  .header { padding: 56px 48px 32px; max-width: 1280px; margin: 0 auto; border-bottom: 1px solid var(--line); }
+  .header h1 { font-family: "Space Grotesk"; font-size: 48px; font-weight: 700; margin: 18px 0 0; letter-spacing: -0.02em; }
+  .header .sub { color: var(--muted); margin-top: 14px; max-width: 720px; font-size: 15px; line-height: 1.55; }
+  .nav-tag { display: inline-flex; gap: 16px; margin-top: 24px; }
+  .nav-tag a { font-family: "JetBrains Mono"; font-size: 12px; padding: 7px 14px; background: var(--surface); border: 1px solid var(--line); color: var(--text); }
+
+  .section { padding: 56px 48px 0; max-width: 1280px; margin: 0 auto; }
+  .section-h { display: flex; align-items: baseline; gap: 16px; margin-bottom: 28px; }
+  .section-h h2 { font-family: "Space Grotesk"; font-size: 24px; font-weight: 700; margin: 0; }
+  .section-h .count { font-family: "JetBrains Mono"; font-size: 11px; color: var(--dim); letter-spacing: 0.12em; }
+
+  .grid { display: grid; gap: 20px; }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    overflow: hidden; transition: border-color 0.2s;
+    display: flex; flex-direction: column;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card .preview {
+    aspect-ratio: 16 / 10;
+    background: var(--bg-deep);
+    border-bottom: 1px solid var(--line);
+    position: relative; overflow: hidden;
+  }
+  .card .preview iframe {
+    position: absolute; left: 0; top: 0;
+    width: 1280px; height: 800px;
+    border: 0; pointer-events: none;
+    transform-origin: top left;
+    transform: scale(0.305); /* 390/1280 */
+  }
+  .card .preview.mobile iframe {
+    width: 402px; height: 870px;
+    transform: scale(0.97); /* fit width 390 */
+  }
+  .card .meta { padding: 18px 20px; }
+  .card .idx { font-family: "JetBrains Mono"; font-size: 10px; color: var(--accent); letter-spacing: 0.12em; }
+  .card .title { font-family: "Space Grotesk"; font-size: 18px; font-weight: 600; color: var(--text); margin-top: 8px; }
+  .card .desc { color: var(--muted); font-size: 13px; margin-top: 6px; line-height: 1.5; }
+  .card .footer { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-top: 1px solid var(--line); }
+  .card .footer .px { font-family: "JetBrains Mono"; font-size: 10px; color: var(--dim); }
+  .card .footer .open { font-family: "JetBrains Mono"; font-size: 11px; color: var(--accent); }
+</style>
+</head><body>
+
+<div class="header">
+  <span class="tag-online">TECHELECTRO · 14 SCREENS · MOCKUPS</span>
+  <h1>Все экраны макета</h1>
+  <p class="sub">Полный набор интерфейсов из Figma реализован как HTML-страницы 1:1 по дизайну. Публичная часть (Каталог, Корзина, Проекты, Сборки сообщества, Вход/Регистрация) и админка магазина (Дашборд, Товары, Категории, Бренды, Заказы + модалка добавления товара).</p>
+  <div class="nav-tag">
+    <a href="../overview.html">← Обзор проекта</a>
+    <a href="../techelectro/README.md">README</a>
+  </div>
+</div>
+
+<!-- PUBLIC -->
+<div class="section">
+  <div class="section-h">
+    <h2>Публичная часть</h2>
+    <span class="count">8 ЭКРАНОВ</span>
+  </div>
+  <div class="grid grid-3">
+    <a href="home-desktop.html" class="card">
+      <div class="preview"><iframe src="home-desktop.html"></iframe></div>
+      <div class="meta"><div class="idx">01 · HOME · DESKTOP</div><div class="title">Главная — Hero с ИИ-промптом</div><div class="desc">Опишите проект, нейросеть подберёт компоненты.</div></div>
+      <div class="footer"><span class="px">1280 × 800</span><span class="open">Открыть →</span></div>
+    </a>
+    <a href="home-mobile.html" class="card">
+      <div class="preview mobile"><iframe src="home-mobile.html"></iframe></div>
+      <div class="meta"><div class="idx">02 · HOME · MOBILE</div><div class="title">Главная — iPhone 17</div><div class="desc">Мобильная версия hero + нижний таб-бар.</div></div>
+      <div class="footer"><span class="px">402 × 870</span><span class="open">Открыть →</span></div>
+    </a>
+    <a href="catalog.html" class="card">
+      <div class="preview"><iframe src="catalog.html"></iframe></div>
+      <div class="meta"><div class="idx">03 · CATALOG</div><div class="title">Каталог · Микроконтроллеры</div><div class="desc">Сайдбар с категориями + фильтрами, сетка товаров.</div></div>
+      <div class="footer"><span class="px">1280 × 800</span><span class="open">Открыть →</span></div>
+    </a>
+    <a href="search.html" class="card">
+      <div class="preview mobile"><iframe src="search.html"></iframe></div>
+      <div class="meta"><div class="idx">04 · AI SEARCH</div><div class="title">ИИ-подбор · мобилка</div><div class="desc">Поиск с фильтрами и AI-рекомендациями.</div></div>
+      <div class="footer"><span class="px">402 × auto</span><span class="open">Открыть →</span></div>
+    </a>
+    <a href="community.html" class="card">
+      <div class="preview"><iframe src="community.html"></iframe></div>
+      <div class="meta"><div class="idx">05 · COMMUNITY</div><div class="title">Сборки сообщества</div><div class="desc">BOM-сборки от инженеров, копирование в проект.</div></div>
+      <div class="footer"><span class="px">1280 × 800</span><span class="open">Открыть →</span></div>
+    </a>
+    <a href="cart.html" class="card">
+      <div class="preview"><iframe src="cart.html"></iframe></div>
+      <div class="meta"><div class="idx">06 · CART</div><div class="title">Корзина с проектом</div><div class="desc">4 товара, сводка заказа, оплата, промокод.</div></div>
+      <div class="footer"><span class="px">1280 × 800</span><span class="open">Открыть →</span></div>
+    </a>
+    <a href="projects.html" class="card">
+      <div class="preview"><iframe src="projects.html"></iframe></div>
+      <div class="meta"><div class="idx">07 · PROJECTS</div><div class="title">Мои проекты</div><div class="desc">Черновики сборок, статистика, контекстное меню.</div></div>
+      <div class="footer"><span class="px">1280 × 800</span><span class="open">Открыть →</span></div>
+    </a>
+    <a href="login.html" class="card">
+      <div class="preview"><iframe src="login.html"></iframe></div>
+      <div class="meta"><div class="idx">08 · LOGIN</div><div class="title">Вход в аккаунт</div><div class="desc">Форма входа + Google/GitHub OAuth.</div></div>
+      <div class="footer"><span class="px">1280 × 800</span><span class="open">Открыть →</span></div>
+    </a>
+    <a href="register.html" class="card">
+      <div class="preview"><iframe src="register.html"></iframe></div>
+      <div class="meta"><div class="idx">09 · REGISTER</div><div class="title">Регистрация</div><div class="desc">Создание аккаунта, выбор типа (B2C/B2B).</div></div>
+      <div class="footer"><span class="px">1280 × 800</span><span class="open">Открыть →</span></div>
+    </a>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="section">
+  <div class="section-h">
+    <h2>Админка магазина</h2>
+    <span class="count">5 ЭКРАНОВ + МОДАЛКА</span>
+  </div>
+  <div class="grid grid-3">
+    <a href="admin-dashboard.html" class="card">
+      <div class="preview"><iframe src="admin-dashboard.html"></iframe></div>
+      <div class="meta"><div class="idx">10 · ADMIN DASHBOARD</div><div class="title">Дашборд</div><div class="desc">KPI, график продаж, топ товаров, последние заказы.</div></div>
+      <div class="footer"><span class="px">1280 × 800</span><span class="open">Открыть →</span></div>
+    </a>
+    <a href="admin-products.html" class="card">
+      <div class="preview"><iframe src="admin-products.html"></iframe></div>
+      <div class="meta"><div class="idx">11 · ADMIN PRODUCTS</div><div class="title">Товары</div><div class="desc">Таблица 247 SKU, фильтры по статусу, экспорт CSV.</div></div>
+      <div class="footer"><span class="px">1280 × 800</span><span class="open">Открыть →</span></div>
+    </a>
+    <a href="admin-categories.html" class="card">
+      <div class="preview"><iframe src="admin-categories.html"></iframe></div>
+      <div class="meta"><div class="idx">12 · ADMIN CATEGORIES</div><div class="title">Категории</div><div class="desc">Иерархическое дерево, видимость, счётчики.</div></div>
+      <div class="footer"><span class="px">1280 × 800</span><span class="open">Открыть →</span></div>
+    </a>
+    <a href="admin-brands.html" class="card">
+      <div class="preview"><iframe src="admin-brands.html"></iframe></div>
+      <div class="meta"><div class="idx">13 · ADMIN BRANDS</div><div class="title">Бренды</div><div class="desc">Карточки производителей, SKU/выручка/наличие.</div></div>
+      <div class="footer"><span class="px">1280 × 800</span><span class="open">Открыть →</span></div>
+    </a>
+    <a href="admin-orders.html" class="card">
+      <div class="preview"><iframe src="admin-orders.html"></iframe></div>
+      <div class="meta"><div class="idx">14 · ADMIN ORDERS</div><div class="title">Заказы</div><div class="desc">Таблица заказов, статусы, статистика.</div></div>
+      <div class="footer"><span class="px">1280 × 800</span><span class="open">Открыть →</span></div>
+    </a>
+    <a href="product-modal.html" class="card">
+      <div class="preview"><iframe src="product-modal.html"></iframe></div>
+      <div class="meta"><div class="idx">15 · ADD PRODUCT</div><div class="title">Модалка добавления товара</div><div class="desc">Форма SKU, спецификации, изображения, ИИ-подсказка.</div></div>
+      <div class="footer"><span class="px">1280 × 800</span><span class="open">Открыть →</span></div>
+    </a>
+  </div>
+</div>
+
+</body></html>

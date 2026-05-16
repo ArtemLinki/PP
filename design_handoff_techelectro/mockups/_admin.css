@@ -1,0 +1,42 @@
+/* Admin-shell shared styles */
+.admin-layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 56px); }
+.admin-tb { background: var(--bg-deep); border-bottom: 1px solid var(--line); height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; position: sticky; top: 0; z-index: 10; }
+.admin-tb .lh { display: flex; align-items: center; gap: 18px; }
+.admin-tb .admin-badge { color: var(--accent); font-weight: 500; font-size: 15px; }
+.admin-tb .store-pick { display: flex; align-items: center; gap: 10px; padding: 7px 14px; background: var(--surface); border: 1px solid var(--line); font-size: 13px; }
+.admin-tb .store-pick .lbl { color: var(--muted); }
+.admin-tb .search { width: 280px; }
+.admin-tb .user { display: flex; align-items: center; gap: 10px; padding: 5px 12px 5px 5px; background: var(--surface); border: 1px solid var(--line); }
+.admin-tb .user .av { width: 32px; height: 32px; background: var(--accent); color: #0a1018; display: grid; place-items: center; font-family: "JetBrains Mono"; font-weight: 700; font-size: 11px; }
+.admin-tb .user .nm { font-size: 13px; }
+
+.admin-sb { background: var(--bg-2); border-right: 1px solid var(--line); padding: 24px 0; display: flex; flex-direction: column; }
+.admin-sb .group { padding: 0 20px; margin-top: 6px; }
+.admin-sb .group-lbl { font-family: "JetBrains Mono"; font-size: 10px; color: var(--dim); letter-spacing: 0.12em; padding: 18px 20px 8px; }
+.admin-sb .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 20px; color: var(--muted); font-size: 13px; border-left: 3px solid transparent; }
+.admin-sb .nav-item .b { width: 16px; height: 16px; border: 1.5px solid var(--line); display: inline-block; }
+.admin-sb .nav-item.active { color: var(--accent); background: rgba(0,212,181,0.04); border-left-color: var(--accent); }
+.admin-sb .nav-item.active .b { border-color: var(--accent); background: var(--accent); }
+.admin-sb .nav-item .n { margin-left: auto; font-family: "JetBrains Mono"; font-size: 10px; color: var(--dim); background: var(--surface); padding: 2px 7px; }
+.admin-sb .nav-item.active .n { color: var(--accent); }
+.admin-sb .nav-item .star { color: var(--orange); }
+.admin-sb .me { margin-top: auto; padding: 16px 20px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
+.admin-sb .me .av { width: 36px; height: 36px; background: var(--surface); color: var(--accent); display: grid; place-items: center; font-family: "JetBrains Mono"; font-weight: 700; font-size: 11px; border: 1px solid var(--accent-border); }
+.admin-sb .me .nm { font-size: 13px; }
+.admin-sb .me .role { font-family: "JetBrains Mono"; font-size: 10px; color: var(--dim); }
+
+.admin-main { padding: 32px 36px; position: relative; }
+.admin-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; }
+.admin-head .h1 { display: flex; align-items: center; gap: 14px; }
+.admin-head h1 { font-family: "Space Grotesk"; font-size: 36px; font-weight: 700; letter-spacing: -0.02em; margin: 0; color: var(--text); }
+.admin-head .sub { color: var(--muted); margin-top: 6px; font-size: 13px; }
+.admin-head .badge-live {
+  display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px;
+  background: rgba(0,212,181,0.1); border: 1px solid var(--accent); color: var(--accent);
+  font-family: "JetBrains Mono"; font-size: 11px; letter-spacing: 0.12em;
+}
+.admin-head .badge-live::before { content: ""; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+.admin-head .toolbar { display: flex; gap: 12px; align-items: center; }
+.period-pick { display: flex; gap: 0; border: 1px solid var(--line); }
+.period-pick button { background: transparent; border: 0; color: var(--muted); padding: 8px 14px; font-family: "JetBrains Mono"; font-size: 12px; }
+.period-pick button.active { background: var(--accent); color: #0a1018; font-weight: 600; }

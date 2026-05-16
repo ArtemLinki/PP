@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8" /><meta name="viewport" content="width=1280" />
+<title>Admin — Категории</title><link rel="stylesheet" href="_shared.css" /><link rel="stylesheet" href="_admin.css" />
+<style>
+  .grid-2 { display: grid; grid-template-columns: 1fr 320px; gap: 22px; }
+  .tree-panel { background: var(--surface); border: 1px solid var(--line); padding: 22px; }
+  .add-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-bottom: 18px; }
+  .add-row button { background: var(--accent); color: #0a1018; border: 0; padding: 10px 22px; font-weight: 600; }
+  .tree { font-family: "Inter"; }
+  .node { padding: 0; }
+  .node-row { display: grid; grid-template-columns: 20px 1fr auto auto auto; align-items: center; gap: 10px; padding: 9px 8px; border-bottom: 1px dashed var(--line-soft); cursor: pointer; }
+  .node-row:hover { background: rgba(0,212,181,0.03); }
+  .node-row.active { background: rgba(0,212,181,0.07); }
+  .node-row .arrow { color: var(--dim); font-size: 11px; width: 14px; }
+  .node-row .nm { font-size: 13px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+  .node-row .nm .ic { width: 16px; height: 16px; border: 1px solid var(--line); display: grid; place-items: center; color: var(--accent); }
+  .node-row .cnt { font-family: "JetBrains Mono"; font-size: 11px; color: var(--dim); }
+  .node-row .v {
+    width: 28px; height: 18px; border-radius: 9px; background: var(--line); position: relative; cursor: pointer;
+  }
+  .node-row .v::after { content: ""; width: 14px; height: 14px; background: var(--dim); border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: 0.2s; }
+  .node-row .v.on { background: var(--accent); }
+  .node-row .v.on::after { background: #0a1018; left: 12px; }
+  .node-row .acts { display: flex; gap: 4px; opacity: 0; }
+  .node-row:hover .acts { opacity: 1; }
+  .node-row .acts button { width: 24px; height: 24px; background: var(--bg-deep); border: 1px solid var(--line); color: var(--muted); }
+  .node-row.l1 .nm { padding-left: 0; font-weight: 600; }
+  .node-row.l2 .nm { padding-left: 28px; }
+  .node-row.l2 .nm::before { content: "└"; color: var(--dim); margin-right: 8px; }
+  .panel-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
+  .panel-head .lbl-row { display: flex; gap: 14px; align-items: baseline; font-family: "JetBrains Mono"; font-size: 10px; color: var(--dim); letter-spacing: 0.14em; }
+  .panel-head .lbl-row .h { color: var(--accent); }
+  .summary-panel { background: var(--surface); border: 1px solid var(--line); padding: 22px; height: fit-content; }
+  .summary-panel h3 { font-family: "Space Grotesk"; font-size: 16px; font-weight: 700; margin: 0 0 14px; }
+  .stat-block { padding: 14px 0; border-bottom: 1px solid var(--line-soft); }
+  .stat-block .lbl { font-family: "JetBrains Mono"; font-size: 10px; color: var(--dim); letter-spacing: 0.12em; }
+  .stat-block .v { font-family: "JetBrains Mono"; font-size: 24px; font-weight: 700; color: var(--accent); margin-top: 6px; }
+  .footer-row { display: flex; justify-content: space-between; margin-top: 18px; color: var(--muted); font-size: 13px; }
+  .footer-row a { color: var(--accent); }
+</style>
+</head><body>
+
+<header class="admin-tb">
+  <div class="lh"><a href="home-desktop.html" class="tb-logo"><svg class="wave" viewBox="0 0 22 14"><path d="M1 7 Q4 1, 7 7 T13 7 T19 7" stroke="#00d4b5" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><span>TechElectro</span></a><span class="admin-badge">Admin</span><div class="store-pick"><span class="lbl">Магазин:</span><b>Роботика</b><span class="t-dim">▾</span></div></div>
+  <div style="display:flex; gap: 16px; align-items: center;"><div class="search"><div class="search-wrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input class="input input-sm" placeholder="Поиск по админке…" /></div></div><div class="user"><div class="av">МР</div><span class="nm">М. Романов</span><span class="t-dim">▾</span></div></div>
+</header>
+
+<div class="admin-layout">
+  <aside class="admin-sb">
+    <div class="group-lbl">АНАЛИТИКА</div>
+    <a href="admin-dashboard.html" class="nav-item"><span class="b"></span>Дашборд</a>
+    <div class="group-lbl">КАТАЛОГ</div>
+    <a href="admin-products.html" class="nav-item"><span class="b"></span>Товары<span class="n">247</span></a>
+    <a href="admin-categories.html" class="nav-item active"><span class="b"></span>Категории</a>
+    <a href="admin-brands.html" class="nav-item"><span class="b"></span>Бренды</a>
+    <div class="group-lbl">ПРОДАЖИ</div>
+    <a href="admin-orders.html" class="nav-item"><span class="b"></span>Заказы<span class="n">12</span></a>
+    <a href="#" class="nav-item"><span class="b"></span>Пользователи</a>
+    <a href="#" class="nav-item"><span class="b star">★</span>Отзывы</a>
+    <div class="group-lbl">КОНТЕНТ</div>
+    <a href="#" class="nav-item"><span class="b"></span>Кастомизация</a>
+    <div class="me"><div class="av">МР</div><div><div class="nm">Михаил Р.</div><div class="role">Manager · Роботика</div></div></div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-head"><div><h1>Категории</h1><div class="sub">Управление структурой каталога товаров</div></div></div>
+
+    <div class="grid-2">
+      <div class="tree-panel">
+        <div class="add-row">
+          <input class="input" placeholder="Название новой категории" />
+          <button>+ Добавить категорию</button>
+        </div>
+
+        <div class="panel-head">
+          <div class="lbl-row"><span class="h">КАТЕГОРИЯ</span><span style="margin-left:auto">КОЛ-ВО</span><span style="width:60px;text-align:right">ВИДИМОСТЬ</span></div>
+        </div>
+
+        <div class="tree">
+          <div class="node-row l1 active">
+            <span class="arrow">▼</span>
+            <span class="nm"><span class="ic">⊞</span>Электроника</span>
+            <span class="cnt">142</span>
+            <div class="v on"></div>
+            <div class="acts"><button>✎</button><button>+</button><button>✕</button></div>
+          </div>
+          <div class="node-row l2">
+            <span></span>
+            <span class="nm">Процессоры</span>
+            <span class="cnt">38</span>
+            <div class="v on"></div>
+            <div class="acts"><button>✎</button><button>+</button><button>✕</button></div>
+          </div>
+          <div class="node-row l2">
+            <span></span>
+            <span class="nm">Микроконтроллеры</span>
+            <span class="cnt">52</span>
+            <div class="v on"></div>
+            <div class="acts"><button>✎</button><button>+</button><button>✕</button></div>
+          </div>
+          <div class="node-row l2">
+            <span></span>
+            <span class="nm">Одноплатные ПК</span>
+            <span class="cnt">21</span>
+            <div class="v on"></div>
+            <div class="acts"><button>✎</button><button>+</button><button>✕</button></div>
+          </div>
+          <div class="node-row l1">
+            <span class="arrow">▶</span>
+            <span class="nm"><span class="ic">⊞</span>Датчики</span>
+            <span class="cnt">86</span>
+            <div class="v on"></div>
+            <div class="acts"><button>✎</button><button>+</button><button>✕</button></div>
+          </div>
+          <div class="node-row l1">
+            <span class="arrow">▶</span>
+            <span class="nm"><span class="ic">⊞</span>Питание и АКБ</span>
+            <span class="cnt">42</span>
+            <div class="v on"></div>
+            <div class="acts"><button>✎</button><button>+</button><button>✕</button></div>
+          </div>
+          <div class="node-row l1">
+            <span class="arrow">▶</span>
+            <span class="nm"><span class="ic">⊞</span>Моторы и приводы</span>
+            <span class="cnt">28</span>
+            <div class="v on"></div>
+            <div class="acts"><button>✎</button><button>+</button><button>✕</button></div>
+          </div>
+          <div class="node-row l1">
+            <span class="arrow">▶</span>
+            <span class="nm"><span class="ic">⊞</span>Роботика</span>
+            <span class="cnt">31</span>
+            <div class="v on"></div>
+            <div class="acts"><button>✎</button><button>+</button><button>✕</button></div>
+          </div>
+          <div class="node-row l1">
+            <span class="arrow">▶</span>
+            <span class="nm"><span class="ic">⊞</span>3D-печать</span>
+            <span class="cnt">19</span>
+            <div class="v"></div>
+            <div class="acts"><button>✎</button><button>+</button><button>✕</button></div>
+          </div>
+          <div class="node-row l1">
+            <span class="arrow">▶</span>
+            <span class="nm"><span class="ic">⊞</span>Дроны / FPV</span>
+            <span class="cnt">14</span>
+            <div class="v on"></div>
+            <div class="acts"><button>✎</button><button>+</button><button>✕</button></div>
+          </div>
+        </div>
+
+        <div class="footer-row"><span>показано 9 из 142</span><a>· развернуть всё ↓</a></div>
+      </div>
+
+      <aside class="summary-panel">
+        <h3>Статистика</h3>
+        <div class="stat-block"><div class="lbl">ВСЕГО КАТЕГОРИЙ</div><div class="v">142</div></div>
+        <div class="stat-block"><div class="lbl">КОРНЕВЫХ</div><div class="v">8</div></div>
+        <div class="stat-block"><div class="lbl">МАКС. ГЛУБИНА</div><div class="v">3</div></div>
+        <div class="stat-block" style="border:0"><div class="lbl">СКРЫТЫХ</div><div class="v" style="color:var(--orange)">5</div></div>
+
+        <button class="btn" style="width:100%; margin-top: 18px;">↻ Пересчитать счётчики</button>
+        <button class="btn" style="width:100%; margin-top: 8px;">↓ Экспорт дерева</button>
+      </aside>
+    </div>
+  </main>
+</div>
+
+</body></html>

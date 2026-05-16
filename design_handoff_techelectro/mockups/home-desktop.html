@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8" /><meta name="viewport" content="width=1280" />
+<title>TechElectro — Главная</title><link rel="stylesheet" href="_shared.css" />
+<style>
+  .hero { padding: 120px 80px 80px; max-width: 1280px; margin: 0 auto; text-align: center; }
+  .hero .tag-online { margin-bottom: 28px; }
+  .hero h1 { max-width: 940px; margin: 0 auto; text-wrap: balance; }
+  .hero h1 .ai { color: var(--accent); display: block; }
+  .hero .sub { color: var(--muted); margin-top: 22px; max-width: 540px; margin-left: auto; margin-right: auto; font-size: 15px; }
+  .prompt-card {
+    margin: 40px auto 0; max-width: 720px;
+    background: rgb(26,32,48);
+    border: 1.5px solid var(--accent);
+    box-shadow: 0 0 36px rgba(0,212,181,0.18);
+    padding: 22px;
+  }
+  .prompt-top { display: flex; align-items: center; gap: 14px; }
+  .prompt-ai { width: 32px; height: 32px; border: 1px solid var(--accent); color: var(--accent); display: grid; place-items: center; font-size: 12px; flex: none; }
+  .prompt-input { flex: 1; color: var(--dim); font-size: 16px; }
+  .prompt-cta-row { display: flex; justify-content: space-between; align-items: center; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .prompt-cta-row .hint { font-family: "JetBrains Mono"; font-size: 11px; color: var(--dim); letter-spacing: 0.08em; }
+  .chips-row { display: flex; gap: 12px; justify-content: center; margin-top: 32px; }
+  .examples-lbl { font-family: "JetBrains Mono"; font-size: 10px; color: var(--dim); letter-spacing: 0.12em; margin: 56px 0 14px; }
+  .features {
+    max-width: 1080px; margin: 80px auto 0; padding: 0 40px 80px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+    background: var(--line); border: 1px solid var(--line);
+  }
+  .features .f { background: var(--bg); padding: 32px; }
+  .features .num { font-family: "JetBrains Mono"; font-size: 11px; color: var(--accent); letter-spacing: 0.12em; }
+  .features .ft { font-family: "Space Grotesk"; font-size: 20px; font-weight: 600; margin-top: 12px; }
+  .features .fd { color: var(--muted); font-size: 13px; line-height: 1.55; margin-top: 8px; }
+</style>
+</head><body>
+
+<div class="frame" style="position:relative; min-height: 1280px;">
+  <header class="tb">
+    <div class="tb-brand">
+      <a href="home-desktop.html" class="tb-logo">
+        <svg class="wave" viewBox="0 0 22 14"><path d="M1 7 Q4 1, 7 7 T13 7 T19 7" stroke="#00d4b5" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        <span>TechElectro</span>
+      </a>
+      <nav class="tb-nav">
+        <a href="catalog.html">Каталог</a>
+        <a href="projects.html">Проекты</a>
+        <a href="search.html">ИИ-подбор</a>
+        <a href="community.html">Сборки сообщества</a>
+      </nav>
+    </div>
+    <div class="tb-actions">
+      <a href="login.html" title="Аккаунт">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="3.2"/><path d="M5 21c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>
+      </a>
+      <a href="cart.html" class="cart-badge">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h2l2.5 12h11L21 7H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/></svg>
+        <span class="count">3</span>
+      </a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <span class="tag-online">AI ENGINEER · ONLINE</span>
+    <h1 class="h1">Техника, которая собирает сама себя.<span class="ai">Спросите ИИ.</span></h1>
+    <p class="sub">Опишите проект — нейросеть подберёт совместимые компоненты, проверит характеристики, соберёт сборку под бюджет.</p>
+
+    <div class="prompt-card">
+      <div class="prompt-top">
+        <div class="prompt-ai">AI</div>
+        <div class="prompt-input">Опишите ваш проект…</div>
+      </div>
+      <div class="prompt-cta-row">
+        <span class="hint">ENTER · ОТПРАВИТЬ</span>
+        <button class="btn btn-primary">Начать подбор →</button>
+      </div>
+    </div>
+
+    <div class="examples-lbl">ПРИМЕРЫ ЗАПРОСОВ</div>
+    <div class="chips-row">
+      <span class="chip">Собрать ПК</span>
+      <span class="chip">Система умного дома</span>
+      <span class="chip">Робот-пылесос на Arduino</span>
+      <span class="chip">FPV-дрон до 50к</span>
+      <span class="chip">Метеостанция ESP32</span>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="f">
+      <div class="num">01 · СОВМЕСТИМОСТЬ</div>
+      <div class="ft">Проверка пин-аутов</div>
+      <div class="fd">ИИ сверяет напряжения, протоколы (I²C, SPI, UART) и сечения проводов. Не даст собрать несовместимое.</div>
+    </div>
+    <div class="f">
+      <div class="num">02 · СКЛАД</div>
+      <div class="ft">В наличии — в один клик</div>
+      <div class="fd">Подбор только из того, что лежит на складе. Альтернативы — если основное закончилось.</div>
+    </div>
+    <div class="f">
+      <div class="num">03 · BOM</div>
+      <div class="ft">Сохранить как сборку</div>
+      <div class="fd">Каждый проект сохраняется в BOM с артикулами. Поделиться или скопировать одной ссылкой.</div>
+    </div>
+  </section>
+
+  <div class="ai-pill">
+    <div class="ai-mark">AI</div>
+    <div>
+      <div class="ai-t">ИИ-инженер</div>
+      <div class="ai-s">отклик ~3с</div>
+    </div>
+  </div>
+</div>
+
+</body></html>

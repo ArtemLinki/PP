@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8" /><meta name="viewport" content="width=1280" />
+<title>TechElectro — Регистрация</title><link rel="stylesheet" href="_shared.css" />
+<style>
+  .wrap { min-height: calc(100vh - 56px); display: grid; place-items: center; padding: 48px 24px; position: relative; }
+  .panel { width: 540px; background: var(--surface); border: 1px solid var(--line); padding: 36px 40px; }
+  .form-head { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+  .mark { width: 36px; height: 36px; border: 1.5px solid var(--accent); display: grid; place-items: center; color: var(--accent); }
+  .form-head h2 { font-family: "Space Grotesk"; font-size: 24px; font-weight: 700; margin: 0; }
+  .form-head .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-2); margin-bottom: 6px; }
+  .field label .opt { color: var(--dim); font-family: "JetBrains Mono"; font-size: 10px; letter-spacing: 0.06em; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .acct {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px;
+  }
+  .acct .opt {
+    background: var(--bg-deep); border: 1px solid var(--line); padding: 14px 16px;
+    display: flex; align-items: flex-start; gap: 12px; cursor: pointer;
+  }
+  .acct .opt.active { border-color: var(--accent); background: rgba(0,212,181,0.04); }
+  .acct .opt .r { width: 16px; height: 16px; border: 1.5px solid var(--line); border-radius: 50%; margin-top: 2px; }
+  .acct .opt.active .r { border-color: var(--accent); position: relative; }
+  .acct .opt.active .r::after { content: ""; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; position: absolute; left: 2px; top: 2px; }
+  .acct .opt .n { font-weight: 600; font-size: 13px; color: var(--text); }
+  .acct .opt .h { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .check-row { display: flex; gap: 10px; align-items: flex-start; margin: 16px 0 6px; }
+  .check-row .b { width: 16px; height: 16px; background: var(--accent); display: grid; place-items: center; flex: none; color: #0a1018; }
+  .check-row .b::after { content: "✓"; font-size: 11px; font-weight: 700; }
+  .check-row span { font-size: 12px; color: var(--muted); line-height: 1.45; }
+  .check-row span b { color: var(--accent); font-weight: 500; }
+  .captcha {
+    display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+    background: var(--bg-deep); border: 1px solid var(--line); margin: 10px 0;
+  }
+  .captcha .box { width: 18px; height: 18px; border: 1.5px solid var(--line); }
+  .captcha .lbl { flex: 1; color: var(--text); font-size: 13px; }
+  .captcha .brand { font-family: "JetBrains Mono"; font-size: 10px; color: var(--dim); letter-spacing: 0.1em; }
+  .submit { width: 100%; padding: 14px; background: var(--accent); color: #0a1018; border: 0; font-size: 15px; font-weight: 700; box-shadow: 0 0 24px rgba(0,212,181,0.25); margin-top: 10px; }
+  .foot { margin-top: 20px; text-align: center; font-size: 13px; color: var(--muted); }
+  .foot a { color: var(--accent); margin-left: 4px; }
+</style>
+</head><body>
+
+<header class="tb">
+  <div class="tb-brand">
+    <a href="home-desktop.html" class="tb-logo"><svg class="wave" viewBox="0 0 22 14"><path d="M1 7 Q4 1, 7 7 T13 7 T19 7" stroke="#00d4b5" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><span>TechElectro</span></a>
+    <nav class="tb-nav"><a href="catalog.html">Каталог</a><a href="projects.html">Проекты</a><a href="search.html">ИИ-подбор</a><a href="community.html">Сборки сообщества</a></nav>
+  </div>
+  <div class="tb-actions">
+    <a href="login.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="3.2"/><path d="M5 21c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg></a>
+    <a href="cart.html" class="cart-badge"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h2l2.5 12h11L21 7H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/></svg><span class="count">0</span></a>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="panel">
+    <div class="form-head">
+      <div class="mark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="3.2"/><path d="M5 21c0-3.9 3.1-7 7-7s7 3.1 7 7"/><path d="M19 7v4M21 9h-4"/></svg>
+      </div>
+      <div><h2>Создать аккаунт</h2><div class="sub">Доступ к проектам, сборкам и оптовым ценам</div></div>
+    </div>
+
+    <div class="field"><label>Полное имя</label><input class="input" placeholder="Иван Петров" /></div>
+    <div class="field"><label>Электронная почта</label><input class="input" placeholder="ivan@example.ru" /></div>
+
+    <div class="two-col">
+      <div class="field"><label>Пароль</label><input class="input" type="password" value="••••••••" /></div>
+      <div class="field"><label>Подтвердите пароль</label><input class="input" type="password" value="••••••••" /></div>
+    </div>
+
+    <div class="field">
+      <label>Телефон <span class="opt">необязательно</span></label>
+      <input class="input" placeholder="+7 (___) ___-__-__" />
+    </div>
+
+    <div class="field">
+      <label>Тип аккаунта</label>
+      <div class="acct">
+        <div class="opt active">
+          <span class="r"></span>
+          <div><div class="n">Частный покупатель</div><div class="h">розничные заказы</div></div>
+        </div>
+        <div class="opt">
+          <span class="r"></span>
+          <div><div class="n">Юр. лицо / ИП</div><div class="h">опт · договор · НДС</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-row"><span class="b"></span><span>Я согласен с <b>условиями платформы</b> и политикой обработки данных</span></div>
+
+    <div class="captcha"><span class="box"></span><span class="lbl">Я не робот</span><span class="brand">reCAPTCHA</span></div>
+
+    <button class="submit">Зарегистрироваться →</button>
+    <div class="foot">Уже есть аккаунт? <a href="login.html">Войти</a></div>
+  </div>
+
+  <div class="ai-pill"><div class="ai-mark">AI</div><div><div class="ai-t">ИИ-помощник</div><div class="ai-s">ONLINE</div></div></div>
+</div>
+
+</body></html>

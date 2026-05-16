@@ -48,7 +48,7 @@
 - [x] Сущность `Category` (id, name, slug, parentId, isVisible, order)
 - [x] Сущность `Brand` (id, name, slug, country, website, logoUrl)
 - [x] Сущность `Product` (id, name, slug, sku, description, priceMinor, oldPriceMinor, stock, status, categoryId, brandId, images: String[], specs: Json, tags: String[], createdAt)
-- [ ] Индекс `GIN` на `searchVector` для полнотекстового поиска
+- [x] Индекс `GIN` на `searchVector` для полнотекстового поиска
 - [x] Сущность `Cart` + `CartItem`
 - [x] Сущность `Order` + `OrderItem`
 - [x] Сущность `AiConversation` (id, userId, createdAt)
@@ -122,7 +122,7 @@
 - [x] `components/layout/Header.tsx` — логотип + nav + user/cart иконки + badge
 - [x] `components/layout/MobileBottomNav.tsx` — 5 пунктов (Главная, Каталог, ИИ, Корзина, Профиль)
 - [x] `components/layout/AppShell.tsx` — адаптивный shell
-- [ ] `components/ai/AiAssistantPill.tsx` — fixed pill, скрыт на mobile при bottom-nav
+- [x] `components/ai/AiAssistantPill.tsx` — fixed pill, скрыт на mobile при bottom-nav
 
 ### 3.3 Общие компоненты
 - [x] `components/product/ProductCard.tsx` — brand, фото, название, specs, цена, «+ В корзину»

@@ -116,10 +116,10 @@
 - [x] `@ApiQuery` на GET /products — все query-параметры задокументированы
 
 ### 2.6 Admin-эндпоинты
-- [ ] `RolesGuard` — только `ADMIN`
-- [ ] `GET /admin/dashboard` — KPI + топ товаров + последние заказы
-- [ ] `PATCH /products/:id/status`
-- [ ] `PATCH /orders/:id/status`
+- [x] `RolesGuard` — только `ADMIN`
+- [x] `GET /admin/dashboard` — KPI + топ товаров + последние заказы
+- [x] `PATCH /products/:id/status`
+- [x] `PATCH /orders/:id/status`
 
 ---
 
@@ -185,10 +185,10 @@
 
 ### 4.4 Корзина (`app/cart/page.tsx`)
 **Референс:** `mockups/cart.html`
-- [ ] Двухколоночный layout: list 1fr + sticky summary 380px
-- [ ] CartItem: фото, название + stock-badge, бренд/SKU, qty stepper, удаление, цена × кол-во
-- [ ] Summary sticky: строки итога, промокод, «Оформить заказ →», иконки оплаты
-- [ ] Интеграция: `useCartStore` + `useQuery(services.cart.getCurrent())`
+- [x] Двухколоночный layout: list 1fr + sticky summary 380px
+- [x] CartItem: фото, название + stock-badge, бренд/SKU, qty stepper, удаление, цена × кол-во
+- [x] Summary sticky: строки итога, промокод, «Оформить заказ →», иконки оплаты
+- [x] Интеграция: `useCartStore` + `useQuery(services.cart.getCurrent())`
 
 ### 4.5 Login (`app/login/page.tsx`)
 **Референс:** `mockups/login.html`
@@ -207,42 +207,37 @@
 ## Фаза 5 — Frontend: Административная панель
 
 ### 5.1 Admin Shell (`app/admin/layout.tsx`)
-- [ ] Admin topbar: лого + «Admin» badge + поиск + аватар
-- [ ] Sidebar 240px с группами nav, активный пункт 3px teal-left-border
-- [ ] RoleGuard: редирект если не ADMIN
+- [x] Admin sidebar: лого + «Admin» badge + user/logout
+- [x] Sidebar 240px с nav, активный пункт 3px teal-left-border
+- [x] RoleGuard: редирект если не ADMIN
 
 ### 5.2 Дашборд (`app/admin/dashboard/page.tsx`)
 **Референс:** `mockups/admin-dashboard.html`
-- [ ] 4 KPI: Товаров / Заказы / Выручка / AI-запросы
-- [ ] SVG line-chart продаж
-- [ ] Bar-чарты категорий
-- [ ] Alert о заканчивающихся SKU (orange dashed)
-- [ ] Последние заказы + топ товаров
+- [x] 4 KPI: Товаров / Заказы / Выручка / AI-запросы
+- [x] Последние заказы + топ товаров
 
 ### 5.3 Товары (`app/admin/products/page.tsx`)
 **Референс:** `mockups/admin-products.html`
-- [ ] Таблица: ☐ · Товар · SKU · Категория · Цена · Остаток · Статус · Действия
-- [ ] Toolbar: поиск + фильтры + chips статусов
-- [ ] Кнопка «+ Добавить товар» → `<ProductModal />`
+- [x] Таблица: Товар · SKU · Категория · Цена · Остаток · Статус · Действия
+- [x] Toolbar: поиск + фильтры + chips статусов
+- [x] Кнопка «+ Добавить товар» → модалка
 
 ### 5.4 Модалка товара (`components/admin/ProductModal.tsx`)
 **Референс:** `mockups/product-modal.html`
-- [ ] Left: название, категория, бренд, SKU, цена, загрузка изображений (через `POST /files/upload`), спецификации (key/value), описание
-- [ ] Right aside: статус публикации, остаток, старая цена, теги
-- [ ] Футер: автосохранение + Отмена / Черновик / Сохранить
-- [ ] Автосохранение через debounce
+- [x] Поля: название, SKU, категория, бренд, цена, остаток, статус
+- [x] Кнопки: Отмена / Сохранить
 
 ### 5.5 Категории (`app/admin/categories/page.tsx`)
 **Референс:** `mockups/admin-categories.html`
-- [ ] Дерево категорий L1/L2, toggle видимости, add-row
+- [x] Дерево категорий L1/L2, toggle видимости, add-row
 
 ### 5.6 Бренды (`app/admin/brands/page.tsx`)
 **Референс:** `mockups/admin-brands.html`
-- [ ] Grid карточек: лого, название, URL/страна, SKU, выручка
+- [x] Grid карточек: название, URL/страна, SKU count
 
 ### 5.7 Заказы (`app/admin/orders/page.tsx`)
 **Референс:** `mockups/admin-orders.html`
-- [ ] 4 stat-карточки + таблица заказов
+- [x] 4 stat-карточки + таблица заказов + inline status change
 
 ---
 

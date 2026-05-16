@@ -1,35 +1,186 @@
-"use client";
+'use client';
 
-import { useQuery } from "@tanstack/react-query";
-import { Box, SimpleGrid, Text, Skeleton, Stack } from "@mantine/core";
-import { ProductCard } from "@/components/product/ProductCard";
-import { useServices } from "@/lib/services/ServicesProvider";
+import { useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import {
+  Box, SimpleGrid, Text, Skeleton, Stack, RangeSlider,
+  Button, Group,
+} from '@mantine/core';
+import { IconX } from '@tabler/icons-react';
+import { ProductCard } from '@/components/product/ProductCard';
+import { DualModeSearchBar } from '@/components/search/DualModeSearchBar';
+import { Eyebrow } from '@/components/ui/Eyebrow';
+import { useServices } from '@/lib/services/ServicesProvider';
 
 export default function CatalogPage() {
   const services = useServices();
-  const { data, isLoading } = useQuery({
-    queryKey: ["products", { page: 1, pageSize: 24 }],
-    queryFn: () => services.products.list({ page: 1, pageSize: 24 }),
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const [search, setSearch] = useState(searchParams.get('search') ?? '');
+  const [categoryId, setCategoryId] = useState(searchParams.get('categoryId') ?? '');
+  const [brandIds, setBrandIds] = useState<string[]>([]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 500000]);
+  const [page] = useState(1);
+
+  const { data: products, isLoading } = useQuery({
+    queryKey: ['products', { search, categoryId, brandIds, priceRange, page }],
+    queryFn: () =>
+      services.products.list({
+        search: search || undefined,
+        categoryId: categoryId || undefined,
+        page,
+        pageSize: 24,
+      }),
+    staleTime: 30_000,
   });
+
+  const { data: categories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => services.categories.list(),
+    staleTime: 60_000,
+  });
+
+  const resetFilters = () => {
+    setSearch('');
+    setCategoryId('');
+    setBrandIds([]);
+    setPriceRange([0, 500000]);
+    router.push('/catalog');
+  };
+
+  const activeCount = [
+    search,
+    categoryId,
+    brandIds.length > 0 ? 'brands' : '',
+    priceRange[0] > 0 || priceRange[1] < 500000 ? 'price' : '',
+  ].filter(Boolean).length;
 
   return (
     <Box className="te-container" py="lg">
       <Stack gap={4} mb="lg">
-        <Text size="xs" ff="JetBrains Mono" c="teal.6" style={{ letterSpacing: "0.12em" }}>
-          КАТАЛОГ
-        </Text>
+        <Eyebrow>КАТАЛОГ</Eyebrow>
         <Text fz={{ base: 24, sm: 32 }} fw={700} c="var(--te-text)">
           Компоненты и платы
         </Text>
       </Stack>
 
-      <SimpleGrid cols={{ base: 1, xs: 2, sm: 3, md: 4 }} spacing="md">
-        {isLoading
-          ? Array.from({ length: 8 }).map((_, i) => (
-              <Skeleton key={i} height={300} radius="md" />
-            ))
-          : data?.items.map((p) => <ProductCard key={p.id} product={p} />)}
-      </SimpleGrid>
+      <Box style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+        {/* Sidebar */}
+        <Box
+          visibleFrom="sm"
+          style={{ width: 260, flexShrink: 0, position: 'sticky', top: 72 }}
+        >
+          <Stack gap="lg">
+            {/* Categories */}
+            <Box>
+              <Text size="10px" ff="JetBrains Mono" c="var(--te-muted)" style={{ letterSpacing: '0.12em', marginBottom: 10 }}>
+                КАТЕГОРИИ
+              </Text>
+              <Stack gap={2}>
+                <Box
+                  onClick={() => setCategoryId('')}
+                  style={{
+                    padding: '6px 10px',
+                    cursor: 'pointer',
+                    color: !categoryId ? 'var(--te-accent)' : 'var(--te-muted)',
+                    fontSize: 13,
+                    borderLeft: !categoryId ? '2px solid var(--te-accent)' : '2px solid transparent',
+                  }}
+                >
+                  Все товары
+                </Box>
+                {categories?.map((cat) => (
+                  <Box
+                    key={cat.id}
+                    onClick={() => setCategoryId(cat.id)}
+                    style={{
+                      padding: '6px 10px',
+                      cursor: 'pointer',
+                      color: categoryId === cat.id ? 'var(--te-accent)' : 'var(--te-muted)',
+                      fontSize: 13,
+                      borderLeft: categoryId === cat.id ? '2px solid var(--te-accent)' : '2px solid transparent',
+                    }}
+                  >
+                    {cat.title}
+                    {cat.productCount ? (
+                      <Text component="span" size="xs" c="dimmed" ml={6}>{cat.productCount}</Text>
+                    ) : null}
+                  </Box>
+                ))}
+              </Stack>
+            </Box>
+
+            {/* Price range */}
+            <Box>
+              <Group justify="space-between" mb={10}>
+                <Text size="10px" ff="JetBrains Mono" c="var(--te-muted)" style={{ letterSpacing: '0.12em' }}>
+                  ЦЕНА
+                </Text>
+                <Text size="xs" c="dimmed" ff="JetBrains Mono">
+                  {Math.round(priceRange[0] / 100)}₽ — {Math.round(priceRange[1] / 100)}₽
+                </Text>
+              </Group>
+              <RangeSlider
+                value={priceRange}
+                onChange={setPriceRange}
+                min={0}
+                max={500000}
+                step={1000}
+                color="teal"
+                size="xs"
+                label={null}
+              />
+            </Box>
+
+            {/* Reset */}
+            {activeCount > 0 && (
+              <Button
+                variant="outline"
+                color="orange"
+                size="xs"
+                leftSection={<IconX size={12} />}
+                onClick={resetFilters}
+                style={{ borderRadius: 0 }}
+              >
+                Сбросить всё · {activeCount}
+              </Button>
+            )}
+          </Stack>
+        </Box>
+
+        {/* Main content */}
+        <Box style={{ flex: 1, minWidth: 0 }}>
+          <Box mb="md">
+            <DualModeSearchBar />
+          </Box>
+
+          <Group justify="space-between" mb="md">
+            <Text size="sm" c="var(--te-muted)">
+              {products ? (
+                <>{products.total} <Text component="span" c="dimmed">результатов</Text></>
+              ) : (
+                <Skeleton height={16} width={100} />
+              )}
+            </Text>
+          </Group>
+
+          <SimpleGrid cols={{ base: 1, xs: 2, sm: 2, md: 3, lg: 4 }} spacing="md">
+            {isLoading
+              ? Array.from({ length: 8 }).map((_, i) => (
+                  <Skeleton key={i} height={300} />
+                ))
+              : products?.items.map((p) => <ProductCard key={p.id} product={p} />)}
+          </SimpleGrid>
+
+          {products && products.total === 0 && (
+            <Box style={{ textAlign: 'center', padding: '60px 0' }}>
+              <Text c="var(--te-muted)">Ничего не найдено. Попробуйте изменить фильтры.</Text>
+            </Box>
+          )}
+        </Box>
+      </Box>
     </Box>
   );
 }

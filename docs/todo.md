@@ -106,6 +106,15 @@
 - [ ] `POST /ai/chat` — основной эндпоинт чата
 - [ ] `GET /ai/conversations/:id` — история диалога
 
+### 2.5.5 Swagger / OpenAPI
+- [x] Установить `@nestjs/swagger`
+- [x] Настроить `SwaggerModule` в `main.ts` — UI доступен на `/api/docs`
+- [x] `BearerAuth` схема для JWT-защищённых эндпоинтов
+- [x] `@ApiTags` на всех контроллерах (auth, users, products, categories, brands, cart, orders)
+- [x] `@ApiOperation` на всех методах
+- [x] `@ApiProperty` на DTO (RegisterDto, LoginDto)
+- [x] `@ApiQuery` на GET /products — все query-параметры задокументированы
+
 ### 2.6 Admin-эндпоинты
 - [ ] `RolesGuard` — только `ADMIN`
 - [ ] `GET /admin/dashboard` — KPI + топ товаров + последние заказы

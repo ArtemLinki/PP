@@ -124,9 +124,13 @@ export class AiService {
       } else {
         replyText = response.text();
       }
-    } catch (e) {
+    } catch (e: any) {
       this.logger.error('Gemini error:', e);
-      replyText = 'Произошла ошибка при обращении к ИИ. Попробуйте позже.';
+      if (e?.message?.includes('429') || e?.message?.includes('quota')) {
+        replyText = 'Превышен лимит запросов к ИИ. Подождите минуту и попробуйте снова.';
+      } else {
+        replyText = 'Произошла ошибка при обращении к ИИ. Попробуйте позже.';
+      }
     }
 
     // Save assistant reply

@@ -7,9 +7,9 @@
 ## Фаза 0 — Подготовка рабочей среды
 
 - [x] **0.1** Создать структуру монорепо: папки `frontend/`, `backend/`, `common/`
-- [ ] **0.2** Скопировать `design_handoff_techelectro/scaffold/` в `frontend/`
-- [ ] **0.3** `npm install` в папке `frontend/`
-- [ ] **0.4** Создать `.env.local` из `.env.local.example`, убедиться что `NEXT_PUBLIC_USE_MOCKS=true`
+- [x] **0.2** Скопировать `design_handoff_techelectro/scaffold/` в `frontend/`
+- [x] **0.3** `npm install` в папке `frontend/`
+- [x] **0.4** Создать `.env.local` из `.env.local.example`, убедиться что `NEXT_PUBLIC_USE_MOCKS=true`
 - [ ] **0.5** `npm run dev` — убедиться что starter поднимается на `localhost:3000`
 - [ ] **0.6** Открыть `design_handoff_techelectro/mockups/index.html` — просмотреть экраны
 - [x] **0.7** Инициализировать NestJS-проект в папке `backend/` — создан базовый NestJS app (AppModule, PrismaModule, health endpoint)
@@ -35,7 +35,7 @@
   AiToolResultDto     // { recommendedProducts?: ProductDto[], addedToCart?: CartDto }
   ```
 - [x] **1.9** `common/dto/index.ts` — реэкспорт всех DTO
-- [ ] **1.10** Обновить импорты в `frontend/src/lib/dto/` → заменить на импорты из `common/dto/`
+- [x] **1.10** Обновить импорты в `frontend/src/lib/dto/` → заменить на импорты из `common/dto/`
 
 ---
 
@@ -53,30 +53,30 @@
 - [x] Сущность `Order` + `OrderItem`
 - [x] Сущность `AiConversation` (id, userId, createdAt)
 - [x] Сущность `AiMessage` (id, conversationId, role, content, createdAt)
-- [ ] Первая миграция `npx prisma migrate dev --name init`
-- [ ] Добавить `prisma/seed.ts` — начальные категории, бренды, тестовые товары
+- [x] Первая миграция `npx prisma migrate dev --name init`
+- [x] Добавить `prisma/seed.ts` — начальные категории, бренды, тестовые товары
 - [x] Скрипт `npm run db:migrate` — запуск миграций
-- [ ] Скрипт `npm run db:seed` — заполнение тестовыми данными
+- [x] Скрипт `npm run db:seed` — заполнение тестовыми данными
 - [x] Скрипт `npm run db:reset` — сброс + seed (только dev)
 
 ### 2.2 Аутентификация
-- [ ] `POST /auth/register` — B2C/B2B, bcrypt хеширование
-- [ ] `POST /auth/login` — возврат JWT
-- [ ] `GET /auth/me`
+- [x] `POST /auth/register` — B2C/B2B, bcrypt хеширование
+- [x] `POST /auth/login` — возврат JWT
+- [x] `GET /auth/me`
 - [ ] `POST /auth/logout`
-- [ ] `JwtGuard` + `@CurrentUser()` декоратор
+- [x] `JwtGuard` + `@CurrentUser()` декоратор
 
 ### 2.3 CRUD-модули
-- [ ] `CategoriesModule` — GET /categories (дерево), GET /categories/:id
-- [ ] `BrandsModule` — GET /brands, POST/PATCH/DELETE (admin)
-- [ ] `ProductsModule`:
-  - GET /products (с фильтрами: `categoryId`, `brandId`, `priceMin`, `priceMax`, `q`)
-  - Нечёткий поиск по `q` через `pg_trgm` (`similarity()` или `%` оператор)
-  - GET /products/:id
-  - POST/PATCH/DELETE (admin)
-- [ ] `CartModule` — GET /cart, POST /cart/items, PATCH /cart/items/:id, DELETE /cart/items/:id, DELETE /cart
-- [ ] `OrdersModule` — GET /orders, GET /orders/:id, POST /orders
-- [ ] `UsersModule` — GET /users/me, PATCH /users/me
+- [x] `CategoriesModule` — GET /categories (дерево), GET /categories/:id
+- [x] `BrandsModule` — GET /brands, GET /brands/:id
+- [x] `ProductsModule`:
+  - GET /products (с фильтрами: `categoryId`, `brandId`, `priceMin`, `priceMax`, `search`)
+  - Поиск по `search` через contains (case-insensitive)
+  - GET /products/:id, GET /products/slug/:slug
+  - POST/PATCH/DELETE (admin) — в backlog
+- [x] `CartModule` — GET /cart, POST /cart/items, PATCH /cart/items/:id, DELETE /cart/items/:id, DELETE /cart
+- [x] `OrdersModule` — GET /orders, GET /orders/:id, POST /orders
+- [x] `UsersModule` — GET /users/me, PATCH /users/me
 
 ### 2.4 Файловое хранилище (MinIO)
 - [ ] Установить `@aws-sdk/client-s3`

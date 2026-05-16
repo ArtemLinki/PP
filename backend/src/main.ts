@@ -25,6 +25,8 @@ async function bootstrap() {
     .addTag('brands', 'Бренды')
     .addTag('cart', 'Корзина')
     .addTag('orders', 'Заказы')
+    .addTag('ai', 'ИИ-ассистент (Gemini + Function Calling)')
+    .addTag('files', 'Загрузка файлов в MinIO')
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);

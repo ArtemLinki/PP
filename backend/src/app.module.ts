@@ -12,6 +12,8 @@ import { BrandsModule } from './modules/brands/brands.module';
 import { ProductsModule } from './modules/products/products.module';
 import { CartModule } from './modules/cart/cart.module';
 import { OrdersModule } from './modules/orders/orders.module';
+import { FilesModule } from './modules/files/files.module';
+import { AiModule } from './modules/ai/ai.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 @Module({
@@ -25,6 +27,8 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
     ProductsModule,
     CartModule,
     OrdersModule,
+    FilesModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [

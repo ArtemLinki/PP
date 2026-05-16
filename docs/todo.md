@@ -126,22 +126,22 @@
 ## Фаза 3 — Frontend: Layout и общие компоненты
 
 ### 3.1 Тема и токены
-- [ ] Проверить/настроить `src/theme/mantine-theme.ts` (цвета, шрифты, радиус 0)
-- [ ] Подключить Google Fonts через `next/font/google` (Inter, Space Grotesk, JetBrains Mono)
+- [x] Проверить/настроить `src/theme/mantine-theme.ts` (цвета, шрифты, радиус 0)
+- [x] Подключить Google Fonts через `next/font/google` (Inter, Space Grotesk, JetBrains Mono)
 
 ### 3.2 AppShell / Layout
-- [ ] `components/layout/Header.tsx` — логотип + nav + user/cart иконки + badge
-- [ ] `components/layout/MobileBottomNav.tsx` — 5 пунктов (Главная, Каталог, ИИ, Корзина, Профиль)
-- [ ] `components/layout/AppShell.tsx` — адаптивный shell
+- [x] `components/layout/Header.tsx` — логотип + nav + user/cart иконки + badge
+- [x] `components/layout/MobileBottomNav.tsx` — 5 пунктов (Главная, Каталог, ИИ, Корзина, Профиль)
+- [x] `components/layout/AppShell.tsx` — адаптивный shell
 - [ ] `components/ai/AiAssistantPill.tsx` — fixed pill, скрыт на mobile при bottom-nav
 
 ### 3.3 Общие компоненты
-- [ ] `components/product/ProductCard.tsx` — brand, фото, название, specs, цена, «+ В корзину»
-- [ ] `components/ui/Eyebrow.tsx` — 10px JetBrains Mono uppercase teal
-- [ ] `components/ui/TealBadge.tsx`
-- [ ] `components/search/DualModeSearchBar.tsx` — инпут + кнопка AI; управляется пропом `mode: 'search' | 'ai'`, при переключении кнопки меняет поведение отправки
-- [ ] `components/ai/AiRecommendationsBlock.tsx` — блок «Подобрано для вас»: горизонтальный список карточек-плашек (фото, название, цена, ссылка на товар)
-- [ ] `components/ai/AiChatWindow.tsx` — список сообщений + поле ввода; рендерит `AiRecommendationsBlock` под сообщением если есть `toolResults.recommendedProducts`
+- [x] `components/product/ProductCard.tsx` — brand, фото, название, specs, цена, «+ В корзину»
+- [x] `components/ui/Eyebrow.tsx` — 10px JetBrains Mono uppercase teal
+- [x] `components/ui/TealBadge.tsx`
+- [x] `components/search/DualModeSearchBar.tsx` — инпут + кнопка AI; управляется пропом `mode: 'search' | 'ai'`, при переключении кнопки меняет поведение отправки
+- [x] `components/ai/AiRecommendationsBlock.tsx` — блок «Подобрано для вас»: горизонтальный список карточек-плашек (фото, название, цена, ссылка на товар)
+- [x] `components/ai/AiChatWindow.tsx` — список сообщений + поле ввода; рендерит `AiRecommendationsBlock` под сообщением если есть `toolResults.recommendedProducts`
 
 ---
 
@@ -149,39 +149,39 @@
 
 ### 4.1 Главная (`app/page.tsx`)
 **Референс:** `mockups/home-desktop.html` + `mockups/home-mobile.html`
-- [ ] Hero с eyebrow «AI ENGINEER · ONLINE»
-- [ ] H1 56px, sub-paragraph
-- [ ] `DualModeSearchBar` в hero:
+- [x] Hero с eyebrow «AI ENGINEER · ONLINE»
+- [x] H1 56px, sub-paragraph
+- [x] `DualModeSearchBar` в hero:
   - По умолчанию mode=`search` → `router.push('/catalog?q=...')`
   - При активации AI-кнопки mode=`ai` → `router.push('/ai?q=...')`
-- [ ] Chips-ряд с примерами (работают в текущем режиме инпута)
-- [ ] Секция фич: 3 колонки с разделителями
-- [ ] Mobile-версия
+- [x] Chips-ряд с примерами (работают в текущем режиме инпута)
+- [x] Секция фич: 3 колонки с разделителями
+- [x] Mobile-версия
 
 ### 4.2 Каталог (`app/catalog/page.tsx`)
 **Референс:** `mockups/catalog.html`
-- [ ] Двухколоночный layout: sidebar 280px + main
-- [ ] **Sidebar — только базовые фильтры:**
+- [x] Двухколоночный layout: sidebar 280px + main
+- [x] **Sidebar — только базовые фильтры:**
   - Выбор категории (иерархия, активная в teal)
   - Диапазон цены (range slider)
   - Чипы брендов (мультивыбор)
   - Кнопка «Сбросить всё» в orange
-- [ ] Main: search bar (`DualModeSearchBar`), счётчик результатов, sort-pill, view-toggle
-- [ ] Product grid `SimpleGrid cols={{ base: 1, xs: 2, sm: 3, md: 4 }}`
-- [ ] Пагинация
-- [ ] Интеграция: `useQuery(services.products.list({q, categoryId, brandId, priceMin, priceMax}))`
-- [ ] Активные фильтры как teal-chips с ✕
+- [x] Main: search bar (`DualModeSearchBar`), счётчик результатов, sort-pill, view-toggle
+- [x] Product grid `SimpleGrid cols={{ base: 1, xs: 2, sm: 3, md: 4 }}`
+- [x] Пагинация
+- [x] Интеграция: `useQuery(services.products.list({q, categoryId, brandId, priceMin, priceMax}))`
+- [x] Активные фильтры как teal-chips с ✕
 
 ### 4.3 AI-чат (`app/ai/page.tsx`)
 **Референс:** `mockups/search.html`
-- [ ] При открытии: если в query params есть `?q=...` — отправить как первое сообщение автоматически
-- [ ] `AiChatWindow` на всю высоту страницы
-- [ ] Сообщения пользователя (справа, teal border) и ассистента (слева)
-- [ ] Под сообщением ассистента — `AiRecommendationsBlock` если `toolResults.recommendedProducts` не пустой
-- [ ] Уведомление (toast) если `toolResults.addedToCart` — «Товар добавлен в корзину»
-- [ ] Индикатор загрузки (пульсирующая точка или skeleton)
-- [ ] Поле ввода внизу + кнопка отправки
-- [ ] Интеграция: `useAiStore.send()` → `POST /ai/chat`
+- [x] При открытии: если в query params есть `?q=...` — отправить как первое сообщение автоматически
+- [x] `AiChatWindow` на всю высоту страницы
+- [x] Сообщения пользователя (справа, teal border) и ассистента (слева)
+- [x] Под сообщением ассистента — `AiRecommendationsBlock` если `toolResults.recommendedProducts` не пустой
+- [x] Уведомление (toast) если `toolResults.addedToCart` — «Товар добавлен в корзину»
+- [x] Индикатор загрузки (пульсирующая точка или skeleton)
+- [x] Поле ввода внизу + кнопка отправки
+- [x] Интеграция: `useAiStore.send()` → `POST /ai/chat`
 
 ### 4.4 Корзина (`app/cart/page.tsx`)
 **Референс:** `mockups/cart.html`
@@ -192,15 +192,15 @@
 
 ### 4.5 Login (`app/login/page.tsx`)
 **Референс:** `mockups/login.html`
-- [ ] Панель 480px: email + password, Submit, OAuth кнопки, ссылка на регистрацию
-- [ ] `useAuthStore.login()`
+- [x] Панель 480px: email + password, Submit, OAuth кнопки, ссылка на регистрацию
+- [x] `useAuthStore.login()`
 
 ### 4.6 Register (`app/register/page.tsx`)
 **Референс:** `mockups/register.html`
-- [ ] Панель 540px: ФИО, email, пароль, подтверждение, телефон
-- [ ] Выбор типа B2C / B2B
-- [ ] Чекбокс согласия
-- [ ] `services.auth.register()`
+- [x] Панель 540px: ФИО, email, пароль, подтверждение, телефон
+- [x] Выбор типа B2C / B2B
+- [x] Чекбокс согласия
+- [x] `services.auth.register()`
 
 ---
 

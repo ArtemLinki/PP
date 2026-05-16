@@ -6,14 +6,14 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Копируем общие DTO
-COPY ../common ./common
+COPY common ./common
 
 WORKDIR /app/frontend
 
-COPY package*.json ./
+COPY frontend/package*.json ./
 RUN npm ci
 
-COPY . .
+COPY frontend/ .
 
 # Build-time env (публичные переменные должны быть известны при сборке)
 ARG NEXT_PUBLIC_API_BASE_URL

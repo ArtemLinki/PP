@@ -3,15 +3,14 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Копируем общие DTO
-COPY ../common ./common
+COPY common ./common
 
 WORKDIR /app/backend
 
-COPY package*.json ./
+COPY backend/package*.json ./
 RUN npm ci
 
-COPY . .
-COPY tsconfig*.json ./
+COPY backend/ .
 
 # Генерируем Prisma client
 RUN npx prisma generate
@@ -34,7 +33,7 @@ WORKDIR /app/backend
 COPY --from=builder /app/backend/node_modules ./node_modules
 COPY --from=builder /app/backend/dist ./dist
 COPY --from=builder /app/backend/prisma ./prisma
-COPY package*.json ./
+COPY backend/package*.json ./
 
 ENV NODE_ENV=production
 

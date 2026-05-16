@@ -1,24 +1,39 @@
-import { ID, ISODateString } from './common.dto';
-import { ProductDto } from './product.dto';
-import { CartDto } from './cart.dto';
+import type { ID, ISODateString } from './common.dto';
+import type { ProductDto } from './product.dto';
+import type { CartDto } from './cart.dto';
 
-export type AiRole = 'user' | 'assistant';
+export interface AiRecommendationDto {
+  product: ProductDto;
+  reason: string;
+  confidence: number;
+}
 
 export interface AiMessageDto {
   id: ID;
-  role: AiRole;
+  role: 'user' | 'assistant' | 'system';
   content: string;
   createdAt: ISODateString;
+  recommendations?: AiRecommendationDto[];
 }
 
-export interface AiChatRequestDto {
-  message: string;
+export interface AiPromptDto {
+  prompt: string;
   conversationId?: ID;
+}
+
+export interface AiPromptResponseDto {
+  conversationId: ID;
+  reply: AiMessageDto;
 }
 
 export interface AiToolResultDto {
   recommendedProducts?: ProductDto[];
   addedToCart?: CartDto;
+}
+
+export interface AiChatRequestDto {
+  message: string;
+  conversationId?: ID;
 }
 
 export interface AiChatResponseDto {

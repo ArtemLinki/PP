@@ -1,9 +1,9 @@
-import { ID } from './common.dto';
+import type { ID } from './common.dto';
 
 export interface BrandDto {
   id: ID;
-  name: string;
   slug: string;
+  title: string;
   country?: string;
   website?: string;
   logoUrl?: string;

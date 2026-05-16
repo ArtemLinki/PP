@@ -1,24 +1,31 @@
-import { ID } from './common.dto';
-import { ProductDto } from './product.dto';
+import type { ID, ISODateString, PriceDto } from './common.dto';
+import type { ProductDto } from './product.dto';
 
 export interface CartItemDto {
   id: ID;
   productId: ID;
+  product?: ProductDto;
   quantity: number;
-  product: ProductDto;
+  unitPrice: PriceDto;
+  lineTotal: PriceDto;
+  addedAt: ISODateString;
 }
 
 export interface CartDto {
   id: ID;
   items: CartItemDto[];
-  totalMinor: number;
+  subtotal: PriceDto;
+  discount: PriceDto;
+  total: PriceDto;
+  updatedAt: ISODateString;
 }
 
 export interface AddToCartDto {
-  productId: string;
-  quantity: number;
+  productId: ID;
+  quantity?: number;
 }
 
 export interface UpdateCartItemDto {
+  itemId: ID;
   quantity: number;
 }

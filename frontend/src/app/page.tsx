@@ -1,91 +1,49 @@
-'use client';
+import { Box, Text, Stack } from "@mantine/core";
+import { AiPromptCard } from "@/components/ai/AiPromptCard";
 
-import { Container, Title, Text, Stack, Group, Badge, Box } from '@mantine/core';
-import { IconBolt } from '@tabler/icons-react';
-
+/**
+ * Главная — hero c промптом ИИ-инженера. Mobile-first: на узких экранах
+ * текст и поле занимают всю ширину; на десктопе центрируется с max-width.
+ */
 export default function HomePage() {
   return (
-    <Box
-      style={{
-        minHeight: '100vh',
-        backgroundColor: '#121826',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <Container size="lg">
-        <Stack align="center" gap="xl">
-          <Group gap="xs">
-            <IconBolt size={16} color="#00d4b5" />
-            <Text
-              size="xs"
-              fw={600}
-              style={{
-                fontFamily: 'var(--font-jetbrains-mono)',
-                color: '#00d4b5',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-              }}
-            >
-              AI ENGINEER · ONLINE
-            </Text>
-          </Group>
-
-          <Title
-            order={1}
-            style={{
-              fontFamily: 'var(--font-space-grotesk)',
-              fontSize: 'clamp(36px, 5vw, 56px)',
-              fontWeight: 700,
-              color: '#ffffff',
-              textAlign: 'center',
-              lineHeight: 1.1,
-            }}
-          >
-            Найди идеальные{' '}
-            <span style={{ color: '#00d4b5' }}>комплектующие</span>
-            <br />
-            с помощью AI
-          </Title>
-
+    <Box className="te-container" py={{ base: 28, sm: 64 }}>
+      <Stack gap="lg" align="center" maw={720} mx="auto">
+        <Box style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Box w={6} h={6} bg="teal.6" />
           <Text
-            size="lg"
-            c="dimmed"
-            maw={560}
-            ta="center"
-            style={{ lineHeight: 1.6 }}
+            ff="JetBrains Mono"
+            size="10px"
+            c="teal.6"
+            fw={500}
+            style={{ letterSpacing: "0.12em" }}
           >
-            TechElectro — интернет-магазин компьютерных комплектующих с умным AI-помощником.
-            Подберём конфигурацию, сравним характеристики, добавим в корзину.
+            AI ENGINEER · ONLINE
           </Text>
+        </Box>
 
-          <Group gap="sm">
-            <Badge
-              variant="outline"
-              color="teal"
-              size="lg"
-              radius={0}
-              style={{ fontFamily: 'var(--font-jetbrains-mono)' }}
-            >
-              КАТАЛОГ ТОВАРОВ
-            </Badge>
-            <Badge
-              variant="filled"
-              color="teal"
-              size="lg"
-              radius={0}
-              style={{ fontFamily: 'var(--font-jetbrains-mono)' }}
-            >
-              AI-ПОМОЩНИК
-            </Badge>
-          </Group>
-
-          <Text size="xs" c="dimmed" style={{ fontFamily: 'var(--font-jetbrains-mono)' }}>
-            TechElectro v0.1.0 · Docker Ready
+        <Text
+          ta="center"
+          fz={{ base: 32, sm: 44 }}
+          fw={700}
+          c="var(--te-text)"
+          style={{ letterSpacing: "-0.02em", lineHeight: 1.08, textWrap: "balance" }}
+        >
+          Техника, которая собирает сама себя.
+          <br />
+          <Text component="span" inherit c="teal.6">
+            Спросите ИИ.
           </Text>
-        </Stack>
-      </Container>
+        </Text>
+
+        <Text ta="center" c="dimmed" size="sm" maw={420} style={{ textWrap: "pretty" }}>
+          Опишите проект — нейросеть подберёт совместимые компоненты.
+        </Text>
+
+        <Box w="100%" mt="md">
+          <AiPromptCard />
+        </Box>
+      </Stack>
     </Box>
   );
 }

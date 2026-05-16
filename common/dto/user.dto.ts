@@ -1,4 +1,4 @@
-import { ID, ISODateString } from './common.dto';
+import type { ID, ISODateString } from './common.dto';
 
 export type UserRole = 'B2C' | 'B2B' | 'ADMIN';
 
@@ -16,15 +16,20 @@ export interface AuthCredentialsDto {
   password: string;
 }
 
-export interface AuthSessionDto {
-  accessToken: string;
-  user: UserDto;
-}
-
 export interface RegisterDto {
-  name: string;
   email: string;
   password: string;
+  name: string;
   phone?: string;
-  role: 'B2C' | 'B2B';
+  role?: 'B2C' | 'B2B';
+}
+
+export interface AuthTokenDto {
+  accessToken: string;
+  expiresAt: ISODateString;
+}
+
+export interface AuthSessionDto {
+  user: UserDto;
+  token: AuthTokenDto;
 }

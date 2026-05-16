@@ -1,19 +1,40 @@
 :root {
-  --font-inter: 'Inter', sans-serif;
-  --font-space-grotesk: 'Space Grotesk', sans-serif;
-  --font-jetbrains-mono: 'JetBrains Mono', monospace;
+  --te-bg: #121826;
+  --te-bg-deep: #0f1219;
+  --te-surface: #1e2533;
+  --te-line: #2a3344;
+  --te-text: #e8eef5;
+  --te-muted: #8b95a8;
+  --te-accent: #00d4b5;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
+html, body {
   margin: 0;
+  padding: 0;
+  background: var(--te-bg);
+  color: var(--te-text);
+  -webkit-font-smoothing: antialiased;
 }
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-  background-color: #121826;
-  color: #ffffff;
+* { box-sizing: border-box; }
+
+/* Mobile-first контейнер контента. */
+.te-container {
+  width: 100%;
+  margin: 0 auto;
+  padding-inline: 16px;
+}
+@media (min-width: 48em) {
+  .te-container { padding-inline: 24px; max-width: 1280px; }
+}
+@media (min-width: 75em) {
+  .te-container { padding-inline: 32px; }
+}
+
+/* Скрытие/показ по брейкпоинтам — Mantine `visibleFrom`/`hiddenFrom` тоже умеет. */
+.te-mobile-only { display: block; }
+.te-desktop-only { display: none; }
+@media (min-width: 48em) {
+  .te-mobile-only { display: none; }
+  .te-desktop-only { display: block; }
 }

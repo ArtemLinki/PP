@@ -1,25 +1,27 @@
-import { ID, ISODateString } from './common.dto';
-import { ProductDto } from './product.dto';
+import type { ID, ISODateString, PriceDto } from './common.dto';
+import type { ProductDto } from './product.dto';
 
 export type OrderStatus = 'PENDING' | 'PAID' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
 
 export interface OrderItemDto {
   id: ID;
   productId: ID;
+  product?: ProductDto;
   quantity: number;
-  priceMinor: number;
-  product: ProductDto;
+  unitPrice: PriceDto;
+  lineTotal: PriceDto;
 }
 
 export interface OrderDto {
   id: ID;
-  userId: ID;
   status: OrderStatus;
   items: OrderItemDto[];
-  totalMinor: number;
+  subtotal: PriceDto;
+  total: PriceDto;
   createdAt: ISODateString;
+  updatedAt: ISODateString;
 }
 
 export interface CreateOrderDto {
-  cartId: string;
+  items: { productId: ID; quantity: number }[];
 }

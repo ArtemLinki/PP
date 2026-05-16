@@ -1,11 +1,11 @@
-import { ID } from './common.dto';
+import type { ID } from './common.dto';
 
 export interface CategoryDto {
   id: ID;
-  name: string;
   slug: string;
-  parentId?: ID;
-  isVisible: boolean;
-  order: number;
+  title: string;
+  parentId?: ID | null;
+  iconKey?: string;
+  productCount?: number;
   children?: CategoryDto[];
 }

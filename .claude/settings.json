@@ -8,7 +8,17 @@
       "Bash(npm --version)",
       "Bash(npm install *)",
       "Bash(docker compose *)",
-      "Bash(nc -zv localhost 5432)"
+      "Bash(nc -zv localhost 5432)",
+      "Bash(PGPASSWORD=techelectro psql -h localhost -p 5432 -U techelectro -d techelectro -c \"\\\\conninfo\")",
+      "Bash(psql --version)",
+      "Bash(PGPASSWORD=techelectro psql -h 127.0.0.1 -p 5432 -U techelectro -d techelectro -c \"SELECT 1\")",
+      "Read(//proc/8521/net/**)",
+      "Bash(awk '$2 ~ /00000000:1538/')",
+      "Bash(nc -zv 127.0.0.1 5432)",
+      "Bash(sudo iptables -t nat -L -n)",
+      "Bash(docker network *)",
+      "Bash(PGPASSWORD=techelectro psql -h 172.18.0.3 -p 5432 -U techelectro -d techelectro -c \"\\\\conninfo\")",
+      "Bash(PGPASSWORD=techelectro psql -h localhost -p 5433 -U techelectro -d techelectro -c \"\\\\conninfo\")"
     ]
   }
 }

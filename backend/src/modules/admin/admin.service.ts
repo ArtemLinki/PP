@@ -2,6 +2,72 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ProductStatus, OrderStatus } from '@prisma/client';
 
+export interface CreateProductDto {
+  name: string;
+  slug: string;
+  sku: string;
+  shortDescription?: string;
+  description?: string;
+  priceMinor: number;
+  oldPriceMinor?: number;
+  stock?: number;
+  status?: ProductStatus;
+  categoryId?: string;
+  brandId?: string;
+  images?: string[];
+  specs?: any;
+  tags?: string[];
+}
+
+export interface UpdateProductDto {
+  name?: string;
+  slug?: string;
+  sku?: string;
+  shortDescription?: string;
+  description?: string;
+  priceMinor?: number;
+  oldPriceMinor?: number;
+  stock?: number;
+  status?: ProductStatus;
+  categoryId?: string;
+  brandId?: string;
+  images?: string[];
+  specs?: any;
+  tags?: string[];
+}
+
+export interface CreateCategoryDto {
+  name: string;
+  slug: string;
+  parentId?: string;
+  isVisible?: boolean;
+  order?: number;
+}
+
+export interface UpdateCategoryDto {
+  name?: string;
+  slug?: string;
+  parentId?: string;
+  isVisible?: boolean;
+  order?: number;
+}
+
+export interface CreateBrandDto {
+  name: string;
+  slug: string;
+  country?: string;
+  website?: string;
+  logoUrl?: string;
+}
+
+export interface UpdateBrandDto {
+  name?: string;
+  slug?: string;
+  country?: string;
+  website?: string;
+  logoUrl?: string;
+}
+
 @Injectable()
 export class AdminService {
   constructor(private prisma: PrismaService) {}
@@ -84,5 +150,175 @@ export class AdminService {
       where: { id },
       data: { status },
     });
+  }
+
+  // ─── Products CRUD ────────────────────────────────────────────────────────
+
+  async listProducts(page = 1, pageSize = 20) {
+    const skip = (page - 1) * pageSize;
+    const [total, items] = await Promise.all([
+      this.prisma.product.count(),
+      this.prisma.product.findMany({
+        skip,
+        take: pageSize,
+        orderBy: { createdAt: 'desc' },
+        include: { brand: { select: { id: true, name: true } }, category: { select: { id: true, name: true } } },
+      }),
+    ]);
+    return { items, total, page, pageSize, hasMore: page * pageSize < total };
+  }
+
+  async createProduct(dto: CreateProductDto) {
+    return this.prisma.product.create({
+      data: {
+        name: dto.name,
+        slug: dto.slug,
+        sku: dto.sku,
+        shortDescription: dto.shortDescription,
+        description: dto.description,
+        priceMinor: dto.priceMinor,
+        oldPriceMinor: dto.oldPriceMinor,
+        stock: dto.stock ?? 0,
+        status: dto.status ?? ProductStatus.DRAFT,
+        categoryId: dto.categoryId,
+        brandId: dto.brandId,
+        images: dto.images ?? [],
+        specs: dto.specs ?? {},
+        tags: dto.tags ?? [],
+      },
+    });
+  }
+
+  async updateProduct(id: string, dto: UpdateProductDto) {
+    const product = await this.prisma.product.findUnique({ where: { id } });
+    if (!product) throw new NotFoundException('Товар не найден');
+
+    return this.prisma.product.update({
+      where: { id },
+      data: {
+        ...(dto.name !== undefined && { name: dto.name }),
+        ...(dto.slug !== undefined && { slug: dto.slug }),
+        ...(dto.sku !== undefined && { sku: dto.sku }),
+        ...(dto.shortDescription !== undefined && { shortDescription: dto.shortDescription }),
+        ...(dto.description !== undefined && { description: dto.description }),
+        ...(dto.priceMinor !== undefined && { priceMinor: dto.priceMinor }),
+        ...(dto.oldPriceMinor !== undefined && { oldPriceMinor: dto.oldPriceMinor }),
+        ...(dto.stock !== undefined && { stock: dto.stock }),
+        ...(dto.status !== undefined && { status: dto.status }),
+        ...(dto.categoryId !== undefined && { categoryId: dto.categoryId }),
+        ...(dto.brandId !== undefined && { brandId: dto.brandId }),
+        ...(dto.images !== undefined && { images: dto.images }),
+        ...(dto.specs !== undefined && { specs: dto.specs }),
+        ...(dto.tags !== undefined && { tags: dto.tags }),
+      },
+    });
+  }
+
+  async deleteProduct(id: string) {
+    const product = await this.prisma.product.findUnique({ where: { id } });
+    if (!product) throw new NotFoundException('Товар не найден');
+
+    await this.prisma.product.delete({ where: { id } });
+    return { success: true };
+  }
+
+  // ─── Categories CRUD ──────────────────────────────────────────────────────
+
+  async listCategories() {
+    return this.prisma.category.findMany({ orderBy: { order: 'asc' } });
+  }
+
+  async createCategory(dto: CreateCategoryDto) {
+    return this.prisma.category.create({
+      data: {
+        name: dto.name,
+        slug: dto.slug,
+        parentId: dto.parentId,
+        isVisible: dto.isVisible ?? true,
+        order: dto.order ?? 0,
+      },
+    });
+  }
+
+  async updateCategory(id: string, dto: UpdateCategoryDto) {
+    const category = await this.prisma.category.findUnique({ where: { id } });
+    if (!category) throw new NotFoundException('Категория не найдена');
+
+    return this.prisma.category.update({
+      where: { id },
+      data: {
+        ...(dto.name !== undefined && { name: dto.name }),
+        ...(dto.slug !== undefined && { slug: dto.slug }),
+        ...(dto.parentId !== undefined && { parentId: dto.parentId }),
+        ...(dto.isVisible !== undefined && { isVisible: dto.isVisible }),
+        ...(dto.order !== undefined && { order: dto.order }),
+      },
+    });
+  }
+
+  async deleteCategory(id: string) {
+    const category = await this.prisma.category.findUnique({ where: { id } });
+    if (!category) throw new NotFoundException('Категория не найдена');
+
+    await this.prisma.category.delete({ where: { id } });
+    return { success: true };
+  }
+
+  // ─── Brands CRUD ──────────────────────────────────────────────────────────
+
+  async listBrands() {
+    return this.prisma.brand.findMany({ orderBy: { name: 'asc' } });
+  }
+
+  async createBrand(dto: CreateBrandDto) {
+    return this.prisma.brand.create({
+      data: {
+        name: dto.name,
+        slug: dto.slug,
+        country: dto.country,
+        website: dto.website,
+        logoUrl: dto.logoUrl,
+      },
+    });
+  }
+
+  async updateBrand(id: string, dto: UpdateBrandDto) {
+    const brand = await this.prisma.brand.findUnique({ where: { id } });
+    if (!brand) throw new NotFoundException('Бренд не найден');
+
+    return this.prisma.brand.update({
+      where: { id },
+      data: {
+        ...(dto.name !== undefined && { name: dto.name }),
+        ...(dto.slug !== undefined && { slug: dto.slug }),
+        ...(dto.country !== undefined && { country: dto.country }),
+        ...(dto.website !== undefined && { website: dto.website }),
+        ...(dto.logoUrl !== undefined && { logoUrl: dto.logoUrl }),
+      },
+    });
+  }
+
+  async deleteBrand(id: string) {
+    const brand = await this.prisma.brand.findUnique({ where: { id } });
+    if (!brand) throw new NotFoundException('Бренд не найден');
+
+    await this.prisma.brand.delete({ where: { id } });
+    return { success: true };
+  }
+
+  // ─── Users ────────────────────────────────────────────────────────────────
+
+  async listUsers(page = 1, pageSize = 20) {
+    const skip = (page - 1) * pageSize;
+    const [total, items] = await Promise.all([
+      this.prisma.user.count(),
+      this.prisma.user.findMany({
+        skip,
+        take: pageSize,
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, email: true, name: true, role: true, createdAt: true, phone: true },
+      }),
+    ]);
+    return { items, total, page, pageSize, hasMore: page * pageSize < total };
   }
 }

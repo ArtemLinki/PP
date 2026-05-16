@@ -34,4 +34,17 @@ export const endpoints = {
     me: "/auth/me",
     refresh: "/auth/refresh",
   },
+  admin: {
+    dashboard: "/admin/dashboard",
+    products: "/admin/products",
+    product: (id: string) => `/admin/products/${id}`,
+    productStatus: (id: string) => `/admin/products/${id}/status`,
+    categories: "/admin/categories",
+    category: (id: string) => `/admin/categories/${id}`,
+    brands: "/admin/brands",
+    brand: (id: string) => `/admin/brands/${id}`,
+    orders: "/admin/orders",
+    orderStatus: (id: string) => `/admin/orders/${id}/status`,
+    users: "/admin/users",
+  },
 } as const;

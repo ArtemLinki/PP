@@ -1,434 +1,295 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 import {
-  Box,
-  Stack,
-  Group,
-  Text,
-  Button,
-  TextInput,
-  Select,
-  Badge,
-  Table,
-  ActionIcon,
-  Modal,
-  NumberInput,
-} from "@mantine/core";
-import {
-  IconSearch,
-  IconPlus,
-  IconPencil,
-  IconArchive,
-} from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
-import { notifications } from "@mantine/notifications";
-import { services } from "@/lib/services";
-import { formatPrice } from "@/lib/format";
-import type { ProductDto, ProductStatus } from "@/lib/dto";
+  Box, Stack, Group, Text, Button, TextInput, Select,
+  Badge, Table, ActionIcon, Modal, NumberInput, Textarea,
+} from '@mantine/core';
+import { IconSearch, IconPlus, IconPencil, IconTrash } from '@tabler/icons-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { notifications } from '@mantine/notifications';
+import { adminService, type AdminProduct, type CreateAdminProductDto } from '@/lib/services/admin/AdminApiService';
+import type { ProductStatus } from '@/lib/dto';
 
-// ─── ProductForm ────────────────────────────────────────────────────────────
+// ─── helpers ──────────────────────────────────────────────────────────────────
 
-interface ProductFormValues {
-  title: string;
+function slugify(text: string) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9а-яё\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+}
+
+function statusColor(s: ProductStatus) {
+  return s === 'PUBLISHED' ? 'teal' : s === 'ARCHIVED' ? 'red' : 'gray';
+}
+
+function statusLabel(s: ProductStatus) {
+  return s === 'PUBLISHED' ? 'Опубликован' : s === 'ARCHIVED' ? 'Архив' : 'Черновик';
+}
+
+// ─── form ────────────────────────────────────────────────────────────────────
+
+interface FormState {
+  name: string;
+  slug: string;
   sku: string;
+  shortDescription: string;
+  priceMinor: number;
+  stock: number;
+  status: ProductStatus;
   categoryId: string;
   brandId: string;
-  priceAmount: number;
-  stockQty: number;
-  status: ProductStatus;
 }
 
-const DEFAULT_FORM: ProductFormValues = {
-  title: "",
-  sku: "",
-  categoryId: "",
-  brandId: "",
-  priceAmount: 0,
-  stockQty: 0,
-  status: "DRAFT",
+const EMPTY: FormState = {
+  name: '', slug: '', sku: '', shortDescription: '',
+  priceMinor: 0, stock: 0, status: 'DRAFT', categoryId: '', brandId: '',
 };
 
-interface ProductFormProps {
-  onClose: () => void;
-  initial?: Partial<ProductFormValues>;
+function productToForm(p: AdminProduct): FormState {
+  return {
+    name: p.name, slug: p.slug, sku: p.sku,
+    shortDescription: p.shortDescription ?? '',
+    priceMinor: p.priceMinor, stock: p.stock,
+    status: p.status, categoryId: p.categoryId ?? '', brandId: p.brandId ?? '',
+  };
 }
 
-function ProductForm({ onClose, initial }: ProductFormProps) {
-  const [form, setForm] = useState<ProductFormValues>({ ...DEFAULT_FORM, ...initial });
+interface ProductModalProps {
+  opened: boolean;
+  onClose: () => void;
+  editing: AdminProduct | null;
+  categories: { value: string; label: string }[];
+  brands: { value: string; label: string }[];
+}
 
-  const set = <K extends keyof ProductFormValues>(key: K, value: ProductFormValues[K]) =>
-    setForm((prev) => ({ ...prev, [key]: value }));
+function ProductModal({ opened, onClose, editing, categories, brands }: ProductModalProps) {
+  const qc = useQueryClient();
+  const [form, setForm] = useState<FormState>(EMPTY);
+
+  const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
+    setForm(prev => ({ ...prev, [k]: v }));
+
+  const handleOpen = () => setForm(editing ? productToForm(editing) : EMPTY);
+
+  const createMut = useMutation({
+    mutationFn: (dto: CreateAdminProductDto) => adminService.createProduct(dto),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-products'] });
+      notifications.show({ title: 'Создан', message: `Товар «${form.name}» добавлен`, color: 'teal' });
+      onClose();
+    },
+    onError: () => notifications.show({ message: 'Ошибка при создании товара', color: 'red' }),
+  });
+
+  const updateMut = useMutation({
+    mutationFn: ({ id, dto }: { id: string; dto: Partial<CreateAdminProductDto> }) =>
+      adminService.updateProduct(id, dto),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-products'] });
+      notifications.show({ title: 'Сохранено', message: `Товар «${form.name}» обновлён`, color: 'teal' });
+      onClose();
+    },
+    onError: () => notifications.show({ message: 'Ошибка при обновлении товара', color: 'red' }),
+  });
 
   const handleSave = () => {
-    onClose();
-    notifications.show({
-      title: "Сохранено",
-      message: `Товар «${form.title || "—"}» сохранён`,
-      color: "teal",
-    });
+    if (!form.name.trim() || !form.sku.trim()) {
+      notifications.show({ message: 'Название и SKU обязательны', color: 'red' });
+      return;
+    }
+    const dto: CreateAdminProductDto = {
+      name: form.name,
+      slug: form.slug || slugify(form.name),
+      sku: form.sku,
+      shortDescription: form.shortDescription || undefined,
+      priceMinor: form.priceMinor,
+      stock: form.stock,
+      status: form.status,
+      categoryId: form.categoryId || undefined,
+      brandId: form.brandId || undefined,
+    };
+    if (editing) {
+      updateMut.mutate({ id: editing.id, dto });
+    } else {
+      createMut.mutate(dto);
+    }
   };
 
+  const loading = createMut.isPending || updateMut.isPending;
+
   return (
-    <Stack gap={16}>
-      <TextInput
-        label="Название"
-        placeholder="Название товара"
-        value={form.title}
-        onChange={(e) => set("title", e.currentTarget.value)}
-        radius={0}
-      />
-      <TextInput
-        label="SKU"
-        placeholder="ESP32-S3-001"
-        value={form.sku}
-        onChange={(e) => set("sku", e.currentTarget.value)}
-        radius={0}
-        styles={{ input: { fontFamily: "'JetBrains Mono', monospace" } }}
-      />
-      <Select
-        label="Категория"
-        placeholder="Выберите категорию"
-        data={[
-          { value: "1", label: "Микроконтроллеры" },
-          { value: "2", label: "Сенсоры" },
-          { value: "3", label: "Дисплеи" },
-        ]}
-        value={form.categoryId || null}
-        onChange={(v) => set("categoryId", v ?? "")}
-        radius={0}
-      />
-      <Select
-        label="Бренд"
-        placeholder="Выберите бренд"
-        data={[
-          { value: "b1", label: "Espressif" },
-          { value: "b2", label: "Raspberry Pi" },
-          { value: "b3", label: "Arduino" },
-          { value: "b4", label: "DFRobot" },
-        ]}
-        value={form.brandId || null}
-        onChange={(v) => set("brandId", v ?? "")}
-        radius={0}
-      />
-      <NumberInput
-        label="Цена в копейках"
-        placeholder="4990"
-        value={form.priceAmount}
-        onChange={(v) => set("priceAmount", typeof v === "number" ? v : 0)}
-        min={0}
-        radius={0}
-        styles={{ input: { fontFamily: "'JetBrains Mono', monospace" } }}
-      />
-      <NumberInput
-        label="Остаток"
-        placeholder="10"
-        value={form.stockQty}
-        onChange={(v) => set("stockQty", typeof v === "number" ? v : 0)}
-        min={0}
-        radius={0}
-      />
-      <Select
-        label="Статус"
-        data={[
-          { value: "PUBLISHED", label: "Опубликован" },
-          { value: "DRAFT", label: "Черновик" },
-          { value: "ARCHIVED", label: "Архив" },
-        ]}
-        value={form.status}
-        onChange={(v) => set("status", (v as ProductStatus) ?? "DRAFT")}
-        radius={0}
-      />
-      <Group justify="flex-end" gap={8} mt={8}>
-        <Button variant="subtle" color="gray" radius={0} onClick={onClose}>
-          Отмена
-        </Button>
-        <Button color="teal" radius={0} onClick={handleSave}>
-          Сохранить
-        </Button>
-      </Group>
-    </Stack>
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      onFocus={handleOpen}
+      title={editing ? 'Редактировать товар' : 'Добавить товар'}
+      radius={0}
+      size="md"
+      styles={{
+        header: { background: 'var(--te-surface)', borderBottom: '1px solid var(--te-line)' },
+        body: { background: 'var(--te-surface)', paddingTop: 16 },
+        content: { borderRadius: 0 },
+      }}
+    >
+      <Stack gap={12}>
+        <TextInput label="Название *" value={form.name}
+          onChange={e => { set('name', e.currentTarget.value); if (!editing) set('slug', slugify(e.currentTarget.value)); }}
+          radius={0} />
+        <TextInput label="Slug" value={form.slug} onChange={e => set('slug', e.currentTarget.value)} radius={0} />
+        <TextInput label="SKU *" value={form.sku} onChange={e => set('sku', e.currentTarget.value)}
+          radius={0} styles={{ input: { fontFamily: 'JetBrains Mono, monospace' } }} />
+        <Textarea label="Краткое описание" value={form.shortDescription}
+          onChange={e => set('shortDescription', e.currentTarget.value)}
+          radius={0} autosize minRows={2} />
+        <Group grow>
+          <NumberInput label="Цена (копеек) *" value={form.priceMinor}
+            onChange={v => set('priceMinor', typeof v === 'number' ? v : 0)} min={0} radius={0}
+            styles={{ input: { fontFamily: 'JetBrains Mono, monospace' } }} />
+          <NumberInput label="Остаток" value={form.stock}
+            onChange={v => set('stock', typeof v === 'number' ? v : 0)} min={0} radius={0} />
+        </Group>
+        <Select label="Статус" value={form.status} onChange={v => set('status', (v as ProductStatus) ?? 'DRAFT')}
+          data={[{ value: 'PUBLISHED', label: 'Опубликован' }, { value: 'DRAFT', label: 'Черновик' }, { value: 'ARCHIVED', label: 'Архив' }]}
+          radius={0} />
+        <Select label="Категория" value={form.categoryId || null} onChange={v => set('categoryId', v ?? '')}
+          data={categories} radius={0} clearable placeholder="Без категории" />
+        <Select label="Бренд" value={form.brandId || null} onChange={v => set('brandId', v ?? '')}
+          data={brands} radius={0} clearable placeholder="Без бренда" />
+        <Group justify="flex-end" gap={8} mt={8}>
+          <Button variant="subtle" color="gray" radius={0} onClick={onClose}>Отмена</Button>
+          <Button color="teal" radius={0} onClick={handleSave} loading={loading}>Сохранить</Button>
+        </Group>
+      </Stack>
+    </Modal>
   );
 }
 
-// ─── Status badge helpers ────────────────────────────────────────────────────
-
-function getProductStatusColor(status: string): string {
-  switch (status) {
-    case "PUBLISHED":
-      return "teal";
-    case "DRAFT":
-      return "gray";
-    case "ARCHIVED":
-      return "red";
-    default:
-      return "gray";
-  }
-}
-
-function getProductStatusLabel(status: string): string {
-  const labels: Record<string, string> = {
-    PUBLISHED: "Опубликован",
-    DRAFT: "Черновик",
-    ARCHIVED: "Архив",
-  };
-  return labels[status] ?? status;
-}
-
-// ─── Main page ───────────────────────────────────────────────────────────────
+// ─── page ─────────────────────────────────────────────────────────────────────
 
 export default function AdminProductsPage() {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editProduct, setEditProduct] = useState<ProductDto | null>(null);
+  const [editing, setEditing] = useState<AdminProduct | null>(null);
+  const qc = useQueryClient();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["admin-products", search, statusFilter],
-    queryFn: () =>
-      services.products.list({
-        search: search || undefined,
-        page: 1,
-        pageSize: 50,
-      }),
+    queryKey: ['admin-products'],
+    queryFn: () => adminService.listProducts(1, 200),
   });
 
-  const products = data?.items ?? [];
-
-  const filtered = products.filter((p) => {
-    if (statusFilter && statusFilter !== "all") {
-      // ProductDto doesn't have a status field in the DTO; use stockStatus as proxy
-      // The ProductStatus type (PUBLISHED/DRAFT/ARCHIVED) is for CreateProductDto
-      // We'll skip filtering on status for now since ProductDto lacks it
-      return true;
-    }
-    return true;
+  const { data: categoriesData } = useQuery({
+    queryKey: ['admin-categories'],
+    queryFn: () => adminService.listCategories(),
   });
 
-  const openAdd = () => {
-    setEditProduct(null);
-    setModalOpen(true);
+  const { data: brandsData } = useQuery({
+    queryKey: ['admin-brands'],
+    queryFn: () => adminService.listBrands(),
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: (id: string) => adminService.deleteProduct(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-products'] });
+      notifications.show({ message: 'Товар удалён', color: 'orange' });
+    },
+    onError: () => notifications.show({ message: 'Ошибка при удалении', color: 'red' }),
+  });
+
+  const handleDelete = (p: AdminProduct) => {
+    if (!confirm(`Удалить товар «${p.name}»?`)) return;
+    deleteMut.mutate(p.id);
   };
 
-  const openEdit = (product: ProductDto) => {
-    setEditProduct(product);
-    setModalOpen(true);
-  };
+  const openAdd = () => { setEditing(null); setModalOpen(true); };
+  const openEdit = (p: AdminProduct) => { setEditing(p); setModalOpen(true); };
 
-  const closeModal = () => {
-    setModalOpen(false);
-    setEditProduct(null);
-  };
+  const categoryOptions = (categoriesData ?? []).map(c => ({ value: c.id, label: c.name }));
+  const brandOptions = (brandsData ?? []).map(b => ({ value: b.id, label: b.name }));
 
-  const handleArchive = (product: ProductDto) => {
-    notifications.show({
-      title: "Архивирован",
-      message: `Товар «${product.title}» перемещён в архив`,
-      color: "orange",
-    });
-  };
+  const items = (data?.items ?? []).filter(p => {
+    const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase());
+    const matchStatus = !statusFilter || statusFilter === 'all' || p.status === statusFilter;
+    return matchSearch && matchStatus;
+  });
 
   return (
     <Box style={{ padding: 32 }}>
       <Stack gap={24}>
-        {/* Page title */}
-        <Text style={{ fontSize: 24, fontWeight: 700, color: "var(--te-text)" }}>
-          Товары
-        </Text>
+        <Text style={{ fontSize: 24, fontWeight: 700, color: 'var(--te-text)' }}>Товары</Text>
 
-        {/* Toolbar */}
         <Group gap={12}>
-          <TextInput
-            placeholder="Поиск по названию или SKU..."
-            leftSection={<IconSearch size={16} />}
-            value={search}
-            onChange={(e) => setSearch(e.currentTarget.value)}
-            radius={0}
-            style={{ flex: 1, maxWidth: 360 }}
-          />
-          <Select
-            placeholder="Все статусы"
-            data={[
-              { value: "all", label: "Все статусы" },
-              { value: "PUBLISHED", label: "Опубликован" },
-              { value: "DRAFT", label: "Черновик" },
-              { value: "ARCHIVED", label: "Архив" },
-            ]}
-            value={statusFilter}
-            onChange={setStatusFilter}
-            radius={0}
-            style={{ width: 180 }}
-            clearable
-          />
-          <Button
-            color="teal"
-            radius={0}
-            leftSection={<IconPlus size={16} />}
-            onClick={openAdd}
-          >
+          <TextInput placeholder="Поиск по названию или SKU…"
+            leftSection={<IconSearch size={16} />} value={search}
+            onChange={e => setSearch(e.currentTarget.value)} radius={0} style={{ flex: 1, maxWidth: 360 }} />
+          <Select placeholder="Все статусы"
+            data={[{ value: 'all', label: 'Все' }, { value: 'PUBLISHED', label: 'Опубликован' }, { value: 'DRAFT', label: 'Черновик' }, { value: 'ARCHIVED', label: 'Архив' }]}
+            value={statusFilter} onChange={setStatusFilter} radius={0} style={{ width: 180 }} clearable />
+          <Button color="teal" radius={0} leftSection={<IconPlus size={16} />} onClick={openAdd}>
             + Добавить товар
           </Button>
         </Group>
 
-        {/* Table */}
-        <Box
-          style={{
-            background: "var(--te-surface)",
-            border: "1px solid var(--te-line)",
-            borderRadius: 0,
-            overflow: "hidden",
-          }}
-        >
+        <Box style={{ background: 'var(--te-surface)', border: '1px solid var(--te-line)', overflow: 'hidden' }}>
           {isLoading ? (
-            <Box style={{ padding: 32 }}>
-              <Text style={{ color: "var(--te-muted)" }}>Загрузка...</Text>
-            </Box>
+            <Box style={{ padding: 32 }}><Text style={{ color: 'var(--te-muted)' }}>Загрузка…</Text></Box>
           ) : (
             <Table highlightOnHover>
               <Table.Thead>
-                <Table.Tr style={{ borderBottom: "1px solid var(--te-line)" }}>
-                  <Table.Th style={{ color: "var(--te-muted)", fontWeight: 500, fontSize: 12 }}>Название</Table.Th>
-                  <Table.Th style={{ color: "var(--te-muted)", fontWeight: 500, fontSize: 12 }}>SKU</Table.Th>
-                  <Table.Th style={{ color: "var(--te-muted)", fontWeight: 500, fontSize: 12 }}>Категория</Table.Th>
-                  <Table.Th style={{ color: "var(--te-muted)", fontWeight: 500, fontSize: 12 }}>Цена</Table.Th>
-                  <Table.Th style={{ color: "var(--te-muted)", fontWeight: 500, fontSize: 12 }}>Остаток</Table.Th>
-                  <Table.Th style={{ color: "var(--te-muted)", fontWeight: 500, fontSize: 12 }}>Статус</Table.Th>
-                  <Table.Th style={{ color: "var(--te-muted)", fontWeight: 500, fontSize: 12 }}>Действия</Table.Th>
+                <Table.Tr>
+                  {['Название', 'SKU', 'Категория', 'Цена', 'Остаток', 'Статус', ''].map(h => (
+                    <Table.Th key={h} style={{ color: 'var(--te-muted)', fontWeight: 500, fontSize: 12 }}>{h}</Table.Th>
+                  ))}
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {filtered.length === 0 ? (
-                  <Table.Tr>
-                    <Table.Td colSpan={7}>
-                      <Text
-                        style={{ color: "var(--te-muted)", padding: "24px 0", textAlign: "center" }}
-                      >
-                        Нет товаров
-                      </Text>
+                {items.length === 0 ? (
+                  <Table.Tr><Table.Td colSpan={7}>
+                    <Text style={{ color: 'var(--te-muted)', padding: '24px 0', textAlign: 'center' }}>Нет товаров</Text>
+                  </Table.Td></Table.Tr>
+                ) : items.map(p => (
+                  <Table.Tr key={p.id} style={{ borderBottom: '1px solid var(--te-line)' }}>
+                    <Table.Td><Text size="sm" c="var(--te-text)" lineClamp={1}>{p.name}</Text></Table.Td>
+                    <Table.Td><Text size="sm" ff="JetBrains Mono, monospace" c="var(--te-muted)">{p.sku}</Text></Table.Td>
+                    <Table.Td><Text size="sm" c="var(--te-muted)">{p.category?.name ?? '—'}</Text></Table.Td>
+                    <Table.Td><Text size="sm" ff="JetBrains Mono, monospace" c="var(--te-text)">{(p.priceMinor / 100).toFixed(0)} ₽</Text></Table.Td>
+                    <Table.Td><Text size="sm" ff="JetBrains Mono, monospace" c="var(--te-text)">{p.stock}</Text></Table.Td>
+                    <Table.Td>
+                      <Badge color={statusColor(p.status)} radius={0} size="sm" variant="light">
+                        {statusLabel(p.status)}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td>
+                      <Group gap={4}>
+                        <ActionIcon variant="subtle" color="teal" size="sm" radius={0}
+                          onClick={() => openEdit(p)} title="Редактировать">
+                          <IconPencil size={14} />
+                        </ActionIcon>
+                        <ActionIcon variant="subtle" color="red" size="sm" radius={0}
+                          onClick={() => handleDelete(p)} title="Удалить" loading={deleteMut.isPending}>
+                          <IconTrash size={14} />
+                        </ActionIcon>
+                      </Group>
                     </Table.Td>
                   </Table.Tr>
-                ) : (
-                  filtered.map((product) => (
-                    <Table.Tr
-                      key={product.id}
-                      style={{ borderBottom: "1px solid var(--te-line)" }}
-                    >
-                      <Table.Td>
-                        <Text size="sm" style={{ color: "var(--te-text)" }} lineClamp={1}>
-                          {product.title}
-                        </Text>
-                      </Table.Td>
-                      <Table.Td>
-                        <Text
-                          size="sm"
-                          style={{
-                            fontFamily: "'JetBrains Mono', monospace",
-                            color: "var(--te-muted)",
-                          }}
-                        >
-                          {product.sku}
-                        </Text>
-                      </Table.Td>
-                      <Table.Td>
-                        <Text size="sm" style={{ color: "var(--te-muted)" }}>
-                          {product.categoryId}
-                        </Text>
-                      </Table.Td>
-                      <Table.Td>
-                        <Text
-                          size="sm"
-                          style={{
-                            fontFamily: "'JetBrains Mono', monospace",
-                            color: "var(--te-text)",
-                          }}
-                        >
-                          {formatPrice(product.price)}
-                        </Text>
-                      </Table.Td>
-                      <Table.Td>
-                        <Text
-                          size="sm"
-                          style={{
-                            fontFamily: "'JetBrains Mono', monospace",
-                            color: "var(--te-text)",
-                          }}
-                        >
-                          {product.stockQty ?? "—"}
-                        </Text>
-                      </Table.Td>
-                      <Table.Td>
-                        <Badge
-                          color={getProductStatusColor(product.stockStatus)}
-                          radius={0}
-                          size="sm"
-                          variant="light"
-                        >
-                          {getProductStatusLabel(product.stockStatus)}
-                        </Badge>
-                      </Table.Td>
-                      <Table.Td>
-                        <Group gap={4}>
-                          <ActionIcon
-                            variant="subtle"
-                            color="teal"
-                            size="sm"
-                            radius={0}
-                            onClick={() => openEdit(product)}
-                            title="Редактировать"
-                          >
-                            <IconPencil size={14} />
-                          </ActionIcon>
-                          <ActionIcon
-                            variant="subtle"
-                            color="orange"
-                            size="sm"
-                            radius={0}
-                            onClick={() => handleArchive(product)}
-                            title="Архивировать"
-                          >
-                            <IconArchive size={14} />
-                          </ActionIcon>
-                        </Group>
-                      </Table.Td>
-                    </Table.Tr>
-                  ))
-                )}
+                ))}
               </Table.Tbody>
             </Table>
           )}
         </Box>
       </Stack>
 
-      {/* Add / Edit Modal */}
-      <Modal
+      <ProductModal
         opened={modalOpen}
-        onClose={closeModal}
-        title={editProduct ? "Редактировать товар" : "Добавить товар"}
-        radius={0}
-        size="md"
-        styles={{
-          header: { background: "var(--te-surface)", borderBottom: "1px solid var(--te-line)" },
-          body: { background: "var(--te-surface)", paddingTop: 16 },
-          content: { borderRadius: 0 },
-        }}
-      >
-        <ProductForm
-          onClose={closeModal}
-          initial={
-            editProduct
-              ? {
-                  title: editProduct.title,
-                  sku: editProduct.sku,
-                  categoryId: editProduct.categoryId,
-                  brandId: editProduct.brandId ?? "",
-                  priceAmount: editProduct.price.amount,
-                  stockQty: editProduct.stockQty ?? 0,
-                  status: "PUBLISHED",
-                }
-              : undefined
-          }
-        />
-      </Modal>
+        onClose={() => { setModalOpen(false); setEditing(null); }}
+        editing={editing}
+        categories={categoryOptions}
+        brands={brandOptions}
+      />
     </Box>
   );
 }

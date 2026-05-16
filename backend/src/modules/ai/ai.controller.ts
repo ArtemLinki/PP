@@ -1,6 +1,7 @@
-import { Controller, Post, Get, Body, Param, Request } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Request, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AiService } from './ai.service';
+import { OptionalJwtAuthGuard } from '../../common/guards/optional-jwt-auth.guard';
 
 @ApiTags('ai')
 @Controller('ai')
@@ -8,6 +9,7 @@ export class AiController {
   constructor(private ai: AiService) {}
 
   @Post('chat')
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiOperation({ summary: 'Отправить сообщение ИИ-ассистенту' })
   async chat(@Body() body: { message: string; conversationId?: string }, @Request() req: any) {
     const userId = req.user?.id;

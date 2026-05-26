@@ -31,7 +31,10 @@
       "Bash(git -C /mnt/c/data/Desktop/ecommerce add common/dto/ai.dto.ts frontend/src/lib/store/useAiStore.ts)",
       "Bash(git -C /mnt/c/data/Desktop/ecommerce pull --rebase)",
       "Bash(git -C /mnt/c/data/Desktop/ecommerce stash)",
-      "Bash(git -C /mnt/c/data/Desktop/ecommerce stash pop)"
+      "Bash(git -C /mnt/c/data/Desktop/ecommerce stash pop)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
     ]
   }
 }

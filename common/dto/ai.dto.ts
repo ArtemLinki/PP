@@ -24,11 +24,13 @@ export interface AiPromptDto {
 export interface AiPromptResponseDto {
   conversationId: ID;
   reply: AiMessageDto;
+  toolResults?: AiToolResultDto;
 }
 
 export interface AiToolResultDto {
   recommendedProducts?: ProductDto[];
   addedToCart?: CartDto;
+  comparison?: Record<string, unknown>;
 }
 
 export interface AiChatRequestDto {

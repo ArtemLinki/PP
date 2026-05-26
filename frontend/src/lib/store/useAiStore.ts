@@ -36,10 +36,18 @@ export const useAiStore = create<AiState>((set, get) => ({
         prompt,
         conversationId: get().conversationId ?? undefined,
       });
+      const reply: AiMessageDto = {
+        ...res.reply,
+        recommendations: res.toolResults?.recommendedProducts?.map((p) => ({
+          product: p,
+          reason: '',
+          confidence: 1,
+        })),
+      };
       set((s) => ({
         sending: false,
         conversationId: res.conversationId,
-        messages: [...s.messages, res.reply],
+        messages: [...s.messages, reply],
       }));
     } catch (e) {
       set({ sending: false, error: (e as { message?: string })?.message ?? "Ошибка ИИ" });

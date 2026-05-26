@@ -47,4 +47,61 @@ export const aiTools: ChatCompletionTool[] = [
       },
     },
   },
+  {
+    type: 'function',
+    function: {
+      name: 'compareProducts',
+      description: 'Сравнить несколько товаров по характеристикам и цене. Возвращает таблицу сравнения характеристик (specs) и цены для каждого товара.',
+      parameters: {
+        type: 'object',
+        properties: {
+          productIds: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Список ID товаров для сравнения (2–4 штуки)',
+          },
+        },
+        required: ['productIds'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'checkStock',
+      description: 'Проверить наличие и количество товара на складе по его ID',
+      parameters: {
+        type: 'object',
+        properties: {
+          productId: { type: 'string', description: 'ID товара' },
+        },
+        required: ['productId'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'getRecommendedByBudget',
+      description: 'Подобрать товары под заданный бюджет. Возвращает список товаров, которые покупатель может приобрести в рамках указанной суммы.',
+      parameters: {
+        type: 'object',
+        properties: {
+          budget: {
+            type: 'number',
+            description: 'Максимальный бюджет в копейках (например, 50000 = 500 рублей)',
+          },
+          query: {
+            type: 'string',
+            description: 'Тип товара или задача (опционально, уточняет поиск)',
+          },
+          categoryId: {
+            type: 'string',
+            description: 'ID категории (опционально)',
+          },
+        },
+        required: ['budget'],
+      },
+    },
+  },
 ];

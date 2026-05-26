@@ -5,7 +5,7 @@ import {
   Box, Stack, Group, Text, Button, TextInput, Select,
   Badge, Table, ActionIcon, Modal, NumberInput, Textarea,
 } from '@mantine/core';
-import { IconSearch, IconPlus, IconPencil, IconTrash } from '@tabler/icons-react';
+import { IconSearch, IconPlus, IconPencil, IconTrash, IconDownload } from '@tabler/icons-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { adminService, type AdminProduct, type CreateAdminProductDto } from '@/lib/services/admin/AdminApiService';
@@ -208,6 +208,29 @@ export default function AdminProductsPage() {
   const openAdd = () => { setEditing(null); setModalOpen(true); };
   const openEdit = (p: AdminProduct) => { setEditing(p); setModalOpen(true); };
 
+  const handleExportCsv = () => {
+    const rows = [
+      ["ID", "Название", "SKU", "Категория", "Цена (руб)", "Остаток", "Статус"],
+      ...items.map((p) => [
+        p.id,
+        p.name,
+        p.sku,
+        p.category?.name ?? "",
+        String(p.priceMinor / 100),
+        String(p.stock),
+        p.status,
+      ]),
+    ];
+    const csv = rows.map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `products-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const categoryOptions = (categoriesData ?? []).map(c => ({ value: c.id, label: c.name }));
   const brandOptions = (brandsData ?? []).map(b => ({ value: b.id, label: b.name }));
 
@@ -220,7 +243,19 @@ export default function AdminProductsPage() {
   return (
     <Box style={{ padding: 32 }}>
       <Stack gap={24}>
-        <Text style={{ fontSize: 24, fontWeight: 700, color: 'var(--te-text)' }}>Товары</Text>
+        <Group justify="space-between" align="center">
+          <Text style={{ fontSize: 24, fontWeight: 700, color: 'var(--te-text)' }}>Товары</Text>
+          <Button
+            size="xs"
+            variant="default"
+            leftSection={<IconDownload size={14} />}
+            style={{ borderColor: 'var(--te-line)' }}
+            onClick={handleExportCsv}
+            disabled={items.length === 0}
+          >
+            Экспорт CSV
+          </Button>
+        </Group>
 
         <Group gap={12}>
           <TextInput placeholder="Поиск по названию или SKU…"

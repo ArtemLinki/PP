@@ -120,8 +120,12 @@ export class AiService {
 
           if (toolType === 'searchProducts') {
             toolResults = { ...toolResults, recommendedProducts: toolResult };
+          } else if (toolType === 'getRecommendedByBudget') {
+            toolResults = { ...toolResults, recommendedProducts: toolResult };
           } else if (toolType === 'addToCart') {
             toolResults = { ...toolResults, addedToCart: toolResult };
+          } else if (toolType === 'compareProducts') {
+            toolResults = { ...toolResults, comparison: toolResult };
           }
 
           history.push({

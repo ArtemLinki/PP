@@ -9,7 +9,9 @@ import {
   Badge,
   Table,
   Select,
+  Button,
 } from "@mantine/core";
+import { IconDownload } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import { services } from "@/lib/services";
@@ -112,6 +114,27 @@ export default function AdminOrdersPage() {
     0,
   );
 
+  const handleExportCsv = () => {
+    const rows = [
+      ["ID", "Дата", "Позиций", "Сумма (руб)", "Статус"],
+      ...allOrders.map((o) => [
+        o.id,
+        new Date(o.createdAt).toLocaleDateString("ru-RU"),
+        String(o.items.length),
+        String(o.total.amount / 100),
+        localStatuses[o.id] ?? o.status,
+      ]),
+    ];
+    const csv = rows.map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `orders-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
     setLocalStatuses((prev) => ({ ...prev, [orderId]: newStatus }));
     notifications.show({
@@ -124,9 +147,21 @@ export default function AdminOrdersPage() {
     <Box style={{ padding: 32 }}>
       <Stack gap={24}>
         {/* Title */}
-        <Text style={{ fontSize: 24, fontWeight: 700, color: "var(--te-text)" }}>
-          Заказы
-        </Text>
+        <Group justify="space-between" align="center">
+          <Text style={{ fontSize: 24, fontWeight: 700, color: "var(--te-text)" }}>
+            Заказы
+          </Text>
+          <Button
+            size="xs"
+            variant="default"
+            leftSection={<IconDownload size={14} />}
+            style={{ borderColor: "var(--te-line)" }}
+            onClick={handleExportCsv}
+            disabled={allOrders.length === 0}
+          >
+            Экспорт CSV
+          </Button>
+        </Group>
 
         {/* Stat pills */}
         <Group gap={12}>

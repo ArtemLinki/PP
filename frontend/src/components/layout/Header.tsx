@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { Group, Text, Badge, ActionIcon, Box } from "@mantine/core";
-import { IconUser, IconShoppingCart, IconSearch } from "@tabler/icons-react";
-import { useCartStore, selectCartItemsCount } from "@/lib/store";
+import { IconUser, IconShoppingCart, IconSearch, IconHeart } from "@tabler/icons-react";
+import { useCartStore, selectCartItemsCount, useWishlistStore, selectWishlistCount } from "@/lib/store";
 
 const navLinks = [
   { href: "/catalog", label: "Каталог" },
@@ -13,6 +13,7 @@ const navLinks = [
 
 export function Header() {
   const cartCount = useCartStore(selectCartItemsCount);
+  const wishlistCount = useWishlistStore(selectWishlistCount);
 
   return (
     <Box
@@ -68,6 +69,30 @@ export function Header() {
         <Group gap="sm">
           <ActionIcon variant="subtle" color="gray" visibleFrom="sm" aria-label="Поиск">
             <IconSearch size={18} />
+          </ActionIcon>
+          <ActionIcon
+            variant="subtle"
+            color="gray"
+            aria-label="Избранное"
+            component={Link}
+            href="/wishlist"
+            pos="relative"
+            visibleFrom="sm"
+          >
+            <IconHeart size={18} />
+            {wishlistCount > 0 && (
+              <Badge
+                size="xs"
+                color="pink"
+                variant="filled"
+                pos="absolute"
+                top={-4}
+                right={-4}
+                style={{ pointerEvents: "none" }}
+              >
+                {wishlistCount}
+              </Badge>
+            )}
           </ActionIcon>
           <ActionIcon variant="subtle" color="gray" aria-label="Профиль" component={Link} href="/account">
             <IconUser size={18} />

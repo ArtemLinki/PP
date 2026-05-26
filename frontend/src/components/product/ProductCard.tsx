@@ -1,11 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { Card, Text, Badge, Group, Button, Stack, Box } from "@mantine/core";
-import { IconShoppingCartPlus } from "@tabler/icons-react";
+import Link from "next/link";
+import { Card, Text, Badge, Group, Button, Stack, Box, ActionIcon } from "@mantine/core";
+import { IconShoppingCartPlus, IconHeart, IconHeartFilled } from "@tabler/icons-react";
 import type { ProductDto } from "@/lib/dto";
 import { formatPrice } from "@/lib/format";
 import { useCartStore } from "@/lib/store";
+import { useWishlistStore } from "@/lib/store/useWishlistStore";
 
 const stockColor: Record<ProductDto["stockStatus"], string> = {
   in_stock: "teal",
@@ -23,7 +25,9 @@ const stockLabel: Record<ProductDto["stockStatus"], string> = {
 
 export function ProductCard({ product }: { product: ProductDto }) {
   const addToCart = useCartStore((s) => s.add);
+  const { toggle: toggleWishlist, has: inWishlist } = useWishlistStore();
   const primaryImage = product.images?.find((i) => i.isPrimary) ?? product.images?.[0];
+  const isWishlisted = inWishlist(product.id);
 
   return (
     <Card
@@ -35,47 +39,67 @@ export function ProductCard({ product }: { product: ProductDto }) {
         display: "flex",
         flexDirection: "column",
         height: "100%",
+        position: "relative",
       }}
     >
-      <Card.Section
-        style={{
-          height: 140,
-          background: "linear-gradient(135deg, rgba(0,212,181,0.05), rgba(255,140,66,0.04))",
-          borderBottom: "1px solid var(--te-line)",
-          position: "relative",
-          overflow: "hidden",
+      {/* Wishlist button */}
+      <ActionIcon
+        size="sm"
+        variant="subtle"
+        color={isWishlisted ? "pink" : "gray"}
+        style={{ position: "absolute", top: 8, right: 8, zIndex: 2 }}
+        aria-label="Избранное"
+        onClick={(e) => {
+          e.preventDefault();
+          toggleWishlist(product.id);
         }}
       >
-        {primaryImage?.url ? (
-          <Image
-            src={primaryImage.url}
-            alt={product.title}
-            fill
-            style={{ objectFit: "contain", padding: 8 }}
-            sizes="(max-width: 768px) 50vw, 25vw"
-          />
-        ) : (
-          <Box
-            style={{
-              width: "100%",
-              height: "100%",
-              display: "grid",
-              placeItems: "center",
-              fontFamily: "JetBrains Mono",
-              fontSize: 11,
-              color: "var(--te-muted)",
-            }}
-          >
-            {product.sku}
-          </Box>
-        )}
-      </Card.Section>
+        {isWishlisted ? <IconHeartFilled size={14} /> : <IconHeart size={14} />}
+      </ActionIcon>
+
+      <Link href={`/catalog/${product.slug}`} style={{ textDecoration: "none", color: "inherit" }}>
+        <Card.Section
+          style={{
+            height: 140,
+            background: "linear-gradient(135deg, rgba(0,212,181,0.05), rgba(255,140,66,0.04))",
+            borderBottom: "1px solid var(--te-line)",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          {primaryImage?.url ? (
+            <Image
+              src={primaryImage.url}
+              alt={product.title}
+              fill
+              style={{ objectFit: "contain", padding: 8 }}
+              sizes="(max-width: 768px) 50vw, 25vw"
+            />
+          ) : (
+            <Box
+              style={{
+                width: "100%",
+                height: "100%",
+                display: "grid",
+                placeItems: "center",
+                fontFamily: "JetBrains Mono",
+                fontSize: 11,
+                color: "var(--te-muted)",
+              }}
+            >
+              {product.sku}
+            </Box>
+          )}
+        </Card.Section>
+      </Link>
 
       <Stack gap={6} mt="sm" style={{ flex: 1 }}>
         <Group justify="space-between" align="flex-start" wrap="nowrap">
-          <Text size="sm" fw={600} c="var(--te-text)" lineClamp={2} style={{ flex: 1 }}>
-            {product.title}
-          </Text>
+          <Link href={`/catalog/${product.slug}`} style={{ textDecoration: "none", color: "inherit", flex: 1 }}>
+            <Text size="sm" fw={600} c="var(--te-text)" lineClamp={2}>
+              {product.title}
+            </Text>
+          </Link>
           <Badge size="xs" color={stockColor[product.stockStatus]} variant="light" style={{ flexShrink: 0 }}>
             {stockLabel[product.stockStatus]}
           </Badge>
@@ -103,6 +127,7 @@ export function ProductCard({ product }: { product: ProductDto }) {
           color="teal"
           variant="light"
           leftSection={<IconShoppingCartPlus size={14} />}
+          disabled={product.stockStatus === "out_of_stock"}
           onClick={() => void addToCart({ productId: product.id, quantity: 1 })}
         >
           В корзину

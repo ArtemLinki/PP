@@ -1,0 +1,58 @@
+:root {
+  --te-bg: #121826;
+  --te-bg-deep: #0f1219;
+  --te-surface: #1e2533;
+  --te-line: #2a3344;
+  --te-text: #e8eef5;
+  --te-muted: #8b95a8;
+  --te-accent: #00d4b5;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--te-bg);
+  color: var(--te-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+* { box-sizing: border-box; }
+
+/* Mobile-first контейнер контента. */
+.te-container {
+  width: 100%;
+  margin: 0 auto;
+  padding-inline: 16px;
+}
+@media (min-width: 48em) {
+  .te-container { padding-inline: 24px; max-width: 1280px; }
+}
+@media (min-width: 75em) {
+  .te-container { padding-inline: 32px; }
+}
+
+/* AI markdown output */
+.ai-markdown p { margin: 0 0 8px; }
+.ai-markdown p:last-child { margin-bottom: 0; }
+.ai-markdown h1, .ai-markdown h2, .ai-markdown h3 { font-weight: 700; margin: 12px 0 6px; color: var(--te-text); }
+.ai-markdown h1 { font-size: 18px; }
+.ai-markdown h2 { font-size: 16px; }
+.ai-markdown h3 { font-size: 14px; }
+.ai-markdown ul, .ai-markdown ol { padding-left: 20px; margin: 6px 0; }
+.ai-markdown li { margin-bottom: 4px; }
+.ai-markdown code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--te-bg-deep); border: 1px solid var(--te-line); padding: 1px 5px; border-radius: 2px; color: var(--te-accent); }
+.ai-markdown pre { background: var(--te-bg-deep); border: 1px solid var(--te-line); padding: 12px; overflow-x: auto; margin: 8px 0; }
+.ai-markdown pre code { background: none; border: none; padding: 0; color: var(--te-text); }
+.ai-markdown strong { font-weight: 700; color: var(--te-text); }
+.ai-markdown em { font-style: italic; color: var(--te-muted); }
+.ai-markdown a { color: var(--te-accent); text-decoration: underline; }
+.ai-markdown blockquote { border-left: 2px solid var(--te-accent); padding-left: 12px; margin: 8px 0; color: var(--te-muted); }
+.ai-markdown hr { border: none; border-top: 1px solid var(--te-line); margin: 12px 0; }
+
+/* Скрытие/показ по брейкпоинтам — Mantine `visibleFrom`/`hiddenFrom` тоже умеет. */
+.te-mobile-only { display: block; }
+.te-desktop-only { display: none; }
+@media (min-width: 48em) {
+  .te-mobile-only { display: none; }
+  .te-desktop-only { display: block; }
+}

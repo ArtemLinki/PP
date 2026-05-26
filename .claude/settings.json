@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p /home/tikho/ecommerce/common/dto)",
+      "Bash(mkdir -p /home/tikho/ecommerce/backend/src/prisma)",
+      "Bash(mkdir -p /home/tikho/ecommerce/backend/prisma)",
+      "Bash(mkdir -p /home/tikho/ecommerce/backend/src)",
+      "Bash(npm --version)",
+      "Bash(npm install *)",
+      "Bash(docker compose *)",
+      "Bash(nc -zv localhost 5432)",
+      "Bash(PGPASSWORD=techelectro psql -h localhost -p 5432 -U techelectro -d techelectro -c \"\\\\conninfo\")",
+      "Bash(psql --version)",
+      "Bash(PGPASSWORD=techelectro psql -h 127.0.0.1 -p 5432 -U techelectro -d techelectro -c \"SELECT 1\")",
+      "Read(//proc/8521/net/**)",
+      "Bash(awk '$2 ~ /00000000:1538/')",
+      "Bash(nc -zv 127.0.0.1 5432)",
+      "Bash(sudo iptables -t nat -L -n)",
+      "Bash(docker network *)",
+      "Bash(PGPASSWORD=techelectro psql -h 172.18.0.3 -p 5432 -U techelectro -d techelectro -c \"\\\\conninfo\")",
+      "Bash(PGPASSWORD=techelectro psql -h localhost -p 5433 -U techelectro -d techelectro -c \"\\\\conninfo\")",
+      "Bash(git -C /mnt/c/data/Desktop/ecommerce status)",
+      "Bash(git -C /mnt/c/data/Desktop/ecommerce diff --stat)",
+      "Bash(git -C /mnt/c/data/Desktop/ecommerce add backend/src/modules/ai/ai.executor.ts backend/src/modules/ai/ai.service.ts backend/src/modules/ai/ai.tools.ts docs/todo.md frontend/src/app/admin/orders/page.tsx frontend/src/app/admin/products/page.tsx frontend/src/components/layout/Header.tsx frontend/src/components/product/ProductCard.tsx frontend/src/lib/store/index.ts frontend/src/app/catalog/[slug]/ frontend/src/app/wishlist/ frontend/src/lib/store/useWishlistStore.ts)",
+      "Bash(git -C /mnt/c/data/Desktop/ecommerce commit -m ' *)",
+      "Bash(git -C /mnt/c/data/Desktop/ecommerce push)",
+      "Bash(git -C /mnt/c/data/Desktop/ecommerce add backend/src/modules/ai/ai.service.ts)",
+      "Bash(git -C /mnt/c/data/Desktop/ecommerce add backend/prisma/seed.ts docs/ai.md)",
+      "Bash(git -C /mnt/c/data/Desktop/ecommerce add backend/Dockerfile backend/prisma/seed.ts)",
+      "Bash(xargs ls)",
+      "Bash(git -C /mnt/c/data/Desktop/ecommerce add common/dto/ai.dto.ts frontend/src/lib/store/useAiStore.ts)",
+      "Bash(git -C /mnt/c/data/Desktop/ecommerce pull --rebase)",
+      "Bash(git -C /mnt/c/data/Desktop/ecommerce stash)",
+      "Bash(git -C /mnt/c/data/Desktop/ecommerce stash pop)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
+    ]
+  }
+}

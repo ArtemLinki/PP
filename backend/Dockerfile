@@ -36,6 +36,7 @@ WORKDIR /app/backend
 COPY --from=builder /app/backend/node_modules ./node_modules
 COPY --from=builder /app/backend/dist ./dist
 COPY --from=builder /app/backend/prisma ./prisma
+COPY --from=builder /app/backend/tsconfig.json ./tsconfig.json
 COPY backend/package*.json ./
 
 ENV NODE_ENV=production
@@ -45,5 +46,5 @@ EXPOSE 3001
 # dumb-init корректно пробрасывает сигналы в Node
 ENTRYPOINT ["dumb-init", "--"]
 
-# Запускаем миграции и затем сервер
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/main.js"]
+# Запускаем миграции, seed и затем сервер
+CMD ["sh", "-c", "npx prisma migrate deploy && npx prisma db seed && node dist/src/main.js"]

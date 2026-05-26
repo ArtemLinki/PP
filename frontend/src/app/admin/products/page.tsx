@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   Box, Stack, Group, Text, Button, TextInput, Select,
-  Badge, Table, ActionIcon, Modal, NumberInput, Textarea, Loader,
+  Badge, Table, ActionIcon, Modal, NumberInput, Textarea, Loader, Pagination,
 } from '@mantine/core';
 import { IconSearch, IconPlus, IconPencil, IconTrash, IconDownload, IconUpload, IconX } from '@tabler/icons-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -231,16 +231,26 @@ function ProductModal({ opened, onClose, editing, categories, brands }: ProductM
 
 // ─── page ─────────────────────────────────────────────────────────────────────
 
+const PAGE_SIZE = 20;
+
 export default function AdminProductsPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [appliedSearch, setAppliedSearch] = useState('');
+  const [appliedStatus, setAppliedStatus] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<AdminProduct | null>(null);
   const qc = useQueryClient();
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-products'],
-    queryFn: () => adminService.listProducts(1, 200),
+    queryKey: ['admin-products', appliedSearch, appliedStatus, page],
+    queryFn: () => adminService.listProducts(
+      page,
+      PAGE_SIZE,
+      appliedSearch || undefined,
+      (appliedStatus as ProductStatus) || undefined,
+    ),
   });
 
   const { data: categoriesData } = useQuery({
@@ -270,6 +280,20 @@ export default function AdminProductsPage() {
   const openAdd = () => { setEditing(null); setModalOpen(true); };
   const openEdit = (p: AdminProduct) => { setEditing(p); setModalOpen(true); };
 
+  const handleApplyFilters = () => {
+    setAppliedSearch(search);
+    setAppliedStatus(statusFilter);
+    setPage(1);
+  };
+
+  const handleResetFilters = () => {
+    setSearch('');
+    setStatusFilter(null);
+    setAppliedSearch('');
+    setAppliedStatus(null);
+    setPage(1);
+  };
+
   const handleExportCsv = () => {
     const rows = [
       ["ID", "Название", "SKU", "Категория", "Цена (руб)", "Остаток", "Статус"],
@@ -296,11 +320,9 @@ export default function AdminProductsPage() {
   const categoryOptions = (categoriesData ?? []).map(c => ({ value: c.id, label: c.name }));
   const brandOptions = (brandsData ?? []).map(b => ({ value: b.id, label: b.name }));
 
-  const items = (data?.items ?? []).filter(p => {
-    const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = !statusFilter || statusFilter === 'all' || p.status === statusFilter;
-    return matchSearch && matchStatus;
-  });
+  const items = data?.items ?? [];
+  const totalCount = data?.total ?? 0;
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   return (
     <Box style={{ padding: 32 }}>
@@ -319,16 +341,24 @@ export default function AdminProductsPage() {
           </Button>
         </Group>
 
-        <Group gap={12}>
+        <Group gap={8} align="flex-end">
           <TextInput placeholder="Поиск по названию или SKU…"
             leftSection={<IconSearch size={16} />} value={search}
-            onChange={e => setSearch(e.currentTarget.value)} radius={0} style={{ flex: 1, maxWidth: 360 }} />
+            onChange={e => setSearch(e.currentTarget.value)}
+            onKeyDown={e => e.key === 'Enter' && handleApplyFilters()}
+            radius={0} style={{ flex: 1, maxWidth: 320 }} size="xs" />
           <Select placeholder="Все статусы"
-            data={[{ value: 'all', label: 'Все' }, { value: 'PUBLISHED', label: 'Опубликован' }, { value: 'DRAFT', label: 'Черновик' }, { value: 'ARCHIVED', label: 'Архив' }]}
-            value={statusFilter} onChange={setStatusFilter} radius={0} style={{ width: 180 }} clearable />
-          <Button color="teal" radius={0} leftSection={<IconPlus size={16} />} onClick={openAdd}>
-            + Добавить товар
-          </Button>
+            data={[{ value: 'PUBLISHED', label: 'Опубликован' }, { value: 'DRAFT', label: 'Черновик' }, { value: 'ARCHIVED', label: 'Архив' }]}
+            value={statusFilter} onChange={setStatusFilter} radius={0} style={{ width: 160 }} clearable size="xs" />
+          <Button color="teal" size="xs" radius={0} onClick={handleApplyFilters}>Найти</Button>
+          {(appliedSearch || appliedStatus) && (
+            <Button variant="subtle" color="gray" size="xs" radius={0} onClick={handleResetFilters}>Сбросить</Button>
+          )}
+          <Box style={{ marginLeft: 'auto' }}>
+            <Button color="teal" radius={0} leftSection={<IconPlus size={16} />} onClick={openAdd}>
+              + Добавить товар
+            </Button>
+          </Box>
         </Group>
 
         <Box style={{ background: 'var(--te-surface)', border: '1px solid var(--te-line)', overflow: 'hidden' }}>
@@ -378,6 +408,19 @@ export default function AdminProductsPage() {
             </Table>
           )}
         </Box>
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <Group justify="center">
+            <Pagination
+              total={totalPages}
+              value={page}
+              onChange={(p) => { setPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              color="teal"
+              radius={0}
+              size="sm"
+            />
+          </Group>
+        )}
       </Stack>
 
       <ProductModal

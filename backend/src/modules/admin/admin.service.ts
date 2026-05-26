@@ -154,13 +154,23 @@ export class AdminService {
 
   // ─── Products CRUD ────────────────────────────────────────────────────────
 
-  async listProducts(page = 1, pageSize = 20) {
+  async listProducts(page = 1, pageSize = 20, search?: string, status?: ProductStatus) {
     const skip = (page - 1) * pageSize;
+    const where: any = {};
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { sku: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+    if (status) where.status = status;
+
     const [total, items] = await Promise.all([
-      this.prisma.product.count(),
+      this.prisma.product.count({ where }),
       this.prisma.product.findMany({
         skip,
         take: pageSize,
+        where,
         orderBy: { createdAt: 'desc' },
         include: { brand: { select: { id: true, name: true } }, category: { select: { id: true, name: true } } },
       }),

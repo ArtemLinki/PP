@@ -198,8 +198,10 @@ export class AdminApiService {
   }
 
   // Products
-  listProducts(page = 1, pageSize = 50) {
-    return this.http.get<AdminProductsPage>(endpoints.admin.products, { params: { page, pageSize } });
+  listProducts(page = 1, pageSize = 20, search?: string, status?: ProductStatus) {
+    return this.http.get<AdminProductsPage>(endpoints.admin.products, {
+      params: { page, pageSize, ...(search && { search }), ...(status && { status }) },
+    });
   }
 
   createProduct(dto: CreateAdminProductDto) {

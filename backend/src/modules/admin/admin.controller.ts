@@ -311,16 +311,22 @@ export class AdminController {
   // ─── Products CRUD ──────────────────────────────────────────────────────────
 
   @Get('products')
-  @ApiOperation({ summary: 'List all products (admin, paginated)' })
+  @ApiOperation({ summary: 'List all products (admin, paginated, filterable)' })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'pageSize', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ name: 'status', required: false, enum: ProductStatus })
   listProducts(
     @Query('page') page?: string,
     @Query('pageSize') pageSize?: string,
+    @Query('search') search?: string,
+    @Query('status') status?: string,
   ) {
     return this.adminService.listProducts(
       page ? parseInt(page, 10) : 1,
       pageSize ? parseInt(pageSize, 10) : 20,
+      search || undefined,
+      status as ProductStatus | undefined,
     );
   }
 

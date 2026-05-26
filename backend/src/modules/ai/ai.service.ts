@@ -88,7 +88,7 @@ export class AiService {
     ];
 
     let replyText = '';
-    let toolResults: { recommendedProducts?: any[]; addedToCart?: any } | undefined;
+    let toolResults: { recommendedProducts?: any[]; addedToCart?: any; comparison?: any } | undefined;
 
     try {
       // Multi-turn tool calling loop

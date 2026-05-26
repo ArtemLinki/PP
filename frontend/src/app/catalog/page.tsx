@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import {
   Box, SimpleGrid, Text, Skeleton, Stack, RangeSlider,
-  Button, Group, Loader,
+  Button, Group, Loader, Pagination,
 } from '@mantine/core';
 import { IconX } from '@tabler/icons-react';
 import { ProductCard } from '@/components/product/ProductCard';
@@ -23,7 +23,7 @@ function CatalogContent() {
   const [categoryId, setCategoryId] = useState(searchParams.get('categoryId') ?? '');
   const [brandIds, setBrandIds] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500000]);
-  const [page] = useState(1);
+  const [page, setPage] = useState(1);
 
   const { data: products, isLoading } = useQuery({
     queryKey: ['products', { urlSearch, categoryId, brandIds, priceRange, page }],
@@ -49,6 +49,7 @@ function CatalogContent() {
     setCategoryId('');
     setBrandIds([]);
     setPriceRange([0, 500000]);
+    setPage(1);
     router.push('/catalog');
   };
 
@@ -81,7 +82,7 @@ function CatalogContent() {
               </Text>
               <Stack gap={2}>
                 <Box
-                  onClick={() => setCategoryId('')}
+                  onClick={() => { setCategoryId(''); setPage(1); }}
                   style={{
                     padding: '6px 10px',
                     cursor: 'pointer',
@@ -95,7 +96,7 @@ function CatalogContent() {
                 {categories?.map((cat) => (
                   <Box
                     key={cat.id}
-                    onClick={() => setCategoryId(cat.id)}
+                    onClick={() => { setCategoryId(cat.id); setPage(1); }}
                     style={{
                       padding: '6px 10px',
                       cursor: 'pointer',
@@ -177,6 +178,22 @@ function CatalogContent() {
             <Box style={{ textAlign: 'center', padding: '60px 0' }}>
               <Text c="var(--te-muted)">Ничего не найдено. Попробуйте изменить фильтры.</Text>
             </Box>
+          )}
+
+          {products && products.total > 24 && (
+            <Group justify="center" mt="xl">
+              <Pagination
+                total={Math.ceil(products.total / 24)}
+                value={page}
+                onChange={(p) => {
+                  setPage(p);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                color="teal"
+                radius={0}
+                styles={{ control: { borderColor: 'var(--te-line)' } }}
+              />
+            </Group>
           )}
         </Box>
       </Box>

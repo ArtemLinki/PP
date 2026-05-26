@@ -276,21 +276,9 @@ function ProductDetailContent() {
 
           {/* Price */}
           <Box>
-            <Group gap="sm" align="flex-end">
-              <Text fz={32} fw={800} c="var(--te-text)" ff="JetBrains Mono" lh={1}>
-                {formatPrice(product.price)}
-              </Text>
-              {product.oldPrice && (
-                <Text fz={18} c="dimmed" td="line-through" ff="JetBrains Mono">
-                  {formatPrice(product.oldPrice)}
-                </Text>
-              )}
-            </Group>
-            {product.oldPrice && (
-              <Badge color="orange" variant="light" size="sm" radius={0} mt={6}>
-                Скидка {Math.round((1 - product.price.amount / product.oldPrice.amount) * 100)}%
-              </Badge>
-            )}
+            <Text fz={32} fw={800} c="var(--te-text)" ff="JetBrains Mono" lh={1}>
+              {formatPrice(product.price)}
+            </Text>
           </Box>
 
           {/* Stock qty */}

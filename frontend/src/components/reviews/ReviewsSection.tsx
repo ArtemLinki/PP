@@ -198,7 +198,7 @@ export function ReviewsSection({ productId }: Props) {
             <ReviewCard
               key={review.id}
               review={review}
-              canDelete={user?.id === review.userId}
+              canDelete={user?.id === review.userId || user?.role === 'ADMIN'}
               onDelete={() => deleteMutation.mutate(review.id)}
             />
           ))}

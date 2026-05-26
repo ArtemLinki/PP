@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box, Stack, Group, Text, Button, TextInput, SimpleGrid,
   Modal, ActionIcon,
@@ -26,7 +26,8 @@ function BrandModal({ opened, onClose, editing }: BrandModalProps) {
   const [country, setCountry] = useState('');
   const [logoUrl, setLogoUrl] = useState('');
 
-  const handleOpen = () => {
+  useEffect(() => {
+    if (!opened) return;
     if (editing) {
       setName(editing.name); setSlug(editing.slug);
       setWebsite(editing.website ?? ''); setCountry(editing.country ?? '');
@@ -34,7 +35,7 @@ function BrandModal({ opened, onClose, editing }: BrandModalProps) {
     } else {
       setName(''); setSlug(''); setWebsite(''); setCountry(''); setLogoUrl('');
     }
-  };
+  }, [opened, editing]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const createMut = useMutation({
     mutationFn: (dto: CreateAdminBrandDto) => adminService.createBrand(dto),
@@ -71,7 +72,7 @@ function BrandModal({ opened, onClose, editing }: BrandModalProps) {
   const loading = createMut.isPending || updateMut.isPending;
 
   return (
-    <Modal opened={opened} onClose={onClose} onFocus={handleOpen}
+    <Modal opened={opened} onClose={onClose}
       title={editing ? 'Редактировать бренд' : 'Добавить бренд'}
       radius={0} size="sm"
       styles={{

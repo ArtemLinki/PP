@@ -1,6 +1,53 @@
 import { httpClient, HttpClient } from '@/lib/api/http-client';
 import { endpoints } from '@/lib/api/endpoints';
-import type { ProductStatus } from '@/lib/dto';
+import type { ProductStatus, OrderStatus, PriceDto } from '@/lib/dto';
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+
+export interface AdminDashboardRecentOrder {
+  id: string;
+  status: OrderStatus;
+  total: PriceDto;
+  createdAt: string;
+  userEmail?: string;
+}
+
+export interface AdminDashboardTopProduct {
+  id: string;
+  title: string;
+  soldCount: number;
+}
+
+export interface AdminDashboard {
+  productsTotal: number;
+  ordersTotal: number;
+  revenueTotal: PriceDto;
+  aiRequestsTotal: number;
+  recentOrders: AdminDashboardRecentOrder[];
+  topProducts: AdminDashboardTopProduct[];
+}
+
+// ─── Admin orders ─────────────────────────────────────────────────────────────
+
+export interface AdminOrder {
+  id: string;
+  status: OrderStatus;
+  totalMinor: number;
+  createdAt: string;
+  userEmail: string;
+  itemsCount: number;
+  deliveryName?: string | null;
+  deliveryPhone?: string | null;
+  deliveryCity?: string | null;
+}
+
+export interface AdminOrdersPage {
+  items: AdminOrder[];
+  total: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+}
 
 // ─── Admin-specific types (raw backend shapes) ────────────────────────────────
 
@@ -94,6 +141,38 @@ export type UpdateAdminBrandDto = Partial<CreateAdminBrandDto>;
 
 export class AdminApiService {
   constructor(private readonly http: HttpClient = httpClient) {}
+
+  // Dashboard
+  getDashboard() {
+    return this.http.get<AdminDashboard>(endpoints.admin.dashboard);
+  }
+
+  // Orders (admin)
+  listOrders(page = 1, pageSize = 50, userId?: string, status?: OrderStatus) {
+    return this.http.get<AdminOrdersPage>(endpoints.admin.orders, {
+      params: { page, pageSize, ...(userId && { userId }), ...(status && { status }) },
+    });
+  }
+
+  updateOrderStatus(id: string, status: OrderStatus) {
+    return this.http.patch<{ id: string; status: OrderStatus }>(
+      endpoints.admin.orderStatus(id),
+      { status },
+    );
+  }
+
+  // Images
+  async uploadImage(file: File, bucket: 'products' | 'avatars' = 'products'): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('bucket', bucket);
+    const result = await this.http.post<{ url: string }>(
+      '/files/upload',
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } },
+    );
+    return result.url;
+  }
 
   // Products
   listProducts(page = 1, pageSize = 50) {

@@ -394,6 +394,28 @@ export class AdminController {
     return this.adminService.deleteBrand(id);
   }
 
+  // ─── Orders ─────────────────────────────────────────────────────────────────
+
+  @Get('orders')
+  @ApiOperation({ summary: 'List all orders (admin, paginated, filterable)' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'pageSize', required: false, type: Number })
+  @ApiQuery({ name: 'userId', required: false, type: String })
+  @ApiQuery({ name: 'status', required: false, enum: OrderStatus })
+  listOrders(
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+    @Query('userId') userId?: string,
+    @Query('status') status?: string,
+  ) {
+    return this.adminService.listOrders(
+      page ? parseInt(page, 10) : 1,
+      pageSize ? parseInt(pageSize, 10) : 50,
+      userId,
+      status as OrderStatus | undefined,
+    );
+  }
+
   // ─── Users ──────────────────────────────────────────────────────────────────
 
   @Get('users')

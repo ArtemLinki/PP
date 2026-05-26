@@ -306,6 +306,47 @@ export class AdminService {
     return { success: true };
   }
 
+  // ─── Orders ───────────────────────────────────────────────────────────────
+
+  async listOrders(page = 1, pageSize = 50, userId?: string, status?: OrderStatus) {
+    const skip = (page - 1) * pageSize;
+    const where: any = {};
+    if (userId) where.userId = userId;
+    if (status) where.status = status;
+
+    const [total, items] = await Promise.all([
+      this.prisma.order.count({ where }),
+      this.prisma.order.findMany({
+        skip,
+        take: pageSize,
+        where,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          user: { select: { email: true } },
+          _count: { select: { items: true } },
+        },
+      }),
+    ]);
+
+    return {
+      items: items.map((o) => ({
+        id: o.id,
+        status: o.status,
+        totalMinor: o.totalMinor,
+        createdAt: o.createdAt.toISOString(),
+        userEmail: o.user.email,
+        itemsCount: o._count.items,
+        deliveryName: o.deliveryName,
+        deliveryPhone: o.deliveryPhone,
+        deliveryCity: o.deliveryCity,
+      })),
+      total,
+      page,
+      pageSize,
+      hasMore: page * pageSize < total,
+    };
+  }
+
   // ─── Users ────────────────────────────────────────────────────────────────
 
   async listUsers(page = 1, pageSize = 20) {

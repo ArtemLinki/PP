@@ -7,11 +7,11 @@ import { apiConfig } from "@/lib/api/config";
 export class AiApiService implements IAiService {
   constructor(private readonly http: HttpClient = httpClient) {}
 
-  prompt(payload: AiPromptDto) {
+  prompt(payload: AiPromptDto, signal?: AbortSignal) {
     return this.http.post<AiPromptResponseDto>(
       endpoints.ai.chat,
       { message: payload.prompt, conversationId: payload.conversationId },
-      { timeout: apiConfig.aiTimeoutMs },
+      { timeout: apiConfig.aiTimeoutMs, signal },
     );
   }
 

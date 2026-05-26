@@ -12,7 +12,7 @@ import { delay, nextId } from "../_utils";
 export class AiMockService implements IAiService {
   private readonly conversations = new Map<ID, AiMessageDto[]>();
 
-  async prompt(payload: AiPromptDto): Promise<AiPromptResponseDto> {
+  async prompt(payload: AiPromptDto, _signal?: AbortSignal): Promise<AiPromptResponseDto> {
     // Эмулируем «думаю», задержка чуть больше обычной.
     await delay(800 + Math.random() * 1200);
 

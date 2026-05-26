@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box, Stack, Group, Text, Button, TextInput, Select,
   Switch, ActionIcon, Modal, UnstyledButton,
@@ -26,7 +26,8 @@ function CategoryModal({ opened, onClose, editing, parentOptions }: CategoryModa
   const [parentId, setParentId] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(true);
 
-  const handleOpen = () => {
+  useEffect(() => {
+    if (!opened) return;
     if (editing) {
       setName(editing.name);
       setSlug(editing.slug);
@@ -35,7 +36,7 @@ function CategoryModal({ opened, onClose, editing, parentOptions }: CategoryModa
     } else {
       setName(''); setSlug(''); setParentId(null); setIsVisible(true);
     }
-  };
+  }, [opened, editing]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const createMut = useMutation({
     mutationFn: (dto: CreateAdminCategoryDto) => adminService.createCategory(dto),
@@ -72,7 +73,7 @@ function CategoryModal({ opened, onClose, editing, parentOptions }: CategoryModa
 
   return (
     <Modal
-      opened={opened} onClose={onClose} onFocus={handleOpen}
+      opened={opened} onClose={onClose}
       title={editing ? 'Редактировать категорию' : 'Добавить категорию'}
       radius={0} size="sm"
       styles={{

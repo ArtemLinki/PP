@@ -126,11 +126,6 @@ export function ProductCard({ product }: { product: ProductDto }) {
           <Text size="lg" fw={700} c="var(--te-text)" ff="JetBrains Mono">
             {formatPrice(product.price)}
           </Text>
-          {product.oldPrice && (
-            <Text size="xs" c="dimmed" td="line-through">
-              {formatPrice(product.oldPrice)}
-            </Text>
-          )}
         </div>
         <Button
           size="xs"

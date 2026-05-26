@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
   Box,
@@ -10,6 +10,7 @@ import {
   Button,
   UnstyledButton,
   Badge,
+  Loader,
 } from "@mantine/core";
 import {
   IconLayoutDashboard,
@@ -33,16 +34,33 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
+  const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
-    if (user === null) {
-      router.push("/login");
+    // Read latest state directly — persist middleware may not have synced to the component yet
+    const { token, hydrate } = useAuthStore.getState();
+    if (!token) {
+      setInitializing(false);
       return;
     }
-    if (user.role !== "ADMIN") {
+    // Token exists but user may not be loaded yet — fetch from API
+    void hydrate().finally(() => setInitializing(false));
+  }, []);
+
+  useEffect(() => {
+    if (initializing) return;
+    if (!user || user.role !== "ADMIN") {
       router.push("/login");
     }
-  }, [user, router]);
+  }, [initializing, user, router]);
+
+  if (initializing) {
+    return (
+      <Box style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh" }}>
+        <Loader color="teal" />
+      </Box>
+    );
+  }
 
   if (!user || user.role !== "ADMIN") {
     return null;

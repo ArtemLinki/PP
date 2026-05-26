@@ -67,7 +67,7 @@ export interface IReviewsService {
 
 export interface IAiService {
   /** Отправить промпт и получить ответ ассистента + рекомендации. */
-  prompt(payload: AiPromptDto): Promise<AiPromptResponseDto>;
+  prompt(payload: AiPromptDto, signal?: AbortSignal): Promise<AiPromptResponseDto>;
   /** История сообщений по conversation id. */
   getConversation(id: ID): Promise<AiMessageDto[]>;
 }

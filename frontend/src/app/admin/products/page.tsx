@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Box, Stack, Group, Text, Button, TextInput, Select,
-  Badge, Table, ActionIcon, Modal, NumberInput, Textarea,
+  Badge, Table, ActionIcon, Modal, NumberInput, Textarea, Loader,
 } from '@mantine/core';
-import { IconSearch, IconPlus, IconPencil, IconTrash, IconDownload } from '@tabler/icons-react';
+import { IconSearch, IconPlus, IconPencil, IconTrash, IconDownload, IconUpload, IconX } from '@tabler/icons-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { adminService, type AdminProduct, type CreateAdminProductDto } from '@/lib/services/admin/AdminApiService';
@@ -41,11 +41,13 @@ interface FormState {
   status: ProductStatus;
   categoryId: string;
   brandId: string;
+  images: string[];
 }
 
 const EMPTY: FormState = {
   name: '', slug: '', sku: '', shortDescription: '',
   priceMinor: 0, stock: 0, status: 'DRAFT', categoryId: '', brandId: '',
+  images: [],
 };
 
 function productToForm(p: AdminProduct): FormState {
@@ -54,6 +56,7 @@ function productToForm(p: AdminProduct): FormState {
     shortDescription: p.shortDescription ?? '',
     priceMinor: p.priceMinor, stock: p.stock,
     status: p.status, categoryId: p.categoryId ?? '', brandId: p.brandId ?? '',
+    images: p.images ?? [],
   };
 }
 
@@ -68,11 +71,33 @@ interface ProductModalProps {
 function ProductModal({ opened, onClose, editing, categories, brands }: ProductModalProps) {
   const qc = useQueryClient();
   const [form, setForm] = useState<FormState>(EMPTY);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm(prev => ({ ...prev, [k]: v }));
 
-  const handleOpen = () => setForm(editing ? productToForm(editing) : EMPTY);
+  useEffect(() => {
+    if (opened) setForm(editing ? productToForm(editing) : EMPTY);
+  }, [opened, editing]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+    setUploading(true);
+    try {
+      const url = await adminService.uploadImage(file);
+      setForm(prev => ({ ...prev, images: [...prev.images, url] }));
+    } catch {
+      notifications.show({ message: 'Ошибка загрузки изображения', color: 'red' });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeImage = (idx: number) =>
+    setForm(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }));
 
   const createMut = useMutation({
     mutationFn: (dto: CreateAdminProductDto) => adminService.createProduct(dto),
@@ -110,6 +135,7 @@ function ProductModal({ opened, onClose, editing, categories, brands }: ProductM
       status: form.status,
       categoryId: form.categoryId || undefined,
       brandId: form.brandId || undefined,
+      images: form.images.length > 0 ? form.images : undefined,
     };
     if (editing) {
       updateMut.mutate({ id: editing.id, dto });
@@ -124,7 +150,6 @@ function ProductModal({ opened, onClose, editing, categories, brands }: ProductM
     <Modal
       opened={opened}
       onClose={onClose}
-      onFocus={handleOpen}
       title={editing ? 'Редактировать товар' : 'Добавить товар'}
       radius={0}
       size="md"
@@ -158,6 +183,43 @@ function ProductModal({ opened, onClose, editing, categories, brands }: ProductM
           data={categories} radius={0} clearable placeholder="Без категории" />
         <Select label="Бренд" value={form.brandId || null} onChange={v => set('brandId', v ?? '')}
           data={brands} radius={0} clearable placeholder="Без бренда" />
+
+        {/* Image management */}
+        <Box>
+          <Text size="xs" c="var(--te-muted)" mb={6}>Изображения</Text>
+          {form.images.length > 0 && (
+            <Group gap={6} mb={8} wrap="wrap">
+              {form.images.map((url, i) => (
+                <Box key={i} style={{ position: 'relative', width: 64, height: 64, flexShrink: 0 }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={url} alt={`img-${i}`} style={{ width: 64, height: 64, objectFit: 'cover', border: '1px solid var(--te-line)' }} />
+                  <ActionIcon
+                    size={16} variant="filled" color="red" radius="xl"
+                    style={{ position: 'absolute', top: -4, right: -4, zIndex: 1 }}
+                    onClick={() => removeImage(i)}
+                    aria-label="Удалить"
+                  >
+                    <IconX size={8} />
+                  </ActionIcon>
+                </Box>
+              ))}
+            </Group>
+          )}
+          <input
+            ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp"
+            style={{ display: 'none' }} onChange={(e) => void handleImageUpload(e)}
+          />
+          <Button
+            size="xs" variant="outline" radius={0}
+            style={{ borderColor: 'var(--te-line)', color: 'var(--te-muted)' }}
+            leftSection={uploading ? <Loader size={12} color="teal" /> : <IconUpload size={12} />}
+            disabled={uploading}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {uploading ? 'Загружаем…' : 'Загрузить фото'}
+          </Button>
+        </Box>
+
         <Group justify="flex-end" gap={8} mt={8}>
           <Button variant="subtle" color="gray" radius={0} onClick={onClose}>Отмена</Button>
           <Button color="teal" radius={0} onClick={handleSave} loading={loading}>Сохранить</Button>

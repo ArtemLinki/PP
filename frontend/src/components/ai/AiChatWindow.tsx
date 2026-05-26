@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Box, Text, Textarea, ActionIcon, Loader } from '@mantine/core';
 import ReactMarkdown from 'react-markdown';
-import { IconSend } from '@tabler/icons-react';
+import { IconSend, IconPlayerStop } from '@tabler/icons-react';
 import { useAiStore } from '@/lib/store';
 import { AiRecommendationsBlock } from './AiRecommendationsBlock';
 
@@ -12,6 +12,7 @@ export function AiChatWindow() {
   const sending = useAiStore((s) => s.sending);
   const error = useAiStore((s) => s.error);
   const send = useAiStore((s) => s.send);
+  const cancel = useAiStore((s) => s.cancel);
   const [input, setInput] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -157,19 +158,31 @@ export function AiChatWindow() {
               color: 'var(--te-text)',
             },
           }}
-          disabled={sending}
         />
-        <ActionIcon
-          size={44}
-          color="teal"
-          variant="filled"
-          onClick={handleSend}
-          loading={sending}
-          style={{ borderRadius: 0, flexShrink: 0 }}
-          aria-label="Отправить"
-        >
-          <IconSend size={18} />
-        </ActionIcon>
+        {sending ? (
+          <ActionIcon
+            size={44}
+            color="red"
+            variant="filled"
+            onClick={cancel}
+            style={{ borderRadius: 0, flexShrink: 0 }}
+            aria-label="Остановить"
+            title="Остановить генерацию"
+          >
+            <IconPlayerStop size={18} />
+          </ActionIcon>
+        ) : (
+          <ActionIcon
+            size={44}
+            color="teal"
+            variant="filled"
+            onClick={handleSend}
+            style={{ borderRadius: 0, flexShrink: 0 }}
+            aria-label="Отправить"
+          >
+            <IconSend size={18} />
+          </ActionIcon>
+        )}
       </Box>
     </Box>
   );

@@ -27,6 +27,25 @@ export interface AdminDashboard {
   topProducts: AdminDashboardTopProduct[];
 }
 
+// ─── Admin users ──────────────────────────────────────────────────────────────
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  name?: string | null;
+  role: string;
+  createdAt: string;
+  phone?: string | null;
+}
+
+export interface AdminUsersPage {
+  items: AdminUser[];
+  total: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+}
+
 // ─── Admin orders ─────────────────────────────────────────────────────────────
 
 export interface AdminOrder {
@@ -148,10 +167,14 @@ export class AdminApiService {
   }
 
   // Orders (admin)
-  listOrders(page = 1, pageSize = 50, userId?: string, status?: OrderStatus) {
+  listOrders(page = 1, pageSize = 20, userId?: string, status?: OrderStatus) {
     return this.http.get<AdminOrdersPage>(endpoints.admin.orders, {
       params: { page, pageSize, ...(userId && { userId }), ...(status && { status }) },
     });
+  }
+
+  listUsers(page = 1, pageSize = 100) {
+    return this.http.get<AdminUsersPage>(endpoints.admin.users, { params: { page, pageSize } });
   }
 
   updateOrderStatus(id: string, status: OrderStatus) {

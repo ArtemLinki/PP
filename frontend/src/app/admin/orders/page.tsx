@@ -10,16 +10,16 @@ import {
   Table,
   Select,
   Button,
-  TextInput,
+  Pagination,
 } from "@mantine/core";
-import { IconDownload, IconSearch } from "@tabler/icons-react";
+import { IconDownload } from "@tabler/icons-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import { adminService, type AdminOrder } from "@/lib/services/admin/AdminApiService";
 import { formatPrice } from "@/lib/format";
 import type { OrderStatus } from "@/lib/dto";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+const PAGE_SIZE = 20;
 
 function getStatusColor(status: OrderStatus): string {
   switch (status) {
@@ -46,8 +46,6 @@ function statusLabel(status: OrderStatus): string {
   return STATUS_OPTIONS.find((o) => o.value === status)?.label ?? status;
 }
 
-// ─── Stat Pill ────────────────────────────────────────────────────────────────
-
 function StatPill({ label, value }: { label: string; value: string }) {
   return (
     <Box
@@ -71,22 +69,30 @@ function StatPill({ label, value }: { label: string; value: string }) {
   );
 }
 
-// ─── Main page ───────────────────────────────────────────────────────────────
-
 export default function AdminOrdersPage() {
   const qc = useQueryClient();
-  const [emailFilter, setEmailFilter] = useState("");
+  const [userFilter, setUserFilter] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "">("");
-  const [appliedEmail, setAppliedEmail] = useState("");
+  const [appliedUserId, setAppliedUserId] = useState<string | null>(null);
   const [appliedStatus, setAppliedStatus] = useState<OrderStatus | "">("");
+  const [page, setPage] = useState(1);
+
+  const { data: usersData } = useQuery({
+    queryKey: ["admin-users-all"],
+    queryFn: () => adminService.listUsers(1, 1000),
+  });
+  const userOptions = (usersData?.items ?? []).map((u) => ({
+    value: u.id,
+    label: u.email,
+  }));
 
   const { data, isLoading } = useQuery({
-    queryKey: ["admin-orders", appliedEmail, appliedStatus],
+    queryKey: ["admin-orders", appliedUserId, appliedStatus, page],
     queryFn: () =>
       adminService.listOrders(
-        1,
-        200,
-        appliedEmail || undefined,
+        page,
+        PAGE_SIZE,
+        appliedUserId || undefined,
         (appliedStatus as OrderStatus) || undefined,
       ),
   });
@@ -102,22 +108,21 @@ export default function AdminOrdersPage() {
   });
 
   const allOrders: AdminOrder[] = data?.items ?? [];
-
   const totalCount = data?.total ?? 0;
-  const pendingCount = allOrders.filter((o) => o.status === "PENDING").length;
-  const shippedCount = allOrders.filter((o) => o.status === "SHIPPED").length;
-  const revenue = allOrders.reduce((acc, o) => acc + o.totalMinor, 0);
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   const handleApplyFilters = () => {
-    setAppliedEmail(emailFilter);
+    setAppliedUserId(userFilter);
     setAppliedStatus(statusFilter);
+    setPage(1);
   };
 
   const handleResetFilters = () => {
-    setEmailFilter("");
+    setUserFilter(null);
     setStatusFilter("");
-    setAppliedEmail("");
+    setAppliedUserId(null);
     setAppliedStatus("");
+    setPage(1);
   };
 
   const handleExportCsv = () => {
@@ -160,25 +165,25 @@ export default function AdminOrdersPage() {
           </Button>
         </Group>
 
-        {/* Stat pills */}
+        {/* Stat pill */}
         <Group gap={12}>
-          <StatPill label="Всего" value={String(totalCount)} />
-          <StatPill label="Ожидают" value={String(pendingCount)} />
-          <StatPill label="В пути" value={String(shippedCount)} />
-          <StatPill label="Выручка" value={formatPrice({ amount: revenue, currency: "RUB" })} />
+          <StatPill label="Всего заказов" value={String(totalCount)} />
         </Group>
 
         {/* Filters */}
         <Group gap={8} align="flex-end">
-          <TextInput
-            placeholder="Фильтр по email"
-            value={emailFilter}
-            onChange={(e) => setEmailFilter(e.currentTarget.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleApplyFilters()}
-            leftSection={<IconSearch size={14} />}
+          <Select
+            placeholder="Пользователь (поиск по email)"
+            data={userOptions}
+            value={userFilter}
+            onChange={setUserFilter}
+            searchable
+            clearable
             size="xs"
-            style={{ width: 220 }}
+            style={{ width: 300 }}
+            radius={0}
             styles={{ input: { borderColor: "var(--te-line)", background: "var(--te-surface)", color: "var(--te-text)" } }}
+            nothingFoundMessage="Пользователь не найден"
           />
           <Select
             placeholder="Все статусы"
@@ -193,7 +198,7 @@ export default function AdminOrdersPage() {
           <Button color="teal" size="xs" radius={0} onClick={handleApplyFilters}>
             Найти
           </Button>
-          {(appliedEmail || appliedStatus) && (
+          {(appliedUserId || appliedStatus) && (
             <Button variant="subtle" color="gray" size="xs" radius={0} onClick={handleResetFilters}>
               Сбросить
             </Button>
@@ -286,6 +291,23 @@ export default function AdminOrdersPage() {
             </Table>
           )}
         </Box>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <Group justify="center">
+            <Pagination
+              total={totalPages}
+              value={page}
+              onChange={(p) => {
+                setPage(p);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              color="teal"
+              radius={0}
+              size="sm"
+            />
+          </Group>
+        )}
       </Stack>
     </Box>
   );

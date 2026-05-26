@@ -25,6 +25,8 @@ async function main() {
   const catModules = await upsertCat('modules', 'Модули связи', 5);
   const catDisplays = await upsertCat('displays', 'Дисплеи', 6);
   const catTools = await upsertCat('tools', 'Инструменты и аксессуары', 7);
+  const catActuators = await upsertCat('actuators', 'Исполнительные устройства', 8);
+  const catLighting = await upsertCat('lighting', 'Освещение и индикация', 9);
 
   // sub-categories
   await upsertCat('mcu-esp', 'ESP-серия', 1, catMcu.id);
@@ -72,7 +74,7 @@ async function main() {
         { key: 'ble', label: 'BLE', value: '5.0' },
         { key: 'usb', label: 'USB', value: 'USB OTG Full-Speed' },
       ],
-      tags: ['wifi', 'ble', 'ai', 'dual-core', 'psram'],
+      tags: ['wifi', 'ble', 'ai', 'dual-core', 'psram', 'diy-gps-tracker', 'diy-security', 'diy-weather'],
     },
     {
       name: 'ESP32-C3 Mini',
@@ -89,7 +91,7 @@ async function main() {
         { key: 'wifi', label: 'Wi-Fi', value: '802.11 b/g/n' },
         { key: 'ble', label: 'BLE', value: '5.0' },
       ],
-      tags: ['wifi', 'ble', 'risc-v', 'compact'],
+      tags: ['wifi', 'ble', 'risc-v', 'compact', 'diy-badge', 'diy-smart-home'],
     },
     {
       name: 'ESP8266 NodeMCU v3',
@@ -105,7 +107,7 @@ async function main() {
         { key: 'flash', label: 'Flash', value: '4 MB' },
         { key: 'wifi', label: 'Wi-Fi', value: '802.11 b/g/n' },
       ],
-      tags: ['wifi', 'iot', 'lua', 'arduino'],
+      tags: ['wifi', 'iot', 'lua', 'arduino', 'diy-irrigation', 'diy-air-quality', 'diy-weather'],
     },
     {
       name: 'Raspberry Pi Pico W',
@@ -123,7 +125,7 @@ async function main() {
         { key: 'ble', label: 'BLE', value: '5.2' },
         { key: 'gpio', label: 'GPIO', value: '26 pins' },
       ],
-      tags: ['wifi', 'ble', 'micropython', 'rp2040'],
+      tags: ['wifi', 'ble', 'micropython', 'rp2040', 'diy-pulse-oximeter', 'diy-weather'],
     },
     {
       name: 'Arduino Uno R4 WiFi',
@@ -141,7 +143,7 @@ async function main() {
         { key: 'ble', label: 'BLE', value: '5.0' },
         { key: 'display', label: 'Матрица', value: 'LED 12×8' },
       ],
-      tags: ['wifi', 'ble', 'led-matrix', 'renesas'],
+      tags: ['wifi', 'ble', 'led-matrix', 'renesas', 'diy-robot', 'diy-smart-home'],
     },
     {
       name: 'Arduino Nano Every',
@@ -157,7 +159,7 @@ async function main() {
         { key: 'flash', label: 'Flash', value: '48 KB' },
         { key: 'io', label: 'I/O', value: '14 digital, 8 analog' },
       ],
-      tags: ['nano', 'arduino', '5v'],
+      tags: ['nano', 'arduino', '5v', 'diy-robot', 'diy-gimbal', 'diy-lora-sensor'],
     },
     {
       name: 'STM32 Blue Pill (STM32F103)',
@@ -209,7 +211,7 @@ async function main() {
         { key: 'accuracy_hum', label: 'Точность H', value: '±2% RH' },
         { key: 'interface', label: 'Интерфейс', value: '1-wire' },
       ],
-      tags: ['temperature', 'humidity', 'digital', '1-wire'],
+      tags: ['temperature', 'humidity', 'digital', '1-wire', 'diy-weather', 'diy-irrigation', 'diy-smart-home'],
     },
     {
       name: 'BMP280 — Барометр и температура',
@@ -226,7 +228,7 @@ async function main() {
         { key: 'interface', label: 'Интерфейс', value: 'I2C / SPI' },
         { key: 'size', label: 'Размер', value: '3.4×3.4 мм' },
       ],
-      tags: ['pressure', 'barometer', 'i2c', 'spi', 'bosch'],
+      tags: ['pressure', 'barometer', 'i2c', 'spi', 'bosch', 'diy-weather', 'diy-lora-sensor'],
     },
     {
       name: 'BME680 — Газ, давление, влажность, температура',
@@ -242,7 +244,7 @@ async function main() {
         { key: 'voc_range', label: 'VOC', value: '0…500 ppm' },
         { key: 'pressure', label: 'Давление', value: '300…1100 hPa' },
       ],
-      tags: ['voc', 'iaq', 'environment', 'i2c', 'bosch'],
+      tags: ['voc', 'iaq', 'environment', 'i2c', 'bosch', 'diy-weather', 'diy-air-quality'],
     },
     {
       name: 'MPU-6050 — Акселерометр + Гироскоп',
@@ -258,7 +260,7 @@ async function main() {
         { key: 'gyro_range', label: 'Гироскоп', value: '±250/500/1000/2000 °/с' },
         { key: 'interface', label: 'Интерфейс', value: 'I2C (до 400 кГц)' },
       ],
-      tags: ['imu', 'accelerometer', 'gyroscope', 'i2c', 'dmp'],
+      tags: ['imu', 'accelerometer', 'gyroscope', 'i2c', 'dmp', 'diy-gimbal', 'diy-robot'],
     },
     {
       name: 'HC-SR04 — Ультразвуковой дальномер',
@@ -275,7 +277,7 @@ async function main() {
         { key: 'voltage', label: 'Питание', value: '5V DC' },
         { key: 'freq', label: 'Частота', value: '40 кГц' },
       ],
-      tags: ['ultrasonic', 'distance', 'trig', 'echo'],
+      tags: ['ultrasonic', 'distance', 'trig', 'echo', 'diy-robot'],
     },
     {
       name: 'VL53L0X — Лазерный дальномер ToF',
@@ -323,7 +325,7 @@ async function main() {
         { key: 'voltage', label: 'Питание', value: '5V, 150 мА' },
         { key: 'preheat', label: 'Прогрев', value: '24 ч' },
       ],
-      tags: ['gas', 'co2', 'air-quality', 'analog'],
+      tags: ['gas', 'co2', 'air-quality', 'analog', 'diy-air-quality'],
     },
     {
       name: 'MAX30102 — Пульсоксиметр',
@@ -339,7 +341,7 @@ async function main() {
         { key: 'voltage', label: 'Питание', value: '1.8V / 3.3V' },
         { key: 'led', label: 'LED', value: 'IR + Red' },
       ],
-      tags: ['pulse', 'spo2', 'health', 'wearable', 'i2c'],
+      tags: ['pulse', 'spo2', 'health', 'wearable', 'i2c', 'diy-pulse-oximeter'],
     },
 
     // ── Питание ────────────────────────────────────────────────────────────────
@@ -358,7 +360,7 @@ async function main() {
         { key: 'size', label: 'Размер', value: '18.5×65 мм' },
         { key: 'protection', label: 'Защита', value: 'перезаряд / разряд / КЗ' },
       ],
-      tags: ['battery', 'lithium', '18650', 'protection'],
+      tags: ['battery', 'lithium', '18650', 'protection', 'diy-robot', 'diy-security', 'diy-weather', 'diy-lora-sensor', 'diy-irrigation'],
     },
     {
       name: 'LiPo аккумулятор 3.7V 1200 мАч',
@@ -374,7 +376,7 @@ async function main() {
         { key: 'connector', label: 'Разъём', value: 'JST-PH 2.0 мм' },
         { key: 'size', label: 'Размер', value: '50×34×6 мм' },
       ],
-      tags: ['lipo', 'jst', 'battery', 'feather'],
+      tags: ['lipo', 'jst', 'battery', 'feather', 'diy-pulse-oximeter', 'diy-badge', 'diy-gimbal', 'diy-gps-tracker'],
     },
     {
       name: 'TP4056 — Зарядное устройство Li-Ion',
@@ -390,7 +392,7 @@ async function main() {
         { key: 'protection', label: 'Защита', value: 'DW01 (перезаряд, разряд, КЗ)' },
         { key: 'led', label: 'Индикация', value: 'CHG (красный), STDBY (синий)' },
       ],
-      tags: ['charger', 'tp4056', 'lipo', 'micro-usb'],
+      tags: ['charger', 'tp4056', 'lipo', 'micro-usb', 'diy-pulse-oximeter', 'diy-badge', 'diy-gimbal', 'diy-gps-tracker', 'diy-weather', 'diy-security'],
     },
     {
       name: 'MT3608 — Повышающий DC-DC преобразователь',
@@ -438,7 +440,7 @@ async function main() {
         { key: 'current', label: 'Ток', value: '200 мА' },
         { key: 'size', label: 'Размер', value: '110×60 мм' },
       ],
-      tags: ['solar', 'renewable', 'outdoor', 'iot'],
+      tags: ['solar', 'renewable', 'outdoor', 'iot', 'diy-weather', 'diy-lora-sensor', 'diy-irrigation'],
     },
 
     // ── Робототехника ─────────────────────────────────────────────────────────
@@ -457,7 +459,7 @@ async function main() {
         { key: 'voltage', label: 'Питание', value: '4.8…7.2V' },
         { key: 'weight', label: 'Вес', value: '55г' },
       ],
-      tags: ['servo', 'robotics', 'motor', 'metal-gear'],
+      tags: ['servo', 'robotics', 'motor', 'metal-gear', 'diy-robot', 'diy-gimbal'],
     },
     {
       name: 'Шаговый двигатель NEMA17 с драйвером A4988',
@@ -489,7 +491,7 @@ async function main() {
         { key: 'voltage', label: 'Питание', value: '5…35V' },
         { key: 'control', label: 'Управление', value: 'PWM + DIR' },
       ],
-      tags: ['motor-driver', 'h-bridge', 'l298n', 'pwm'],
+      tags: ['motor-driver', 'h-bridge', 'l298n', 'pwm', 'diy-robot'],
     },
     {
       name: 'Шасси для Arduino 4WD',
@@ -505,7 +507,7 @@ async function main() {
         { key: 'material', label: 'Материал', value: 'Акрил + металл' },
         { key: 'size', label: 'Размер', value: '250×180×80 мм' },
       ],
-      tags: ['chassis', '4wd', 'robot', 'arduino', 'raspberry'],
+      tags: ['chassis', '4wd', 'robot', 'arduino', 'raspberry', 'diy-robot'],
     },
     {
       name: 'SG90 — Микросервопривод',
@@ -521,7 +523,7 @@ async function main() {
         { key: 'angle', label: 'Угол', value: '180°' },
         { key: 'weight', label: 'Вес', value: '9г' },
       ],
-      tags: ['servo', 'micro', 'sg90', 'lightweight'],
+      tags: ['servo', 'micro', 'sg90', 'lightweight', 'diy-robot', 'diy-gimbal'],
     },
 
     // ── Модули связи ─────────────────────────────────────────────────────────
@@ -572,7 +574,7 @@ async function main() {
         { key: 'interface', label: 'Интерфейс', value: 'UART' },
         { key: 'voltage', label: 'Питание', value: '3.7…4.2V' },
       ],
-      tags: ['gsm', 'gprs', 'sms', 'sim800l', 'cellular'],
+      tags: ['gsm', 'gprs', 'sms', 'sim800l', 'cellular', 'diy-gps-tracker', 'diy-security'],
     },
     {
       name: 'NEO-6M — GPS модуль',
@@ -589,7 +591,7 @@ async function main() {
         { key: 'cold_start', label: 'Холодный старт', value: '27 с' },
         { key: 'update_rate', label: 'Частота', value: '1 Гц' },
       ],
-      tags: ['gps', 'navigation', 'nmea', 'uart', 'ublox'],
+      tags: ['gps', 'navigation', 'nmea', 'uart', 'ublox', 'diy-gps-tracker'],
     },
     {
       name: 'LoRa32 SX1276 — 433/868/915 МГц',
@@ -606,7 +608,7 @@ async function main() {
         { key: 'interface', label: 'Интерфейс', value: 'SPI' },
         { key: 'sensitivity', label: 'Чувствит.', value: '-148 дБм' },
       ],
-      tags: ['lora', 'lorawan', 'long-range', 'iot', 'spi'],
+      tags: ['lora', 'lorawan', 'long-range', 'iot', 'spi', 'diy-lora-sensor'],
     },
 
     // ── Дисплеи ───────────────────────────────────────────────────────────────
@@ -625,7 +627,7 @@ async function main() {
         { key: 'interface', label: 'Интерфейс', value: 'I2C (400 кГц)' },
         { key: 'voltage', label: 'Питание', value: '3.3…5V' },
       ],
-      tags: ['oled', 'display', 'ssd1306', 'i2c', '128x64'],
+      tags: ['oled', 'display', 'ssd1306', 'i2c', '128x64', 'diy-weather', 'diy-pulse-oximeter', 'diy-robot', 'diy-air-quality'],
     },
     {
       name: 'OLED дисплей 1.3" 128×64 I2C',
@@ -676,7 +678,7 @@ async function main() {
         { key: 'interface', label: 'Интерфейс', value: 'SPI' },
         { key: 'power', label: 'Потребление', value: '< 0.1 мВт (static)' },
       ],
-      tags: ['epaper', 'eink', 'low-power', 'display', 'waveshare'],
+      tags: ['epaper', 'eink', 'low-power', 'display', 'waveshare', 'diy-badge'],
     },
     {
       name: 'LCD 16×2 I2C — синяя подсветка',
@@ -694,6 +696,144 @@ async function main() {
         { key: 'address', label: 'I2C адрес', value: '0x27 / 0x3F' },
       ],
       tags: ['lcd', '1602', 'i2c', 'character', 'pcf8574'],
+    },
+
+    // ── Исполнительные устройства ─────────────────────────────────────────────
+    {
+      name: 'HC-SR501 — PIR датчик движения',
+      slug: 'hcsr501-pir',
+      sku: 'SEN-HCSR501',
+      shortDescription: 'Пассивный ИК-датчик движения, 3–7м, 5V, регулировка чувствительности',
+      description: 'Пассивный инфракрасный датчик движения HC-SR501. Угол обнаружения 120°, дальность 3–7 м. Два потенциометра: чувствительность и задержка срабатывания. Незаменим в охранных системах, умном доме и робототехнике.',
+      priceMinor: 19000, stock: 280,
+      categoryId: catSensors.id, brandId: dfrobot.id,
+      specs: [
+        { key: 'range', label: 'Дальность', value: '3…7 м (регулир.)' },
+        { key: 'angle', label: 'Угол', value: '120°' },
+        { key: 'voltage', label: 'Питание', value: '4.5…20V' },
+        { key: 'delay', label: 'Задержка', value: '5…200 с (регулир.)' },
+        { key: 'output', label: 'Выход', value: 'Цифровой HIGH/LOW' },
+      ],
+      tags: ['pir', 'motion', 'infrared', 'security', 'diy-security', 'diy-smart-home'],
+    },
+    {
+      name: 'Реле 5V 1-канальное',
+      slug: 'relay-5v-1ch',
+      sku: 'ACT-RELAY-1CH',
+      shortDescription: 'Модуль реле 5V, нагрузка 10A/250VAC, активный LOW',
+      description: 'Одноканальный модуль реле с опторазвязкой. Управление логическим LOW (5V Arduino, 3.3V ESP32 через опторазвязку). Контакты выдерживают 10А / 250В переменного тока. Применяется для управления насосами, лампами, вентиляторами.',
+      priceMinor: 14000, stock: 380,
+      categoryId: catActuators.id, brandId: dfrobot.id,
+      specs: [
+        { key: 'channels', label: 'Каналов', value: '1' },
+        { key: 'coil', label: 'Катушка', value: '5V, 70 мА' },
+        { key: 'load_ac', label: 'Нагрузка AC', value: '10A / 250V' },
+        { key: 'load_dc', label: 'Нагрузка DC', value: '10A / 30V' },
+        { key: 'trigger', label: 'Сигнал', value: 'LOW-level (активный)' },
+        { key: 'isolation', label: 'Изоляция', value: 'Оптопара PC817' },
+      ],
+      tags: ['relay', 'actuator', 'smart-home', 'diy-smart-home', 'diy-irrigation', 'switch'],
+    },
+    {
+      name: 'Активный зуммер 5V',
+      slug: 'buzzer-active-5v',
+      sku: 'ACT-BUZZ-5V',
+      shortDescription: 'Активный пьезозуммер 5V, постоянный тон, 85 дБ',
+      description: 'Активный пьезоэлектрический зуммер. В отличие от пассивного, генерирует тон самостоятельно при подаче питания — не требует PWM-сигнала. Уровень звука 85 дБ. Применяется в сигнализациях, таймерах, уведомлениях.',
+      priceMinor: 8000, stock: 500,
+      categoryId: catActuators.id, brandId: dfrobot.id,
+      specs: [
+        { key: 'type', label: 'Тип', value: 'Активный (постоянный тон)' },
+        { key: 'voltage', label: 'Питание', value: '3.5…5.5V' },
+        { key: 'current', label: 'Ток', value: '< 30 мА' },
+        { key: 'spl', label: 'Уровень звука', value: '≥ 85 дБ' },
+        { key: 'freq', label: 'Частота', value: '2300 ± 300 Гц' },
+      ],
+      tags: ['buzzer', 'alarm', 'alert', 'diy-security', 'piezo'],
+    },
+    {
+      name: 'Датчик влажности почвы YL-69',
+      slug: 'soil-moisture-yl69',
+      sku: 'SEN-YL69',
+      shortDescription: 'Ёмкостный датчик почвы, аналог+цифра, 3.3–5V',
+      description: 'Датчик влажности почвы с компаратором и потенциометром настройки. Аналоговый выход (0–3.3/5V) и цифровой выход (HIGH/LOW). Пара электродов-щупов из нержавеющей стали. Применяется в системах автополива и умных теплицах.',
+      priceMinor: 16000, stock: 320,
+      categoryId: catSensors.id, brandId: dfrobot.id,
+      specs: [
+        { key: 'output', label: 'Выход', value: 'Аналоговый + цифровой' },
+        { key: 'voltage', label: 'Питание', value: '3.3…5V' },
+        { key: 'probes', label: 'Щупы', value: 'Нержавеющая сталь' },
+        { key: 'threshold', label: 'Порог', value: 'Регулируется потенц.' },
+      ],
+      tags: ['soil', 'moisture', 'garden', 'irrigation', 'analog', 'diy-irrigation'],
+    },
+    {
+      name: 'WS2812B светодиодная лента 1м 60 LED/м',
+      slug: 'ws2812b-led-strip-1m',
+      sku: 'LED-WS2812B-1M',
+      shortDescription: 'Адресная RGB лента WS2812B, 60 LED/м, 5V, IP30',
+      description: 'Адресная RGB-лента на светодиодах WS2812B — каждый пиксель управляется независимо по однопроводному протоколу. Ширина 10 мм, клейкая основа. Совместима с библиотеками FastLED и NeoPixel для Arduino/ESP32.',
+      priceMinor: 89000, oldPriceMinor: 110000, stock: 120,
+      categoryId: catLighting.id, brandId: adafruit.id,
+      specs: [
+        { key: 'density', label: 'Плотность', value: '60 LED/м' },
+        { key: 'voltage', label: 'Питание', value: '5V' },
+        { key: 'current', label: 'Ток', value: 'до 3.6А/м (все белые)' },
+        { key: 'protocol', label: 'Протокол', value: 'WS2812B (1-wire)' },
+        { key: 'length', label: 'Длина', value: '1 м (60 пикселей)' },
+        { key: 'ip', label: 'Защита', value: 'IP30 (без защиты)' },
+      ],
+      tags: ['led', 'rgb', 'addressable', 'neopixel', 'ws2812b', 'diy-lighting', 'fastled'],
+    },
+    {
+      name: 'NeoPixel кольцо 12 RGB LED',
+      slug: 'neopixel-ring-12',
+      sku: 'LED-NEOPIX-12',
+      shortDescription: 'Кольцо 12 адресных RGB LED WS2812B, 5V, d=37мм',
+      description: 'Круглое кольцо из 12 адресных светодиодов WS2812B диаметром 37 мм. Удобный форм-фактор для создания световых эффектов, индикаторов прогресса, часов.',
+      priceMinor: 42000, stock: 150,
+      categoryId: catLighting.id, brandId: adafruit.id,
+      specs: [
+        { key: 'leds', label: 'LED', value: '12 × WS2812B' },
+        { key: 'voltage', label: 'Питание', value: '5V' },
+        { key: 'diameter', label: 'Диаметр', value: '37 мм' },
+        { key: 'protocol', label: 'Протокол', value: 'WS2812B (1-wire)' },
+      ],
+      tags: ['led', 'neopixel', 'ring', 'rgb', 'ws2812b', 'diy-lighting'],
+    },
+    {
+      name: 'DS3231 — RTC модуль реального времени',
+      slug: 'ds3231-rtc',
+      sku: 'MOD-DS3231',
+      shortDescription: 'Точные часы реального времени, I2C, EEPROM, батарейка CR2032',
+      description: 'Высокоточный модуль часов реального времени на DS3231 с компенсацией температуры (±2 ppm). I2C интерфейс. 32 байта EEPROM (AT24C32) на плате. Батарейка CR2032 поддерживает работу при отключении питания.',
+      priceMinor: 35000, stock: 160,
+      categoryId: catModules.id, brandId: adafruit.id,
+      specs: [
+        { key: 'accuracy', label: 'Точность', value: '±2 ppm (0…40°C)' },
+        { key: 'interface', label: 'Интерфейс', value: 'I2C' },
+        { key: 'backup', label: 'Батарейка', value: 'CR2032 (в комплекте)' },
+        { key: 'eeprom', label: 'EEPROM', value: '32 байт (AT24C32)' },
+        { key: 'voltage', label: 'Питание', value: '3.3…5.5V' },
+      ],
+      tags: ['rtc', 'clock', 'time', 'i2c', 'ds3231', 'diy-clock', 'eeprom'],
+    },
+    {
+      name: 'INA219 — Датчик тока и напряжения',
+      slug: 'ina219-current-sensor',
+      sku: 'SEN-INA219',
+      shortDescription: 'Измеритель тока/мощности I2C, ±3.2А, 26V, 12 бит',
+      description: 'Прецизионный датчик тока и мощности с I2C интерфейсом. Измеряет ток через шунт-резистор и напряжение шины. 12-битное разрешение. Применяется для мониторинга зарядки аккумуляторов, учёта энергопотребления в IoT.',
+      priceMinor: 38000, stock: 110,
+      categoryId: catSensors.id, brandId: adafruit.id,
+      specs: [
+        { key: 'current_range', label: 'Ток', value: '±3.2А' },
+        { key: 'voltage_range', label: 'Напряжение', value: 'до 26V' },
+        { key: 'resolution', label: 'Разрядность', value: '12 бит' },
+        { key: 'interface', label: 'Интерфейс', value: 'I2C' },
+        { key: 'addresses', label: 'I2C адресов', value: '4 варианта' },
+      ],
+      tags: ['current', 'power', 'voltage', 'i2c', 'ina219', 'energy', 'diy-monitoring'],
     },
 
     // ── Инструменты и аксессуары ─────────────────────────────────────────────
@@ -797,7 +937,7 @@ async function main() {
   for (const p of products) {
     await prisma.product.upsert({
       where: { sku: p.sku },
-      update: {},
+      update: { tags: p.tags, shortDescription: p.shortDescription ?? null },
       create: {
         name: p.name,
         slug: p.slug,

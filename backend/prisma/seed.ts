@@ -987,8 +987,15 @@ async function main() {
 
   // ── Orders ────────────────────────────────────────────────────────────────────
 
+  const existingOrderCount = await prisma.order.count();
+  if (existingOrderCount > 0) {
+    console.log(`  ↷ orders already exist (${existingOrderCount}), skipping`);
+    console.log('🎉 Seed complete!');
+    return;
+  }
+
   // Fetch some products to reference
-  const allProducts = await prisma.product.findMany({ take: 60 });
+  const allProducts = await prisma.product.findMany({ take: 80 });
   const bysku = (sku: string) => allProducts.find((p) => p.sku === sku)!;
 
   type OrderDef = {

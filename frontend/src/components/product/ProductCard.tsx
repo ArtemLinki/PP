@@ -6,8 +6,9 @@ import { Card, Text, Badge, Group, Button, Stack, Box, ActionIcon } from "@manti
 import { IconShoppingCartPlus, IconHeart, IconHeartFilled } from "@tabler/icons-react";
 import type { ProductDto } from "@/lib/dto";
 import { formatPrice } from "@/lib/format";
-import { useCartStore } from "@/lib/store";
+import { useCartStore, useAuthStore } from "@/lib/store";
 import { useWishlistStore } from "@/lib/store/useWishlistStore";
+import { notifications } from "@mantine/notifications";
 
 const stockColor: Record<ProductDto["stockStatus"], string> = {
   in_stock: "teal",
@@ -25,7 +26,16 @@ const stockLabel: Record<ProductDto["stockStatus"], string> = {
 
 export function ProductCard({ product }: { product: ProductDto }) {
   const addToCart = useCartStore((s) => s.add);
+  const user = useAuthStore((s) => s.user);
   const { toggle: toggleWishlist, has: inWishlist } = useWishlistStore();
+
+  const handleAddToCart = () => {
+    if (!user) {
+      notifications.show({ title: 'Требуется авторизация', message: 'Войдите в аккаунт, чтобы добавить товар в корзину', color: 'orange' });
+      return;
+    }
+    void addToCart({ productId: product.id, quantity: 1 });
+  };
   const primaryImage = product.images?.find((i) => i.isPrimary) ?? product.images?.[0];
   const isWishlisted = inWishlist(product.id);
 
@@ -128,7 +138,7 @@ export function ProductCard({ product }: { product: ProductDto }) {
           variant="light"
           leftSection={<IconShoppingCartPlus size={14} />}
           disabled={product.stockStatus === "out_of_stock"}
-          onClick={() => void addToCart({ productId: product.id, quantity: 1 })}
+          onClick={handleAddToCart}
         >
           В корзину
         </Button>

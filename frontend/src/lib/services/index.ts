@@ -23,6 +23,8 @@ import { AiApiService } from "./ai/AiApiService";
 import { AiMockService } from "./ai/AiMockService";
 import { AuthApiService } from "./auth/AuthApiService";
 import { AuthMockService } from "./auth/AuthMockService";
+import { ReviewsApiService } from "./reviews/ReviewsApiService";
+import { ReviewsMockService } from "./reviews/ReviewsMockService";
 
 export function createServices(overrides: Partial<ServiceContainer> = {}): ServiceContainer {
   const useMocks = apiConfig.useMocks;
@@ -33,6 +35,7 @@ export function createServices(overrides: Partial<ServiceContainer> = {}): Servi
         categories: new CategoriesMockService(),
         cart: new CartMockService(),
         orders: new OrdersMockService(),
+        reviews: new ReviewsMockService(),
         ai: new AiMockService(),
         auth: new AuthMockService(),
       }
@@ -41,6 +44,7 @@ export function createServices(overrides: Partial<ServiceContainer> = {}): Servi
         categories: new CategoriesApiService(),
         cart: new CartApiService(),
         orders: new OrdersApiService(),
+        reviews: new ReviewsApiService(),
         ai: new AiApiService(),
         auth: new AuthApiService(),
       };

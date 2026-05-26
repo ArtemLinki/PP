@@ -67,7 +67,7 @@ export function Header() {
         </Group>
 
         <Group gap="sm">
-          <ActionIcon variant="subtle" color="gray" visibleFrom="sm" aria-label="Поиск">
+          <ActionIcon variant="subtle" color="gray" visibleFrom="sm" aria-label="Поиск" component={Link} href="/catalog">
             <IconSearch size={18} />
           </ActionIcon>
           <ActionIcon

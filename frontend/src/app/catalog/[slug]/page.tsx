@@ -30,7 +30,8 @@ import {
   IconTag,
 } from "@tabler/icons-react";
 import { useServices } from "@/lib/services/ServicesProvider";
-import { useCartStore } from "@/lib/store";
+import { useCartStore, useAuthStore } from "@/lib/store";
+import { ReviewsSection } from "@/components/reviews/ReviewsSection";
 import { useWishlistStore } from "@/lib/store/useWishlistStore";
 import { formatPrice } from "@/lib/format";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -73,6 +74,7 @@ function ProductDetailContent() {
   const slug = params?.slug as string;
   const services = useServices();
   const addToCart = useCartStore((s) => s.add);
+  const user = useAuthStore((s) => s.user);
   const { toggle: toggleWishlist, has: inWishlist } = useWishlistStore();
   const [qty, setQty] = useState<number>(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -106,6 +108,10 @@ function ProductDetailContent() {
   const isOutOfStock = product.stockStatus === "out_of_stock";
 
   const handleAddToCart = async () => {
+    if (!user) {
+      notifications.show({ title: 'Требуется авторизация', message: 'Войдите в аккаунт, чтобы добавить товар в корзину', color: 'orange' });
+      return;
+    }
     await addToCart({ productId: product.id, quantity: qty });
     notifications.show({
       message: `${product.title} добавлен в корзину`,
@@ -441,6 +447,9 @@ function ProductDetailContent() {
           </Box>
         </Box>
       )}
+
+      {/* Reviews */}
+      <ReviewsSection productId={product.id} />
 
       {/* Back button */}
       <Box mt={48}>

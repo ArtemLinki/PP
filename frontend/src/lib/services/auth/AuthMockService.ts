@@ -55,4 +55,12 @@ export class AuthMockService implements IAuthService {
     await delay(80);
     return this.session?.user ?? null;
   }
+
+  async updateProfile(data: { name?: string; phone?: string }): Promise<UserDto> {
+    await delay();
+    if (!this.session) throw { code: "UNAUTHORIZED", message: "Не авторизован" };
+    if (data.name !== undefined) this.session.user.name = data.name;
+    if (data.phone !== undefined) (this.session.user as any).phone = data.phone;
+    return this.session.user;
+  }
 }

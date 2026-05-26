@@ -25,4 +25,8 @@ export class AuthApiService implements IAuthService {
       return null;
     }
   }
+
+  updateProfile(data: { name?: string; phone?: string }): Promise<UserDto> {
+    return this.http.patch<UserDto>(endpoints.users.me, data);
+  }
 }

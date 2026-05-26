@@ -22,6 +22,12 @@ export const endpoints = {
     list: "/orders",
     byId: (id: string) => `/orders/${id}`,
     create: "/orders",
+    lastDelivery: "/orders/last-delivery",
+  },
+  reviews: {
+    byProduct: (productId: string) => `/reviews/product/${productId}`,
+    create: "/reviews",
+    delete: (id: string) => `/reviews/${id}`,
   },
   ai: {
     chat: "/ai/chat",
@@ -33,6 +39,9 @@ export const endpoints = {
     register: "/auth/register",
     me: "/auth/me",
     refresh: "/auth/refresh",
+  },
+  users: {
+    me: "/users/me",
   },
   admin: {
     dashboard: "/admin/dashboard",

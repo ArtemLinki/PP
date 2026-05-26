@@ -17,6 +17,12 @@ export class OrdersController {
     return this.orders.findAll(user.id);
   }
 
+  @Get('last-delivery')
+  @ApiOperation({ summary: 'Данные доставки из последнего заказа для предзаполнения формы' })
+  getLastDelivery(@CurrentUser() user: any) {
+    return this.orders.getLastDelivery(user.id);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Заказ по ID' })
   findOne(@CurrentUser() user: any, @Param('id') id: string) {
@@ -24,8 +30,20 @@ export class OrdersController {
   }
 
   @Post()
-  @ApiOperation({ summary: 'Создать заказ из списка товаров' })
-  create(@CurrentUser() user: any, @Body() body: { items: { productId: string; quantity: number }[] }) {
-    return this.orders.create(user.id, body.items);
+  @ApiOperation({ summary: 'Создать заказ из корзины' })
+  create(
+    @CurrentUser() user: any,
+    @Body()
+    body: {
+      items: { productId: string; quantity: number }[];
+      delivery?: {
+        deliveryName?: string;
+        deliveryPhone?: string;
+        deliveryCity?: string;
+        deliveryAddress?: string;
+      };
+    },
+  ) {
+    return this.orders.create(user.id, body.items, body.delivery);
   }
 }

@@ -21,12 +21,15 @@ import type {
   RegisterDto,
   OrderDto,
   CreateOrderDto,
+  DeliveryInfoDto,
   AiPromptDto,
   AiPromptResponseDto,
   AiMessageDto,
   AuthCredentialsDto,
   AuthSessionDto,
   UserDto,
+  ReviewDto,
+  CreateReviewDto,
   ID,
 } from "@/lib/dto";
 
@@ -53,6 +56,13 @@ export interface IOrdersService {
   list(): Promise<OrderDto[]>;
   getById(id: ID): Promise<OrderDto>;
   create(payload: CreateOrderDto): Promise<OrderDto>;
+  getLastDelivery(): Promise<DeliveryInfoDto | null>;
+}
+
+export interface IReviewsService {
+  getByProduct(productId: ID): Promise<ReviewDto[]>;
+  create(payload: CreateReviewDto): Promise<ReviewDto>;
+  remove(reviewId: ID): Promise<void>;
 }
 
 export interface IAiService {
@@ -67,6 +77,7 @@ export interface IAuthService {
   register(payload: RegisterDto): Promise<AuthSessionDto>;
   logout(): Promise<void>;
   me(): Promise<UserDto | null>;
+  updateProfile(data: { name?: string; phone?: string }): Promise<UserDto>;
 }
 
 /** Полный набор сервисов, прокидывается через DI / контейнер. */
@@ -75,6 +86,7 @@ export interface ServiceContainer {
   categories: ICategoriesService;
   cart: ICartService;
   orders: IOrdersService;
+  reviews: IReviewsService;
   ai: IAiService;
   auth: IAuthService;
 }

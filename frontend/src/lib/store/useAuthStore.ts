@@ -15,6 +15,7 @@ interface AuthState {
   logout: () => Promise<void>;
   /** Подтянуть пользователя по сохранённому токену. */
   hydrate: () => Promise<void>;
+  updateProfile: (data: { name?: string; phone?: string }) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -50,6 +51,11 @@ export const useAuthStore = create<AuthState>()(
       hydrate: async () => {
         if (!get().token) return;
         const user = await services.auth.me().catch(() => null);
+        set({ user });
+      },
+
+      updateProfile: async (data) => {
+        const user = await services.auth.updateProfile(data);
         set({ user });
       },
     }),

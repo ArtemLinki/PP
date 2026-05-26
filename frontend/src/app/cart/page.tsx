@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import {
   Box,
@@ -77,7 +77,7 @@ function CartItem({ item, onUpdate, onRemove }: {
           value={item.quantity}
           onChange={(v) => onUpdate(typeof v === "number" ? v : 1)}
           min={1}
-          max={99}
+          max={item.product?.stockQty ?? 99}
           w={72}
           size="xs"
           styles={{ input: { fontFamily: "JetBrains Mono, monospace", textAlign: "center" } }}
@@ -100,8 +100,10 @@ function CartItem({ item, onUpdate, onRemove }: {
 }
 
 import type { CartDto } from "@/lib/dto";
+import { CheckoutModal } from "@/components/checkout/CheckoutModal";
+import { useAuthStore } from "@/lib/store";
 
-function SummaryPanel({ cart, loading }: { cart: CartDto | null; loading: boolean }) {
+function SummaryPanel({ cart, loading, onCheckout }: { cart: CartDto | null; loading: boolean; onCheckout: () => void }) {
   const [promo, setPromo] = useState("");
 
   const subtotal = cart?.subtotal;
@@ -178,6 +180,8 @@ function SummaryPanel({ cart, loading }: { cart: CartDto | null; loading: boolea
         radius={0}
         rightSection={<IconArrowRight size={16} />}
         style={{ fontWeight: 700 }}
+        disabled={!cart || cart.items.length === 0}
+        onClick={onCheckout}
       >
         Оформить заказ
       </Button>
@@ -203,10 +207,20 @@ function SummaryPanel({ cart, loading }: { cart: CartDto | null; loading: boolea
 
 export default function CartPage() {
   const { cart, loading, refresh, update, remove, clear } = useCartStore();
+  const user = useAuthStore((s) => s.user);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  const handleCheckout = useCallback(() => {
+    if (!user) {
+      window.location.href = '/login';
+      return;
+    }
+    setCheckoutOpen(true);
+  }, [user]);
 
   const empty = !cart || cart.items.length === 0;
 
@@ -265,10 +279,12 @@ export default function CartPage() {
           </Grid.Col>
 
           <Grid.Col span={{ base: 12, md: 4 }}>
-            <SummaryPanel cart={cart} loading={loading} />
+            <SummaryPanel cart={cart} loading={loading} onCheckout={handleCheckout} />
           </Grid.Col>
         </Grid>
       )}
+
+      <CheckoutModal opened={checkoutOpen} onClose={() => setCheckoutOpen(false)} />
     </Box>
   );
 }

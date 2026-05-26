@@ -31,6 +31,24 @@ html, body {
   .te-container { padding-inline: 32px; }
 }
 
+/* AI markdown output */
+.ai-markdown p { margin: 0 0 8px; }
+.ai-markdown p:last-child { margin-bottom: 0; }
+.ai-markdown h1, .ai-markdown h2, .ai-markdown h3 { font-weight: 700; margin: 12px 0 6px; color: var(--te-text); }
+.ai-markdown h1 { font-size: 18px; }
+.ai-markdown h2 { font-size: 16px; }
+.ai-markdown h3 { font-size: 14px; }
+.ai-markdown ul, .ai-markdown ol { padding-left: 20px; margin: 6px 0; }
+.ai-markdown li { margin-bottom: 4px; }
+.ai-markdown code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--te-bg-deep); border: 1px solid var(--te-line); padding: 1px 5px; border-radius: 2px; color: var(--te-accent); }
+.ai-markdown pre { background: var(--te-bg-deep); border: 1px solid var(--te-line); padding: 12px; overflow-x: auto; margin: 8px 0; }
+.ai-markdown pre code { background: none; border: none; padding: 0; color: var(--te-text); }
+.ai-markdown strong { font-weight: 700; color: var(--te-text); }
+.ai-markdown em { font-style: italic; color: var(--te-muted); }
+.ai-markdown a { color: var(--te-accent); text-decoration: underline; }
+.ai-markdown blockquote { border-left: 2px solid var(--te-accent); padding-left: 12px; margin: 8px 0; color: var(--te-muted); }
+.ai-markdown hr { border: none; border-top: 1px solid var(--te-line); margin: 12px 0; }
+
 /* Скрытие/показ по брейкпоинтам — Mantine `visibleFrom`/`hiddenFrom` тоже умеет. */
 .te-mobile-only { display: block; }
 .te-desktop-only { display: none; }

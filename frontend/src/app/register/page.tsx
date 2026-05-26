@@ -108,6 +108,7 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.currentTarget.value)}
                 type="email"
+                autoComplete="email"
                 required
                 styles={{ input: { background: 'var(--te-bg-deep)', borderRadius: 0 } }}
               />
@@ -116,6 +117,8 @@ export default function RegisterPage() {
                 placeholder="+79001234567"
                 value={phone}
                 onChange={(e) => setPhone(e.currentTarget.value)}
+                type="tel"
+                autoComplete="tel"
                 styles={{ input: { background: 'var(--te-bg-deep)', borderRadius: 0 } }}
               />
               <PasswordInput

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
@@ -30,10 +30,15 @@ export class CartService {
       where: { cartId_productId: { cartId: cart.id, productId } },
     });
 
+    const newQty = (existing?.quantity ?? 0) + quantity;
+    if (product.stock > 0 && newQty > product.stock) {
+      throw new BadRequestException(`Доступно только ${product.stock} шт.`);
+    }
+
     if (existing) {
       await this.prisma.cartItem.update({
         where: { id: existing.id },
-        data: { quantity: existing.quantity + quantity },
+        data: { quantity: newQty },
       });
     } else {
       await this.prisma.cartItem.create({
@@ -47,13 +52,16 @@ export class CartService {
   async updateItem(userId: string, itemId: string, quantity: number) {
     const item = await this.prisma.cartItem.findUnique({
       where: { id: itemId },
-      include: { cart: true },
+      include: { cart: true, product: true },
     });
     if (!item || item.cart.userId !== userId) throw new NotFoundException('Позиция не найдена');
 
     if (quantity <= 0) {
       await this.prisma.cartItem.delete({ where: { id: itemId } });
     } else {
+      if ((item as any).product?.stock > 0 && quantity > (item as any).product.stock) {
+        throw new BadRequestException(`Доступно только ${(item as any).product.stock} шт.`);
+      }
       await this.prisma.cartItem.update({ where: { id: itemId }, data: { quantity } });
     }
     return this.getCurrent(userId);

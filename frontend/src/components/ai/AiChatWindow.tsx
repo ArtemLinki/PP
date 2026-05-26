@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Box, Text, Textarea, ActionIcon, Loader } from '@mantine/core';
+import ReactMarkdown from 'react-markdown';
 import { IconSend } from '@tabler/icons-react';
 import { useAiStore } from '@/lib/store';
 import { AiRecommendationsBlock } from './AiRecommendationsBlock';
@@ -70,9 +71,22 @@ export function AiChatWindow() {
                   : '1px solid var(--te-line)',
               }}
             >
-              <Text size="sm" c="var(--te-text)" style={{ whiteSpace: 'pre-wrap' }}>
-                {m.content}
-              </Text>
+              {m.role === 'user' ? (
+                <Text size="sm" c="var(--te-text)" style={{ whiteSpace: 'pre-wrap' }}>
+                  {m.content}
+                </Text>
+              ) : (
+                <Box
+                  style={{
+                    fontSize: 14,
+                    color: 'var(--te-text)',
+                    lineHeight: 1.6,
+                  }}
+                  className="ai-markdown"
+                >
+                  <ReactMarkdown>{m.content}</ReactMarkdown>
+                </Box>
+              )}
             </Box>
             {m.recommendations && m.recommendations.length > 0 && (
               <Box style={{ maxWidth: '90%', width: '100%' }}>

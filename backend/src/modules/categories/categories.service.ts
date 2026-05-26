@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { ProductStatus } from '@prisma/client';
 
 @Injectable()
 export class CategoriesService {
@@ -11,7 +12,7 @@ export class CategoriesService {
       orderBy: { order: 'asc' },
       include: {
         children: { where: { isVisible: true }, orderBy: { order: 'asc' } },
-        _count: { select: { products: true } },
+        _count: { select: { products: { where: { status: ProductStatus.PUBLISHED } } } },
       },
     });
     return cats

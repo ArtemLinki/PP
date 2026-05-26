@@ -73,29 +73,6 @@ export function AiPromptCard() {
       >
         Начать подбор
       </Button>
-      <Text mt="md" size="10px" ff="JetBrains Mono" c="dimmed" ta="center" style={{ letterSpacing: "0.12em" }}>
-        ПРИМЕРЫ
-      </Text>
-      <Box style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 8, flexWrap: "wrap" }}>
-        {["Собрать ПК", "Система умного дома", "Робот-пылесос"].map((chip) => (
-          <button
-            key={chip}
-            type="button"
-            onClick={() => setValue(chip)}
-            style={{
-              background: "var(--te-surface)",
-              border: "1px solid var(--te-line)",
-              color: "var(--te-text)",
-              fontFamily: "JetBrains Mono",
-              fontSize: 12,
-              padding: "7px 12px",
-              cursor: "pointer",
-            }}
-          >
-            {chip}
-          </button>
-        ))}
-      </Box>
     </Box>
   );
 }

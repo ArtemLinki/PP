@@ -20,8 +20,6 @@ const features = [
   },
 ];
 
-const chips = ['Собрать ПК', 'Система умного дома', 'Робот-пылесос на Arduino', 'FPV-дрон до 50к', 'Метеостанция ESP32'];
-
 export default function HomePage() {
   return (
     <Box>
@@ -53,17 +51,6 @@ export default function HomePage() {
             <DualModeSearchBar size="lg" />
           </Box>
 
-          {/* Example chips */}
-          <Box>
-            <Text size="10px" ff="JetBrains Mono" c="var(--te-muted)" style={{ letterSpacing: '0.12em', marginBottom: 8 }}>
-              ПРИМЕРЫ ЗАПРОСОВ
-            </Text>
-            <Box style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-              {chips.map((chip) => (
-                <ChipButton key={chip} label={chip} />
-              ))}
-            </Box>
-          </Box>
         </Stack>
       </Box>
 
@@ -99,23 +86,3 @@ export default function HomePage() {
   );
 }
 
-function ChipButton({ label }: { label: string }) {
-  return (
-    <a
-      href={`/catalog?search=${encodeURIComponent(label)}`}
-      style={{
-        background: 'var(--te-surface)',
-        border: '1px solid var(--te-line)',
-        color: 'var(--te-text)',
-        fontFamily: 'JetBrains Mono',
-        fontSize: 12,
-        padding: '6px 12px',
-        cursor: 'pointer',
-        textDecoration: 'none',
-        display: 'inline-block',
-      }}
-    >
-      {label}
-    </a>
-  );
-}

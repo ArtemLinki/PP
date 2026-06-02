@@ -5,7 +5,7 @@ import {
   Box, Stack, Group, Text, Button, TextInput, Select,
   Badge, Table, ActionIcon, Modal, NumberInput, Textarea, Loader, Pagination,
 } from '@mantine/core';
-import { IconSearch, IconPlus, IconPencil, IconTrash, IconDownload, IconUpload, IconX } from '@tabler/icons-react';
+import { IconSearch, IconPlus, IconPencil, IconTrash, IconDownload, IconUpload, IconX, IconExternalLink } from '@tabler/icons-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { adminService, type AdminProduct, type CreateAdminProductDto } from '@/lib/services/admin/AdminApiService';
@@ -392,6 +392,10 @@ export default function AdminProductsPage() {
                     </Table.Td>
                     <Table.Td>
                       <Group gap={4}>
+                        <ActionIcon variant="subtle" color="gray" size="sm" radius={0}
+                          component="a" href={`/catalog/${p.slug}`} target="_blank" title="Открыть карточку товара">
+                          <IconExternalLink size={14} />
+                        </ActionIcon>
                         <ActionIcon variant="subtle" color="teal" size="sm" radius={0}
                           onClick={() => openEdit(p)} title="Редактировать">
                           <IconPencil size={14} />

@@ -17,9 +17,10 @@ interface CategoryModalProps {
   onClose: () => void;
   editing: AdminCategory | null;
   parentOptions: { value: string; label: string }[];
+  defaultParentId?: string | null;
 }
 
-function CategoryModal({ opened, onClose, editing, parentOptions }: CategoryModalProps) {
+function CategoryModal({ opened, onClose, editing, parentOptions, defaultParentId }: CategoryModalProps) {
   const qc = useQueryClient();
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
@@ -34,9 +35,9 @@ function CategoryModal({ opened, onClose, editing, parentOptions }: CategoryModa
       setParentId(editing.parentId ?? null);
       setIsVisible(editing.isVisible);
     } else {
-      setName(''); setSlug(''); setParentId(null); setIsVisible(true);
+      setName(''); setSlug(''); setParentId(defaultParentId ?? null); setIsVisible(true);
     }
-  }, [opened, editing]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [opened, editing, defaultParentId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const createMut = useMutation({
     mutationFn: (dto: CreateAdminCategoryDto) => adminService.createCategory(dto),
@@ -71,10 +72,12 @@ function CategoryModal({ opened, onClose, editing, parentOptions }: CategoryModa
 
   const loading = createMut.isPending || updateMut.isPending;
 
+  const isSubcategory = parentId !== null;
+
   return (
     <Modal
       opened={opened} onClose={onClose}
-      title={editing ? 'Редактировать категорию' : 'Добавить категорию'}
+      title={editing ? 'Редактировать категорию' : isSubcategory ? 'Добавить подкатегорию' : 'Добавить категорию L1'}
       radius={0} size="sm"
       styles={{
         header: { background: 'var(--te-surface)', borderBottom: '1px solid var(--te-line)' },
@@ -148,6 +151,7 @@ export default function AdminCategoriesPage() {
   const [selectedL1Id, setSelectedL1Id] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<AdminCategory | null>(null);
+  const [defaultParentId, setDefaultParentId] = useState<string | null>(null);
   const qc = useQueryClient();
 
   const { data: categories = [], isLoading } = useQuery({
@@ -174,8 +178,9 @@ export default function AdminCategoriesPage() {
     deleteMut.mutate(cat.id);
   };
 
-  const openAdd = () => { setEditing(null); setModalOpen(true); };
-  const openEdit = (cat: AdminCategory) => { setEditing(cat); setModalOpen(true); };
+  const openAddL1 = () => { setEditing(null); setDefaultParentId(null); setModalOpen(true); };
+  const openAddL2 = () => { setEditing(null); setDefaultParentId(selectedL1Id); setModalOpen(true); };
+  const openEdit = (cat: AdminCategory) => { setEditing(cat); setDefaultParentId(null); setModalOpen(true); };
 
   const l1 = categories.filter(c => !c.parentId);
   const l2 = categories.filter(c => c.parentId === selectedL1Id);
@@ -187,8 +192,8 @@ export default function AdminCategoriesPage() {
       <Stack gap={24}>
         <Group justify="space-between" align="center">
           <Text style={{ fontSize: 24, fontWeight: 700, color: 'var(--te-text)' }}>Категории</Text>
-          <Button color="teal" radius={0} leftSection={<IconPlus size={16} />} onClick={openAdd}>
-            + Добавить категорию
+          <Button color="teal" radius={0} leftSection={<IconPlus size={16} />} onClick={openAddL1}>
+            + Добавить категорию L1
           </Button>
         </Group>
 
@@ -213,11 +218,17 @@ export default function AdminCategoriesPage() {
             </Box>
 
             <Box style={{ flex: 1, background: 'var(--te-surface)' }}>
-              <Box style={{ padding: '8px 14px', borderBottom: '1px solid var(--te-line)', background: 'var(--te-bg)' }}>
+              <Box style={{ padding: '8px 14px', borderBottom: '1px solid var(--te-line)', background: 'var(--te-bg)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Text size="xs" fw={600} c="var(--te-muted)" style={{ textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                   Подкатегории L2
                   {selectedL1 && <Text component="span" c="var(--te-accent)" ml={8} style={{ textTransform: 'none', fontWeight: 400, letterSpacing: 0 }}>— {selectedL1.name}</Text>}
                 </Text>
+                {selectedL1 && (
+                  <Button size="xs" variant="subtle" color="teal" radius={0} leftSection={<IconPlus size={12} />}
+                    onClick={openAddL2} style={{ padding: '0 8px', height: 24 }}>
+                    + Подкатегория
+                  </Button>
+                )}
               </Box>
               {!selectedL1
                 ? <Box p="md"><Text size="sm" c="var(--te-muted)">Выберите категорию L1</Text></Box>
@@ -234,9 +245,10 @@ export default function AdminCategoriesPage() {
 
       <CategoryModal
         opened={modalOpen}
-        onClose={() => { setModalOpen(false); setEditing(null); }}
+        onClose={() => { setModalOpen(false); setEditing(null); setDefaultParentId(null); }}
         editing={editing}
         parentOptions={parentOptions}
+        defaultParentId={defaultParentId}
       />
     </Box>
   );

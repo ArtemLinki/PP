@@ -100,11 +100,25 @@ export default function AdminOrdersPage() {
   const statusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: OrderStatus }) =>
       adminService.updateOrderStatus(id, status),
+    onMutate: async ({ id, status }) => {
+      const key = ["admin-orders", appliedUserId, appliedStatus, page];
+      await qc.cancelQueries({ queryKey: key });
+      const previous = qc.getQueryData(key);
+      qc.setQueryData(key, (old: any) =>
+        old ? { ...old, items: old.items.map((o: AdminOrder) => o.id === id ? { ...o, status } : o) } : old
+      );
+      return { previous, key };
+    },
+    onError: (_err, _vars, ctx: any) => {
+      if (ctx?.previous) qc.setQueryData(ctx.key, ctx.previous);
+      notifications.show({ message: "Ошибка при обновлении статуса", color: "red" });
+    },
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ["admin-orders"] });
       notifications.show({ message: "Статус заказа обновлён", color: "teal" });
     },
-    onError: () => notifications.show({ message: "Ошибка при обновлении статуса", color: "red" }),
+    onSettled: () => {
+      void qc.invalidateQueries({ queryKey: ["admin-orders"] });
+    },
   });
 
   const allOrders: AdminOrder[] = data?.items ?? [];

@@ -3,13 +3,15 @@
 import { useState } from 'react';
 import {
   Box, Text, Stack, Group, Button, Textarea, Rating,
-  Divider, ActionIcon, Skeleton,
+  ActionIcon, Skeleton,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconTrash } from '@tabler/icons-react';
+import { IconTrash, IconMessageReply, IconCheck, IconX } from '@tabler/icons-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/lib/store';
 import { useServices } from '@/lib/services/ServicesProvider';
+import { httpClient } from '@/lib/api/http-client';
+import { endpoints } from '@/lib/api/endpoints';
 import type { ReviewDto } from '@/lib/dto';
 
 function StarDisplay({ rating }: { rating: number }) {
@@ -22,16 +24,48 @@ function StarDisplay({ rating }: { rating: number }) {
   );
 }
 
-function ReviewCard({ review, canDelete, onDelete }: {
+function ReviewCard({ review, canDelete, isAdmin, onDelete, onReplyUpdated }: {
   review: ReviewDto;
   canDelete: boolean;
+  isAdmin: boolean;
   onDelete: () => void;
+  onReplyUpdated: (reviewId: string, reply: string | null) => void;
 }) {
+  const [replyOpen, setReplyOpen] = useState(false);
+  const [replyText, setReplyText] = useState(review.adminReply ?? '');
+  const [saving, setSaving] = useState(false);
+
+  const handleSaveReply = async () => {
+    setSaving(true);
+    try {
+      await httpClient.patch(endpoints.admin.reviewReply(review.id), { reply: replyText || null });
+      onReplyUpdated(review.id, replyText || null);
+      setReplyOpen(false);
+      notifications.show({ message: 'Ответ сохранён', color: 'teal' });
+    } catch {
+      notifications.show({ message: 'Ошибка при сохранении ответа', color: 'red' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteReply = async () => {
+    setSaving(true);
+    try {
+      await httpClient.patch(endpoints.admin.reviewReply(review.id), { reply: null });
+      onReplyUpdated(review.id, null);
+      setReplyText('');
+      setReplyOpen(false);
+      notifications.show({ message: 'Ответ удалён', color: 'gray' });
+    } catch {
+      notifications.show({ message: 'Ошибка при удалении ответа', color: 'red' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
-    <Box
-      p="md"
-      style={{ background: 'var(--te-bg-deep)', border: '1px solid var(--te-line)' }}
-    >
+    <Box p="md" style={{ background: 'var(--te-bg-deep)', border: '1px solid var(--te-line)' }}>
       <Group justify="space-between" mb={6}>
         <Group gap="sm">
           <Text size="sm" fw={600} c="var(--te-text)">{review.authorName}</Text>
@@ -41,6 +75,13 @@ function ReviewCard({ review, canDelete, onDelete }: {
           <Text size="xs" c="dimmed">
             {new Date(review.createdAt).toLocaleDateString('ru-RU')}
           </Text>
+          {isAdmin && (
+            <ActionIcon size="xs" variant="subtle" color="teal"
+              onClick={() => { setReplyText(review.adminReply ?? ''); setReplyOpen(v => !v); }}
+              title="Ответить">
+              <IconMessageReply size={12} />
+            </ActionIcon>
+          )}
           {canDelete && (
             <ActionIcon size="xs" variant="subtle" color="red" onClick={onDelete} aria-label="Удалить отзыв">
               <IconTrash size={12} />
@@ -52,6 +93,45 @@ function ReviewCard({ review, canDelete, onDelete }: {
         <Text size="sm" c="var(--te-muted)" mt={4} style={{ lineHeight: 1.6 }}>
           {review.comment}
         </Text>
+      )}
+
+      {/* Existing admin reply */}
+      {review.adminReply && !replyOpen && (
+        <Box mt={10} p="sm" style={{ background: 'rgba(0,212,181,0.06)', borderLeft: '3px solid var(--te-accent)' }}>
+          <Text size="xs" fw={600} c="teal.6" mb={4}>Ответ магазина</Text>
+          <Text size="sm" c="var(--te-text)">{review.adminReply}</Text>
+          {isAdmin && (
+            <Group gap={4} mt={6}>
+              <Button size="xs" variant="subtle" color="teal" radius={0} onClick={() => { setReplyText(review.adminReply ?? ''); setReplyOpen(true); }}>
+                Изменить
+              </Button>
+              <Button size="xs" variant="subtle" color="red" radius={0} onClick={handleDeleteReply} loading={saving}>
+                Удалить
+              </Button>
+            </Group>
+          )}
+        </Box>
+      )}
+
+      {/* Reply form (admin only) */}
+      {replyOpen && isAdmin && (
+        <Box mt={10}>
+          <Textarea
+            placeholder="Ответ от магазина…"
+            value={replyText}
+            onChange={e => setReplyText(e.currentTarget.value)}
+            autosize minRows={2} radius={0}
+            styles={{ input: { background: 'var(--te-bg)', borderColor: 'var(--te-accent)', color: 'var(--te-text)' } }}
+          />
+          <Group gap={6} mt={6}>
+            <ActionIcon variant="filled" color="teal" size="sm" radius={0} onClick={handleSaveReply} loading={saving} title="Сохранить">
+              <IconCheck size={12} />
+            </ActionIcon>
+            <ActionIcon variant="subtle" color="gray" size="sm" radius={0} onClick={() => setReplyOpen(false)} title="Отмена">
+              <IconX size={12} />
+            </ActionIcon>
+          </Group>
+        </Box>
       )}
     </Box>
   );
@@ -98,7 +178,14 @@ export function ReviewsSection({ productId }: Props) {
     },
   });
 
+  const handleReplyUpdated = (reviewId: string, reply: string | null) => {
+    queryClient.setQueryData(['reviews', productId], (old: ReviewDto[] | undefined) =>
+      old?.map(r => r.id === reviewId ? { ...r, adminReply: reply } : r)
+    );
+  };
+
   const alreadyReviewed = user && reviews?.some((r) => r.userId === user.id);
+  const isAdmin = user?.role === 'ADMIN';
 
   return (
     <Box mt={56}>
@@ -109,7 +196,7 @@ export function ReviewsSection({ productId }: Props) {
             <Text component="span" fw={400} size="sm" c="dimmed" ml={8}>{reviews.length}</Text>
           )}
         </Text>
-        {user && !alreadyReviewed && !showForm && (
+        {user && !alreadyReviewed && !showForm && !isAdmin && (
           <Button
             variant="outline"
             color="teal"
@@ -198,8 +285,10 @@ export function ReviewsSection({ productId }: Props) {
             <ReviewCard
               key={review.id}
               review={review}
-              canDelete={user?.id === review.userId || user?.role === 'ADMIN'}
+              canDelete={user?.id === review.userId || isAdmin}
+              isAdmin={isAdmin}
               onDelete={() => deleteMutation.mutate(review.id)}
+              onReplyUpdated={handleReplyUpdated}
             />
           ))}
         </Stack>

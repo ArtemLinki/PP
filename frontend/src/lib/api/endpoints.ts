@@ -55,5 +55,7 @@ export const endpoints = {
     orders: "/admin/orders",
     orderStatus: (id: string) => `/admin/orders/${id}/status`,
     users: "/admin/users",
+    reviewReply: (id: string) => `/admin/reviews/${id}/reply`,
+    reviewDelete: (id: string) => `/admin/reviews/${id}`,
   },
 } as const;

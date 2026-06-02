@@ -9,6 +9,7 @@ import {
 import { IsString, IsOptional, IsNumber, IsEnum, IsBoolean, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
 import { AdminService } from './admin.service';
+import { ReviewsService } from '../reviews/reviews.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -282,7 +283,10 @@ export class UpdateBrandDto {
 @Roles(UserRole.ADMIN)
 @Controller('admin')
 export class AdminController {
-  constructor(private adminService: AdminService) {}
+  constructor(
+    private adminService: AdminService,
+    private reviewsService: ReviewsService,
+  ) {}
 
   @Get('dashboard')
   @ApiOperation({ summary: 'Admin dashboard stats' })
@@ -436,5 +440,19 @@ export class AdminController {
       page ? parseInt(page, 10) : 1,
       pageSize ? parseInt(pageSize, 10) : 20,
     );
+  }
+
+  // ─── Reviews (admin) ─────────────────────────────────────────────────────────
+
+  @Patch('reviews/:id/reply')
+  @ApiOperation({ summary: 'Set admin reply on a review' })
+  setReviewReply(@Param('id') id: string, @Body() body: { reply: string | null }) {
+    return this.reviewsService.setAdminReply(id, body.reply ?? null);
+  }
+
+  @Delete('reviews/:id')
+  @ApiOperation({ summary: 'Delete any review (admin)' })
+  deleteReview(@Param('id') id: string) {
+    return this.reviewsService.removeAsAdmin(id);
   }
 }

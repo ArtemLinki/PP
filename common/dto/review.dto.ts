@@ -7,6 +7,7 @@ export interface ReviewDto {
   authorName: string;
   rating: number;
   comment: string | null;
+  adminReply: string | null;
   createdAt: ISODateString;
 }
 

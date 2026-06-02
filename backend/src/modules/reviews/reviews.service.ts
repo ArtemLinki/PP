@@ -37,6 +37,23 @@ export class ReviewsService {
     await this.prisma.review.delete({ where: { id: reviewId } });
   }
 
+  async removeAsAdmin(reviewId: string) {
+    const review = await this.prisma.review.findUnique({ where: { id: reviewId } });
+    if (!review) throw new NotFoundException('Отзыв не найден');
+    await this.prisma.review.delete({ where: { id: reviewId } });
+  }
+
+  async setAdminReply(reviewId: string, reply: string | null) {
+    const review = await this.prisma.review.findUnique({ where: { id: reviewId } });
+    if (!review) throw new NotFoundException('Отзыв не найден');
+    const updated = await this.prisma.review.update({
+      where: { id: reviewId },
+      data: { adminReply: reply },
+      include: { user: { select: { id: true, name: true } } },
+    });
+    return this.toDto(updated);
+  }
+
   private toDto(review: any) {
     return {
       id: review.id,
@@ -45,6 +62,7 @@ export class ReviewsService {
       authorName: review.user?.name ?? 'Аноним',
       rating: review.rating,
       comment: review.comment ?? null,
+      adminReply: review.adminReply ?? null,
       createdAt: review.createdAt.toISOString(),
     };
   }

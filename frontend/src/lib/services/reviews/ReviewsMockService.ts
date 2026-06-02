@@ -21,6 +21,7 @@ export class ReviewsMockService implements IReviewsService {
       authorName: "Вы",
       rating: payload.rating,
       comment: payload.comment ?? null,
+      adminReply: null,
       createdAt: new Date().toISOString(),
     };
     this.reviews.unshift(review);

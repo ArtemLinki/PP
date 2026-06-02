@@ -135,7 +135,7 @@ function ProductModal({ opened, onClose, editing, categories, brands }: ProductM
       status: form.status,
       categoryId: form.categoryId || undefined,
       brandId: form.brandId || undefined,
-      images: form.images.length > 0 ? form.images : undefined,
+      images: form.images,
     };
     if (editing) {
       updateMut.mutate({ id: editing.id, dto });

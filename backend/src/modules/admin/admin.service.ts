@@ -217,7 +217,7 @@ export class AdminService {
         ...(dto.status !== undefined && { status: dto.status }),
         ...(dto.categoryId !== undefined && { categoryId: dto.categoryId }),
         ...(dto.brandId !== undefined && { brandId: dto.brandId }),
-        ...(dto.images !== undefined && { images: dto.images }),
+        ...('images' in dto && { images: dto.images }),
         ...(dto.specs !== undefined && { specs: dto.specs }),
         ...(dto.tags !== undefined && { tags: dto.tags }),
       },

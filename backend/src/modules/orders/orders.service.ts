@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 export interface DeliveryInfo {
@@ -39,6 +39,15 @@ export class OrdersService {
     const products = await this.prisma.product.findMany({
       where: { id: { in: productIds.map((p) => p.productId) } },
     });
+
+    // Проверка наличия на складе
+    for (const item of productIds) {
+      const product = products.find((p) => p.id === item.productId);
+      if (!product) throw new NotFoundException(`Товар ${item.productId} не найден`);
+      if (product.stock > 0 && item.quantity > product.stock) {
+        throw new BadRequestException(`Доступно только ${product.stock} шт. товара «${product.name}»`);
+      }
+    }
 
     const totalMinor = productIds.reduce((sum, item) => {
       const product = products.find((p) => p.id === item.productId);

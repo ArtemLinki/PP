@@ -228,6 +228,12 @@ export class AdminService {
     const product = await this.prisma.product.findUnique({ where: { id } });
     if (!product) throw new NotFoundException('Товар не найден');
 
+    // Обнуляем ссылку в позициях заказов (история сохраняется, productId → null)
+    await this.prisma.orderItem.updateMany({
+      where: { productId: id },
+      data: { productId: null },
+    });
+
     await this.prisma.product.delete({ where: { id } });
     return { success: true };
   }

@@ -5,8 +5,8 @@ export type OrderStatus = 'PENDING' | 'PAID' | 'PROCESSING' | 'SHIPPED' | 'DELIV
 
 export interface OrderItemDto {
   id: ID;
-  productId: ID;
-  product?: ProductDto;
+  productId: ID | null;
+  product?: ProductDto | null;
   quantity: number;
   unitPrice: PriceDto;
   lineTotal: PriceDto;

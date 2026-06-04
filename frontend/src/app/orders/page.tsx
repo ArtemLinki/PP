@@ -84,8 +84,8 @@ function OrderRow({ order }: { order: OrderDto }) {
             {order.items.map((item) => (
               <Table.Tr key={item.id}>
                 <Table.Td>
-                  <Text size="xs" c="var(--te-text)" ff="JetBrains Mono">
-                    {item.productId.slice(0, 8)}
+                  <Text size="xs" c={item.productId ? "var(--te-text)" : "dimmed"} ff="JetBrains Mono">
+                    {item.productId ? item.productId.slice(0, 8).toUpperCase() : "Товар удалён"}
                   </Text>
                 </Table.Td>
                 <Table.Td>

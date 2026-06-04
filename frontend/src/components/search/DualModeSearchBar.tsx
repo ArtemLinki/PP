@@ -9,22 +9,22 @@ interface Props {
   initialMode?: 'search' | 'ai';
   placeholder?: string;
   size?: 'sm' | 'md' | 'lg';
+  initialValue?: string;
 }
 
-export function DualModeSearchBar({ initialMode = 'search', placeholder, size = 'md' }: Props) {
+export function DualModeSearchBar({ initialMode = 'search', placeholder, size = 'md', initialValue = '' }: Props) {
   const [mode, setMode] = useState<'search' | 'ai'>(initialMode);
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState(initialValue);
   const router = useRouter();
 
   const submit = () => {
     const q = value.trim();
-    if (!q) return;
     if (mode === 'search') {
-      router.push(`/catalog?search=${encodeURIComponent(q)}`);
+      router.push(q ? `/catalog?search=${encodeURIComponent(q)}` : '/catalog');
     } else {
+      if (!q) return;
       router.push(`/ai?q=${encodeURIComponent(q)}`);
     }
-    setValue('');
   };
 
   const placeholderText = placeholder ?? (mode === 'search'

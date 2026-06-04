@@ -27,7 +27,7 @@ class UpdateOrderStatusDto {
   status: OrderStatus;
 }
 
-// ─── Product DTOs ─────────────────────────────────────────────────────────────
+// ─── Product DTOs ─
 
 export class CreateProductDto {
   @ApiProperty({ description: 'Product name' })

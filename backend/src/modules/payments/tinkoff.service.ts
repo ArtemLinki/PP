@@ -12,10 +12,7 @@ export class TinkoffService {
   private readonly backendUrl: string;
 
   constructor(private config: ConfigService) {
-    const isTest = config.get('TINKOFF_TEST_MODE') !== 'false';
-    this.baseUrl = isTest
-      ? 'https://rest-api-test.tinkoff.ru/v2'
-      : 'https://securepay.tinkoff.ru/v2';
+    this.baseUrl = 'https://securepay.tinkoff.ru/v2';
     this.terminalKey = config.get('TINKOFF_TERMINAL_KEY') ?? 'TinkoffBankTest';
     this.password = config.get('TINKOFF_PASSWORD') ?? 'TinkoffBankTest';
     this.frontendUrl = config.get('FRONTEND_URL') ?? 'http://localhost:3000';

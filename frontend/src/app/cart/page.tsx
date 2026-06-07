@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   Box,
@@ -16,10 +17,12 @@ import {
   ActionIcon,
   Skeleton,
 } from "@mantine/core";
-import { IconTrash, IconShoppingCartOff, IconArrowRight, IconTag } from "@tabler/icons-react";
-import { useCartStore } from "@/lib/store";
+import { notifications } from "@mantine/notifications";
+import { IconTrash, IconShoppingCartOff, IconCreditCard, IconTag } from "@tabler/icons-react";
+import { useCartStore, useAuthStore } from "@/lib/store";
+import { useServices } from "@/lib/services/ServicesProvider";
 import { formatPrice } from "@/lib/format";
-import type { CartItemDto } from "@/lib/dto";
+import type { CartItemDto, CartDto } from "@/lib/dto";
 
 function CartItem({ item, onUpdate, onRemove }: {
   item: CartItemDto;
@@ -99,11 +102,17 @@ function CartItem({ item, onUpdate, onRemove }: {
   );
 }
 
-import type { CartDto } from "@/lib/dto";
-import { CheckoutModal } from "@/components/checkout/CheckoutModal";
-import { useAuthStore } from "@/lib/store";
-
-function SummaryPanel({ cart, loading, onCheckout }: { cart: CartDto | null; loading: boolean; onCheckout: () => void }) {
+function SummaryPanel({
+  cart,
+  loading,
+  paying,
+  onPay,
+}: {
+  cart: CartDto | null;
+  loading: boolean;
+  paying: boolean;
+  onPay: () => void;
+}) {
   const [promo, setPromo] = useState("");
 
   const subtotal = cart?.subtotal;
@@ -178,12 +187,13 @@ function SummaryPanel({ cart, loading, onCheckout }: { cart: CartDto | null; loa
         color="teal"
         size="md"
         radius={0}
-        rightSection={<IconArrowRight size={16} />}
+        leftSection={<IconCreditCard size={16} />}
         style={{ fontWeight: 700 }}
         disabled={!cart || cart.items.length === 0}
-        onClick={onCheckout}
+        loading={paying}
+        onClick={onPay}
       >
-        Оформить заказ
+        {paying ? "Переход к оплате..." : "Оплатить"}
       </Button>
 
       <Group gap="xs" justify="center" mt="md">
@@ -206,21 +216,51 @@ function SummaryPanel({ cart, loading, onCheckout }: { cart: CartDto | null; loa
 }
 
 export default function CartPage() {
+  const router = useRouter();
+  const services = useServices();
   const { cart, loading, refresh, update, remove, clear } = useCartStore();
   const user = useAuthStore((s) => s.user);
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [paying, setPaying] = useState(false);
 
   useEffect(() => {
     void refresh();
   }, [refresh]);
 
-  const handleCheckout = useCallback(() => {
+  const handlePay = useCallback(async () => {
     if (!user) {
-      window.location.href = '/login';
+      router.push("/login");
       return;
     }
-    setCheckoutOpen(true);
-  }, [user]);
+    if (!cart || cart.items.length === 0) return;
+
+    setPaying(true);
+    try {
+      const order = await services.orders.create({
+        items: cart.items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+      });
+
+      await refresh();
+
+      if (order.paymentUrl) {
+        window.location.href = order.paymentUrl;
+      } else {
+        notifications.show({
+          title: "Заказ создан",
+          message: "Перейдите в раздел «Заказы» для отслеживания",
+          color: "teal",
+        });
+        router.push("/orders");
+      }
+    } catch (err: unknown) {
+      const message =
+        err && typeof err === "object" && "message" in err
+          ? String((err as { message: unknown }).message)
+          : "Не удалось создать заказ";
+      notifications.show({ title: "Ошибка", message, color: "red" });
+    } finally {
+      setPaying(false);
+    }
+  }, [user, cart, services, refresh, router]);
 
   const empty = !cart || cart.items.length === 0;
 
@@ -279,12 +319,15 @@ export default function CartPage() {
           </Grid.Col>
 
           <Grid.Col span={{ base: 12, md: 4 }}>
-            <SummaryPanel cart={cart} loading={loading} onCheckout={handleCheckout} />
+            <SummaryPanel
+              cart={cart}
+              loading={loading}
+              paying={paying}
+              onPay={() => void handlePay()}
+            />
           </Grid.Col>
         </Grid>
       )}
-
-      <CheckoutModal opened={checkoutOpen} onClose={() => setCheckoutOpen(false)} />
     </Box>
   );
 }

@@ -19,11 +19,13 @@ import { UserRole, ProductStatus, OrderStatus } from '@prisma/client';
 
 class UpdateProductStatusDto {
   @ApiProperty({ enum: ProductStatus, description: 'New product status' })
+  @IsEnum(ProductStatus)
   status: ProductStatus;
 }
 
 class UpdateOrderStatusDto {
   @ApiProperty({ enum: OrderStatus, description: 'New order status' })
+  @IsEnum(OrderStatus)
   status: OrderStatus;
 }
 

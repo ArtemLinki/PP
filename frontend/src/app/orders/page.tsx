@@ -10,6 +10,7 @@ import { notifications } from "@mantine/notifications";
 import { IconPackageOff, IconArrowLeft } from "@tabler/icons-react";
 import { useServices } from "@/lib/services/ServicesProvider";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { httpClient } from "@/lib/api/http-client";
 import { useAuthStore } from "@/lib/store";
 import { formatPrice } from "@/lib/format";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -126,12 +127,8 @@ function PaymentResultHandler() {
     handled.current = true;
 
     if (payment === "success" && orderId) {
-      fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/payments/verify/${orderId}`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${localStorage.getItem("token") ?? ""}` },
-      })
-        .then((r) => r.json())
-        .then((res: { status: string }) => {
+      httpClient.post<{ status: string }>(`/payments/verify/${orderId}`)
+        .then((res) => {
           void queryClient.invalidateQueries({ queryKey: ["orders"] });
           if (res.status === "PAID") {
             notifications.show({ title: "Оплата прошла!", message: "Заказ оплачен и принят в обработку", color: "teal" });

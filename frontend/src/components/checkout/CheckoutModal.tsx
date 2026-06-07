@@ -63,11 +63,15 @@ export function CheckoutModal({ opened, onClose }: Props) {
           deliveryAddress: address || undefined,
         },
       };
-      await services.orders.create(payload);
+      const order = await services.orders.create(payload);
       await refreshCart();
-      notifications.show({ title: 'Заказ оформлен!', message: 'Мы свяжемся с вами в ближайшее время', color: 'teal' });
       onClose();
-      router.push('/orders');
+      if (order.paymentUrl) {
+        window.location.href = order.paymentUrl;
+      } else {
+        notifications.show({ title: 'Заказ оформлен!', message: 'Мы свяжемся с вами в ближайшее время', color: 'teal' });
+        router.push('/orders');
+      }
     } catch (err: unknown) {
       const message = err && typeof err === 'object' && 'message' in err
         ? String((err as { message: unknown }).message)

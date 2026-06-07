@@ -16,6 +16,7 @@ import { FilesModule } from './modules/files/files.module';
 import { AiModule } from './modules/ai/ai.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 @Module({
@@ -33,6 +34,7 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
     AiModule,
     AdminModule,
     ReviewsModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [

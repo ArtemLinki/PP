@@ -26,6 +26,7 @@ export interface OrderDto {
   subtotal: PriceDto;
   total: PriceDto;
   delivery?: OrderDeliveryDto;
+  paymentUrl?: string;
   createdAt: ISODateString;
   updatedAt: ISODateString;
 }

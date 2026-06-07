@@ -126,18 +126,19 @@ model CartItem {
 }
 
 model Order {
-  id              String      @id @default(cuid())
-  userId          String
-  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  status          OrderStatus @default(PENDING)
-  totalMinor      Int
-  deliveryName    String?
-  deliveryPhone   String?
-  deliveryCity    String?
-  deliveryAddress String?
-  items           OrderItem[]
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id                String      @id @default(cuid())
+  userId            String
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status            OrderStatus @default(PENDING)
+  totalMinor        Int
+  tinkoffPaymentId  String?
+  deliveryName      String?
+  deliveryPhone     String?
+  deliveryCity      String?
+  deliveryAddress   String?
+  items             OrderItem[]
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
 
   @@map("orders")
 }

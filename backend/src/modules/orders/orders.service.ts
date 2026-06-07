@@ -1,5 +1,6 @@
 import { Injectable, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { TinkoffService } from '../payments/tinkoff.service';
 
 export interface DeliveryInfo {
   deliveryName?: string;
@@ -10,7 +11,10 @@ export interface DeliveryInfo {
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private tinkoff: TinkoffService,
+  ) {}
 
   async findAll(userId: string) {
     const orders = await this.prisma.order.findMany({
@@ -82,7 +86,21 @@ export class OrdersService {
       await this.prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
     }
 
-    return this.toDto(order);
+    // Create Tinkoff payment
+    const payment = await this.tinkoff.createPayment(
+      order.id,
+      totalMinor,
+      `Заказ #${order.id.slice(-8).toUpperCase()}`,
+    );
+
+    if (payment) {
+      await this.prisma.order.update({
+        where: { id: order.id },
+        data: { tinkoffPaymentId: payment.paymentId },
+      });
+    }
+
+    return { ...this.toDto(order), paymentUrl: payment?.paymentUrl };
   }
 
   async getLastDelivery(userId: string): Promise<DeliveryInfo | null> {

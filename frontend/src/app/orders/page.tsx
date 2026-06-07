@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Box, Text, Stack, Group, Badge, Accordion,
@@ -111,32 +111,24 @@ function OrderRow({ order }: { order: OrderDto }) {
   );
 }
 
-export default function OrdersPage() {
-  const router = useRouter();
+// Isolated component so useSearchParams can be wrapped in Suspense
+function PaymentResultHandler() {
   const searchParams = useSearchParams();
-  const user = useAuthStore((s) => s.user);
-  const hydrate = useAuthStore((s) => s.hydrate);
-  const services = useServices();
   const queryClient = useQueryClient();
-  const paymentHandled = useRef(false);
+  const user = useAuthStore((s) => s.user);
+  const handled = useRef(false);
 
-  useEffect(() => { void hydrate(); }, [hydrate]);
-
-  // Handle return from Tinkoff payment page
   useEffect(() => {
-    if (paymentHandled.current || !user) return;
+    if (handled.current || !user) return;
     const payment = searchParams.get("payment");
     const orderId = searchParams.get("orderId");
     if (!payment) return;
-    paymentHandled.current = true;
+    handled.current = true;
 
     if (payment === "success" && orderId) {
-      // Verify payment status via backend → Tinkoff GetState
       fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/payments/verify/${orderId}`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token") ?? ""}`,
-        },
+        headers: { Authorization: `Bearer ${localStorage.getItem("token") ?? ""}` },
       })
         .then((r) => r.json())
         .then((res: { status: string }) => {
@@ -154,7 +146,18 @@ export default function OrdersPage() {
       notifications.show({ title: "Оплата не прошла", message: "Попробуйте ещё раз или свяжитесь с поддержкой", color: "red" });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, searchParams]);
+  }, [user]);
+
+  return null;
+}
+
+export default function OrdersPage() {
+  const router = useRouter();
+  const user = useAuthStore((s) => s.user);
+  const hydrate = useAuthStore((s) => s.hydrate);
+  const services = useServices();
+
+  useEffect(() => { void hydrate(); }, [hydrate]);
 
   const { data, isLoading } = useQuery({
     queryKey: ["orders"],
@@ -175,6 +178,10 @@ export default function OrdersPage() {
 
   return (
     <Box className="te-container" py="lg">
+      <Suspense>
+        <PaymentResultHandler />
+      </Suspense>
+
       <Stack gap={4} mb="xl">
         <Eyebrow>ЗАКАЗЫ</Eyebrow>
         <Group justify="space-between" align="center">

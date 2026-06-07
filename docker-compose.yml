@@ -55,6 +55,11 @@ services:
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
       MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-http://localhost:9000}
+      TINKOFF_TERMINAL_KEY: ${TINKOFF_TERMINAL_KEY:-TinkoffBankTest}
+      TINKOFF_PASSWORD: ${TINKOFF_PASSWORD:-TinkoffBankTest}
+      TINKOFF_TEST_MODE: ${TINKOFF_TEST_MODE:-true}
+      BACKEND_URL: ${BACKEND_URL:-http://localhost:3001/api}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
     ports:
       - "3001:3001"
     volumes:

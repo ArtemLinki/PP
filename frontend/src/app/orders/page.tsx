@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import {
   Box, Text, Stack, Group, Badge, Accordion,
   Skeleton, Button, Table,
@@ -112,19 +112,25 @@ function OrderRow({ order }: { order: OrderDto }) {
   );
 }
 
-// Isolated component so useSearchParams can be wrapped in Suspense
-function PaymentResultHandler() {
-  const searchParams = useSearchParams();
-  const queryClient = useQueryClient();
-  const user = useAuthStore((s) => s.user);
-  const handled = useRef(false);
 
+export default function OrdersPage() {
+  const router = useRouter();
+  const user = useAuthStore((s) => s.user);
+  const hydrate = useAuthStore((s) => s.hydrate);
+  const services = useServices();
+  const queryClient = useQueryClient();
+  const paymentHandled = useRef(false);
+
+  useEffect(() => { void hydrate(); }, [hydrate]);
+
+  // Runs after user is hydrated — verify payment if coming from Tinkoff SuccessURL
   useEffect(() => {
-    if (handled.current || !user) return;
-    const payment = searchParams.get("payment");
-    const orderId = searchParams.get("orderId");
+    if (!user || paymentHandled.current) return;
+    const params = new URLSearchParams(window.location.search);
+    const payment = params.get("payment");
+    const orderId = params.get("orderId");
     if (!payment) return;
-    handled.current = true;
+    paymentHandled.current = true;
 
     if (payment === "success" && orderId) {
       httpClient.post<{ status: string }>(`/payments/verify/${orderId}`)
@@ -133,7 +139,7 @@ function PaymentResultHandler() {
           if (res.status === "PAID") {
             notifications.show({ title: "Оплата прошла!", message: "Заказ оплачен и принят в обработку", color: "teal" });
           } else {
-            notifications.show({ title: "Заказ создан", message: "Статус оплаты обновится автоматически", color: "blue" });
+            notifications.show({ title: "Заказ создан", message: "Статус обновится автоматически", color: "blue" });
           }
         })
         .catch(() => {
@@ -142,19 +148,7 @@ function PaymentResultHandler() {
     } else if (payment === "fail") {
       notifications.show({ title: "Оплата не прошла", message: "Попробуйте ещё раз или свяжитесь с поддержкой", color: "red" });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
-  return null;
-}
-
-export default function OrdersPage() {
-  const router = useRouter();
-  const user = useAuthStore((s) => s.user);
-  const hydrate = useAuthStore((s) => s.hydrate);
-  const services = useServices();
-
-  useEffect(() => { void hydrate(); }, [hydrate]);
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { data, isLoading } = useQuery({
     queryKey: ["orders"],
@@ -175,10 +169,6 @@ export default function OrdersPage() {
 
   return (
     <Box className="te-container" py="lg">
-      <Suspense>
-        <PaymentResultHandler />
-      </Suspense>
-
       <Stack gap={4} mb="xl">
         <Eyebrow>ЗАКАЗЫ</Eyebrow>
         <Group justify="space-between" align="center">

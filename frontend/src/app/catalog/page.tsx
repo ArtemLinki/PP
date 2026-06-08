@@ -23,7 +23,13 @@ function CatalogContent() {
   const [categoryId, setCategoryId] = useState(searchParams.get('categoryId') ?? '');
   const [brandIds, setBrandIds] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500000]);
+  // Сбрасываем страницу при изменении поискового запроса из URL
+  const [prevUrlSearch, setPrevUrlSearch] = useState(urlSearch);
   const [page, setPage] = useState(1);
+  if (urlSearch !== prevUrlSearch) {
+    setPrevUrlSearch(urlSearch);
+    setPage(1);
+  }
 
   const { data: products, isLoading } = useQuery({
     queryKey: ['products', { urlSearch, categoryId, brandIds, priceRange, page }],
@@ -153,7 +159,7 @@ function CatalogContent() {
         {/* Main content */}
         <Box style={{ flex: 1, minWidth: 0 }}>
           <Box mb="md">
-            <DualModeSearchBar />
+            <DualModeSearchBar key={urlSearch} initialValue={urlSearch} />
           </Box>
 
           <Group justify="space-between" mb="md">

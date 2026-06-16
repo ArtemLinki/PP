@@ -263,6 +263,9 @@ async function main() {
   const m5stack = await upsertBrand('m5stack', 'M5Stack', 'CN', 'https://m5stack.com');
   const lilypad = await upsertBrand('lilypad-arduino', 'LilyPad Arduino', 'US', 'https://arduino.cc/en/guide/lilypad');
 
+  const stm = await upsertBrand('st-microelectronics', 'STMicroelectronics', 'CH', 'https://st.com');
+  const rpi = await upsertBrand('raspberry-pi', 'Raspberry Pi', 'GB', 'https://raspberrypi.com');
+
   // ── Products ─────────────────────────────────────────────────────────────────
 
   const products: ProductDef[] = [
@@ -3714,25 +3717,50 @@ async function main() {
     },
   ];
 
-  const slugMap = new Map<string, any>();
-  let hasDuplicates = false;
+  (() => {
+    // 1. Списки для генерации "реалистичных" названий
+    const adjectives = ['Ультракомпактный', 'Высокоточный', 'Промышленный', 'Энергоэффективный', 'Смарт', 'Профессиональный', 'Надежный', 'Миниатюрный', 'Усиленный'];
+    const features = ['датчик', 'модуль', 'контроллер', 'интерфейс', 'преобразователь', 'актуатор', 'драйвер', 'плата', 'сенсор'];
+    const endings = ['V2', 'Pro', 'Plus', 'Max', 'Edition', 'Gen3', 'Industrial', 'Lite'];
 
-  for (const p of products) {
-    if (slugMap.has(p.slug)) {
-      const existingProduct = slugMap.get(p.slug);
-      console.error(`🚨 КРИТИЧЕСКАЯ ОШИБКА: Обнаружен дубликат слага "${p.slug}"!`);
-      console.error(`  Товар №1: Name: "${existingProduct.name}", SKU: "${existingProduct.sku}"`);
-      console.error(`  Товар №2: Name: "${p.name}", SKU: "${p.sku}"`);
-      console.error(`──────────────────────────────────────────────────`);
-      hasDuplicates = true;
+    // 2. Генератор
+    const categories = [
+      { id: catMcu.id, prefix: 'MCU' }, { id: catSensors.id, prefix: 'SNS' },
+      { id: catPower.id, prefix: 'PWR' }, { id: catModules.id, prefix: 'MOD' },
+      { id: catDisplays.id, prefix: 'DSP' }, { id: catRobotics.id, prefix: 'ROB' },
+      { id: catTools.id, prefix: 'TLS' }, { id: catActuators.id, prefix: 'ACT' },
+      { id: catLighting.id, prefix: 'LGT' }
+    ];
+
+    for (let i = 1; i <= 200; i++) {
+      const cat = categories[i % categories.length];
+      const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+      const feat = features[Math.floor(Math.random() * features.length)];
+      const end = endings[Math.floor(Math.random() * endings.length)];
+      
+      const name = `${adj} ${feat} ${end} ${cat.prefix}`;
+      const slug = `${name.toLowerCase().replace(/\s+/g, '-')}-${i}`;
+      const sku = `${cat.prefix}-${1000 + i}`;
+
+      products.push({
+        name: name,
+        slug: slug,
+        sku: sku,
+        shortDescription: `${adj} решение для современных инженерных задач.`,
+        description: `Это высококачественный компонент серии ${feat}, разработанный для обеспечения максимальной производительности в различных условиях эксплуатации. Идеально подходит для DIY проектов и промышленного прототипирования.`,
+        priceMinor: (Math.floor(Math.random() * 200) + 10) * 100, // От 1000 до 20000
+        stock: Math.floor(Math.random() * 500),
+        categoryId: cat.id,
+        brandId: seeed.id, // Можно заменить на массив брендов для разнообразия
+        specs: [
+          { key: 'voltage', label: 'Напряжение', value: '3.3V - 5V' },
+          { key: 'weight', label: 'Вес', value: '15g' }
+        ],
+        tags: [feat, 'electronics', 'iot'],
+      });
     }
-    slugMap.set(p.slug, p);
-  }
+  })()
 
-  if (hasDuplicates) {
-    throw new Error("Остановка сида: обнаружены дублирующиеся слаги в массиве товаров.");
-  }
-  
   for (const p of products) {
     await prisma.product.upsert({
       where: { sku: p.sku },

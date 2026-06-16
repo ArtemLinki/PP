@@ -1,0 +1,10 @@
+frontend/.env.local
+frontend/.env*.local
+backend/.env
+backend/.env*.local
+**/node_modules
+**/.next
+**/dist
+**/build
+**/.git
+**/*.log

@@ -1,0 +1,143 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { Card, Text, Badge, Group, Button, Stack, Box, ActionIcon } from "@mantine/core";
+import { IconShoppingCartPlus, IconHeart, IconHeartFilled } from "@tabler/icons-react";
+import type { ProductDto } from "@/lib/dto";
+import { formatPrice } from "@/lib/format";
+import { useCartStore, useAuthStore } from "@/lib/store";
+import { useWishlistStore } from "@/lib/store/useWishlistStore";
+import { notifications } from "@mantine/notifications";
+
+const stockColor: Record<ProductDto["stockStatus"], string> = {
+  in_stock: "teal",
+  low_stock: "orange",
+  preorder: "blue",
+  out_of_stock: "gray",
+};
+
+const stockLabel: Record<ProductDto["stockStatus"], string> = {
+  in_stock: "В наличии",
+  low_stock: "Мало",
+  preorder: "Предзаказ",
+  out_of_stock: "Нет",
+};
+
+export function ProductCard({ product }: { product: ProductDto }) {
+  const addToCart = useCartStore((s) => s.add);
+  const user = useAuthStore((s) => s.user);
+  const { toggle: toggleWishlist, has: inWishlist } = useWishlistStore();
+
+  const handleAddToCart = () => {
+    if (!user) {
+      notifications.show({ title: 'Требуется авторизация', message: 'Войдите в аккаунт, чтобы добавить товар в корзину', color: 'orange' });
+      return;
+    }
+    void addToCart({ productId: product.id, quantity: 1 });
+  };
+  const primaryImage = product.images?.find((i) => i.isPrimary) ?? product.images?.[0];
+  const isWishlisted = inWishlist(product.id);
+
+  return (
+    <Card
+      withBorder
+      padding="md"
+      style={{
+        background: "var(--te-surface)",
+        borderColor: "var(--te-line)",
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        position: "relative",
+      }}
+    >
+      {/* Wishlist button */}
+      <ActionIcon
+        size="sm"
+        variant="subtle"
+        color={isWishlisted ? "pink" : "gray"}
+        style={{ position: "absolute", top: 8, right: 8, zIndex: 2 }}
+        aria-label="Избранное"
+        onClick={(e) => {
+          e.preventDefault();
+          toggleWishlist(product.id);
+        }}
+      >
+        {isWishlisted ? <IconHeartFilled size={14} /> : <IconHeart size={14} />}
+      </ActionIcon>
+
+      <Link href={`/catalog/${product.slug}`} style={{ textDecoration: "none", color: "inherit" }}>
+        <Card.Section
+          style={{
+            height: 140,
+            background: "linear-gradient(135deg, rgba(0,212,181,0.05), rgba(255,140,66,0.04))",
+            borderBottom: "1px solid var(--te-line)",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          {primaryImage?.url ? (
+            <Image
+              src={primaryImage.url}
+              alt={product.title}
+              fill
+              style={{ objectFit: "contain", padding: 8 }}
+              sizes="(max-width: 768px) 50vw, 25vw"
+            />
+          ) : (
+            <Box
+              style={{
+                width: "100%",
+                height: "100%",
+                display: "grid",
+                placeItems: "center",
+                fontFamily: "JetBrains Mono",
+                fontSize: 11,
+                color: "var(--te-muted)",
+              }}
+            >
+              {product.sku}
+            </Box>
+          )}
+        </Card.Section>
+      </Link>
+
+      <Stack gap={6} mt="sm" style={{ flex: 1 }}>
+        <Group justify="space-between" align="flex-start" wrap="nowrap">
+          <Link href={`/catalog/${product.slug}`} style={{ textDecoration: "none", color: "inherit", flex: 1 }}>
+            <Text size="sm" fw={600} c="var(--te-text)" lineClamp={2}>
+              {product.title}
+            </Text>
+          </Link>
+          <Badge size="xs" color={stockColor[product.stockStatus]} variant="light" style={{ flexShrink: 0 }}>
+            {stockLabel[product.stockStatus]}
+          </Badge>
+        </Group>
+        {product.shortDescription && (
+          <Text size="xs" c="dimmed" lineClamp={2}>
+            {product.shortDescription}
+          </Text>
+        )}
+      </Stack>
+
+      <Group justify="space-between" align="center" mt="md">
+        <div>
+          <Text size="lg" fw={700} c="var(--te-text)" ff="JetBrains Mono">
+            {formatPrice(product.price)}
+          </Text>
+        </div>
+        <Button
+          size="xs"
+          color="teal"
+          variant="light"
+          leftSection={<IconShoppingCartPlus size={14} />}
+          disabled={product.stockStatus === "out_of_stock"}
+          onClick={handleAddToCart}
+        >
+          В корзину
+        </Button>
+      </Group>
+    </Card>
+  );
+}
